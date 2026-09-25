@@ -23,7 +23,6 @@ install(
         "${CMAKE_SOURCE_DIR}/config"
         "${CMAKE_SOURCE_DIR}/modules"
         "${CMAKE_SOURCE_DIR}/services"
-        "${CMAKE_SOURCE_DIR}/utils"
         "${CMAKE_SOURCE_DIR}/assets"
     DESTINATION "${MORPH_QSCONFDIR}"
 )

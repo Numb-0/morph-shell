@@ -13,8 +13,16 @@ Variants {
 
         required property var modelData
 
-        // Toggled by clicking the clock, as caelestia's BlobPopup does.
-        property bool clockOpen: false
+        // Which panel is open, if any. One at a time: they share a blob
+        // group, so two open at once would blend into each other.
+        property string openPanel: ""
+
+        readonly property bool clockOpen: openPanel === "clock"
+        readonly property bool mediaOpen: openPanel === "media"
+
+        function toggle(panel: string): void {
+            openPanel = openPanel === panel ? "" : panel;
+        }
 
         readonly property int barHeight: Appearance.bar.height
         readonly property int barMargin: Appearance.bar.margin
@@ -24,14 +32,14 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
         // flash the bar open and shut.
         property bool revealed: false
 
-        readonly property bool shown: revealed || clockOpen
+        readonly property bool shown: revealed || openPanel !== ""
 
         property real reveal: shown ? 1 : 0
 
@@ -87,6 +95,10 @@ Variants {
             Region {
                 item: clockPopup.maskItem
             }
+
+            Region {
+                item: mediaPopup.maskItem
+            }
         }
 
         // A thin strip at the screen edge, enlarged to the bar's whole
@@ -129,6 +141,15 @@ Variants {
             open: win.clockOpen
         }
 
+        MediaPopup {
+            id: mediaPopup
+
+            group: group
+            anchor: media
+            anchorBottom: surface.y + surface.height
+            open: win.mediaOpen
+        }
+
         BlobRect {
             id: surface
 
@@ -157,7 +178,20 @@ Variants {
 
             opacity: win.reveal
 
-            onClicked: win.clockOpen = !win.clockOpen
+            onClicked: win.toggle("clock")
+        }
+
+        Media {
+            id: media
+
+            anchors.right: clock.left
+            anchors.rightMargin: Appearance.spacing.large
+
+            y: surface.y + (surface.height - height) / 2
+
+            opacity: win.reveal
+
+            onClicked: win.toggle("media")
         }
     }
 }
