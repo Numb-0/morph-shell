@@ -27,6 +27,15 @@ Item {
     property int padding: Appearance.padding.large
     property real closedWidthScale: 0.6
 
+    // Every blob draws a smoothing radius past its own edges, which is
+    // where neighbouring shapes fuse. The anchor's shape is drawn after
+    // this one, so that bleed lands on top of the panel's first rows --
+    // it was shaving the top off the media art. Push the content clear of
+    // the neck, but only by however much the normal padding does not
+    // already cover, so the panel does not end up visibly top-heavy.
+    readonly property real neck: Math.max(0, group.smoothing - gap)
+    readonly property real topInset: Math.max(0, neck - padding)
+
     default property Item content
 
     readonly property bool hovered: hover.hovered
@@ -71,7 +80,7 @@ Item {
         readonly property real openY: root.anchorBottom + root.gap
         readonly property real closedWidth: root.anchor.width * root.closedWidthScale
         readonly property real openWidth: (root.content?.implicitWidth ?? 0) + root.padding * 2
-        readonly property real openHeight: (root.content?.implicitHeight ?? 0) + root.padding * 2
+        readonly property real openHeight: (root.content?.implicitHeight ?? 0) + root.padding * 2 + root.topInset
 
         x: root.anchor.x + (root.anchor.width - width) / 2
         y: closedY + (openY - closedY) * root.progressY
@@ -111,7 +120,11 @@ Item {
     // Reparents the injected content, clipped so it cannot spill out
     // while the shape is still growing.
     Item {
-        anchors.fill: rect
+        x: rect.x
+        y: rect.y + root.topInset
+        width: rect.width
+        height: Math.max(0, rect.height - root.topInset)
+
         clip: true
 
         opacity: root.contentOpacity

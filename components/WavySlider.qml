@@ -41,6 +41,20 @@ T.Slider {
         }
     }
 
+    // Jumps -- a seek landing, a new track resetting to zero -- glide
+    // instead of snapping. Short on purpose: the position is refreshed
+    // every frame while playing, so this is also chasing a target that
+    // moves constantly, and anything longer reads as the handle lagging
+    // behind the music. Off under the finger, where the handle has to
+    // track the drag exactly.
+    Behavior on value {
+        enabled: !root.pressed
+
+        Anim {
+            type: Anim.FastEffects
+        }
+    }
+
     NumberAnimation on waveProgress {
         running: root.animateWave
         from: 0

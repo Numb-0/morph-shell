@@ -12,6 +12,12 @@ Item {
 
     readonly property bool hovered: hover.hovered
 
+    // The title is given a fixed box rather than being sized to the text.
+    // The widget is the media panel's anchor, and the panel centres on it,
+    // so a widget that resized with the track would drag the open panel
+    // sideways on every song change.
+    readonly property int titleWidth: 180
+
     implicitWidth: row.implicitWidth + Appearance.padding.large * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
@@ -51,7 +57,7 @@ Item {
             text: Players.active?.trackTitle || qsTr("Nothing playing")
             color: Players.available ? Appearance.palette.text : Appearance.palette.subtext
             elide: Text.ElideRight
-            width: Math.min(implicitWidth, 180)
+            width: root.titleWidth
         }
     }
 }
