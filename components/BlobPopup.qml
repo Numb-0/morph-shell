@@ -32,7 +32,17 @@ Item {
     // half of it off the screen, so it is held inside this instead. It
     // is fused to the bar either way, so an anchor it is not centred
     // under still reads as the thing it grew out of.
-    property real edgeMargin: Appearance.bar.margin
+    //
+    // Held clear of the bar's own rounded corner rather than stopped at
+    // the same margin the bar keeps. Flush with the bar's edge, the
+    // corner's arc curves in exactly where the panel's outer wall goes
+    // down, and the union of the two is a pinched step -- the bar's
+    // rounding looks bent rather than met. The clearance is what the
+    // junction needs to resolve: the corner itself, plus the straight
+    // run the blend fillet wants beyond it. A blend radius alone is
+    // enough to unpinch it, but it leaves the curve cramped against the
+    // corner; this leaves a little bar between the two.
+    property real edgeMargin: Appearance.bar.margin + Appearance.rounding.large + group.smoothing
 
     // Every blob draws a smoothing radius past its own edges, which is
     // where neighbouring shapes fuse. The anchor's shape is drawn after
