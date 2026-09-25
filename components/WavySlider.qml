@@ -25,7 +25,11 @@ T.Slider {
     // the same wave and sit on it.
     property real waveProgress: 0
 
-    readonly property real handleX: visualPosition * (width - handleSize)
+    // Everything visual rides this rather than visualPosition itself, so
+    // the handle glides to wherever it is put instead of snapping there.
+    property real animatedPosition: visualPosition
+
+    readonly property real handleX: animatedPosition * (width - handleSize)
 
     function waveY(x: real): real {
         const theta = waveFrequency * 2 * Math.PI * x / Math.max(1, width) + waveProgress * 2 * Math.PI;
@@ -41,17 +45,22 @@ T.Slider {
         }
     }
 
-    // Jumps -- a seek landing, a new track resetting to zero -- glide
-    // instead of snapping. Short on purpose: the position is refreshed
-    // every frame while playing, so this is also chasing a target that
-    // moves constantly, and anything longer reads as the handle lagging
-    // behind the music. Off under the finger, where the handle has to
-    // track the drag exactly.
-    Behavior on value {
-        enabled: !root.pressed
+    // Every move glides: a drag, a click landing somewhere down the
+    // track, a seek, a new track resetting to zero. Short on purpose --
+    // the position is refreshed sixty times a second while playing, so
+    // this is also chasing a target that moves constantly, and anything
+    // longer reads as the handle trailing the music. Smoothing the
+    // visual position rather than the value keeps the seek committed on
+    // release exact, and keeps the glide under the finger too.
+    Behavior on animatedPosition {
+        // Only on screen. Hidden -- the panel shut -- nothing renders, so
+        // no animation advances; the value is taken as it comes instead,
+        // and the panel opens up to date rather than showing where the
+        // handle stood when it closed.
+        enabled: root.visible
 
         Anim {
-            type: Anim.FastEffects
+            type: Anim.DefaultEffects
         }
     }
 

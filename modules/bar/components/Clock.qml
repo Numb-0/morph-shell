@@ -29,6 +29,7 @@ Item {
         id: label
 
         anchors.centerIn: parent
+        font.pixelSize: Appearance.font.normal
 
         animate: true
         text: Time.format("hh:mm")
