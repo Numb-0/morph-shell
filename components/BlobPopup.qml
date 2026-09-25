@@ -27,6 +27,13 @@ Item {
     property int padding: Appearance.padding.large
     property real closedWidthScale: 0.6
 
+    // How close to the screen edge the panel may come. A panel centres
+    // on its anchor, which for a widget at the end of the bar would put
+    // half of it off the screen, so it is held inside this instead. It
+    // is fused to the bar either way, so an anchor it is not centred
+    // under still reads as the thing it grew out of.
+    property real edgeMargin: Appearance.bar.margin
+
     // Every blob draws a smoothing radius past its own edges, which is
     // where neighbouring shapes fuse. The anchor's shape is drawn after
     // this one, so that bleed lands on top of the panel's first rows --
@@ -82,7 +89,11 @@ Item {
         readonly property real openWidth: (root.content?.implicitWidth ?? 0) + root.padding * 2
         readonly property real openHeight: (root.content?.implicitHeight ?? 0) + root.padding * 2 + root.topInset
 
-        x: root.anchor.x + (root.anchor.width - width) / 2
+        // Centred on the anchor, then pulled back inside the margins.
+        // Only ever bites once the panel has grown wider than the room
+        // beside its anchor, so a panel that fits still opens straight
+        // down out of it.
+        x: Math.max(root.edgeMargin, Math.min(root.width - width - root.edgeMargin, root.anchor.x + (root.anchor.width - width) / 2))
         y: closedY + (openY - closedY) * root.progressY
 
         implicitWidth: closedWidth + (openWidth - closedWidth) * root.progressX

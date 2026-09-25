@@ -10,6 +10,12 @@ Singleton {
         readonly property color text: "#cdd6f4"
         readonly property color subtext: "#bac2de"
         readonly property color primary: "#89b4fa"
+
+        // States. Warning and error carry the battery as it drains;
+        // success calls out charging.
+        readonly property color success: "#a6e3a1"
+        readonly property color warning: "#f9e2af"
+        readonly property color error: "#f38ba8"
     }
 
     readonly property QtObject font: QtObject {
@@ -17,6 +23,20 @@ Singleton {
         readonly property int small: 13
         readonly property int normal: 15
         readonly property int large: 19
+
+        // Google's icon font, variable on FILL/GRAD/opsz/wght. Every
+        // glyph is drawn on the same square, so icons at one size line
+        // up with each other whatever they depict.
+        readonly property string material: "Material Symbols Rounded"
+
+        // Icon sizes, kept apart from the text sizes: a glyph reads
+        // smaller than type set at the same pixel size, so they do not
+        // share a scale.
+        readonly property QtObject icon: QtObject {
+            readonly property int small: 17
+            readonly property int normal: 20
+            readonly property int large: 28
+        }
     }
 
     // Material 3 Expressive motion. Spatial curves overshoot slightly and

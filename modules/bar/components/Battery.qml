@@ -1,0 +1,68 @@
+import QtQuick
+import qs.components
+import qs.config
+import qs.services
+
+// Bar widget: the battery glyph and its charge, opening the battery
+// panel on click exactly as the clock does.
+Item {
+    id: root
+
+    signal clicked
+
+    readonly property bool hovered: hover.hovered
+
+    // Shared with the panel, which tints the same way. A tenth left is
+    // an error, a fifth a warning, and charging is called out rather
+    // than left to read as ordinary.
+    readonly property color accent: Power.critical ? Appearance.palette.error : Power.low ? Appearance.palette.warning : Power.charging ? Appearance.palette.success : Appearance.palette.text
+
+    // The number is two digits for almost all of its life and three at
+    // the top. Giving it a fixed box and hanging it off the right keeps
+    // the bar still as it crosses, the same way the media widget's title
+    // is boxed rather than sized to the track.
+    readonly property int labelWidth: 36
+
+    implicitWidth: row.implicitWidth + Appearance.padding.large * 2
+    implicitHeight: row.implicitHeight + Appearance.padding.small * 2
+
+    HoverHandler {
+        id: hover
+
+        cursorShape: Qt.PointingHandCursor
+    }
+
+    TapHandler {
+        onTapped: root.clicked()
+    }
+
+    Row {
+        id: row
+
+        anchors.centerIn: parent
+        spacing: Appearance.spacing.extraSmall
+
+        MaterialSymbol {
+            anchors.verticalCenter: parent.verticalCenter
+
+            icon: Power.icon
+            size: Appearance.font.icon.small
+            color: root.accent
+
+            // Solid once the battery wants attention, outlined the rest
+            // of the time -- so it reads before the colour does, and for
+            // anyone the colour does not reach.
+            fill: Power.low || Power.charging ? 1 : 0
+        }
+
+        StyledText {
+            anchors.verticalCenter: parent.verticalCenter
+
+            width: root.labelWidth
+            horizontalAlignment: Text.AlignRight
+
+            text: Math.round(Power.percentage * 100) + "%"
+            color: root.accent
+        }
+    }
+}
