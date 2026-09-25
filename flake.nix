@@ -1,0 +1,86 @@
+{
+  description = "morph-shell — a Quickshell desktop shell";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
+
+  outputs = {
+    self,
+    nixpkgs,
+  }: let
+    systems = ["x86_64-linux" "aarch64-linux"];
+    forAllSystems = f:
+      nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+  in {
+    packages = forAllSystems (pkgs: rec {
+      morph-shell = pkgs.callPackage ./nix {};
+      default = morph-shell;
+    });
+
+    devShells = forAllSystems (pkgs: let
+      # Configure on first run, then build. Extra arguments are passed
+      # through to cmake --build (e.g. `morph-build --target morphblobs`).
+      morph-build = pkgs.writeShellScriptBin "morph-build" ''
+        set -euo pipefail
+
+        root="$(${pkgs.git}/bin/git rev-parse --show-toplevel 2>/dev/null || pwd)"
+        cd "$root"
+
+        if [ ! -f build/build.ninja ]; then
+          echo ">> configuring"
+          ${pkgs.cmake}/bin/cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        fi
+
+        ${pkgs.cmake}/bin/cmake --build build "$@"
+      '';
+
+      # Build, then launch the shell against the working tree with the
+      # freshly built plugin on the QML import path.
+      morph-run = pkgs.writeShellScriptBin "morph-run" ''
+        set -euo pipefail
+
+        root="$(${pkgs.git}/bin/git rev-parse --show-toplevel 2>/dev/null || pwd)"
+        cd "$root"
+
+        ${morph-build}/bin/morph-build
+
+        # Avoid stacking bars if one is already up.
+        ${pkgs.quickshell}/bin/qs kill -p "$root" 2>/dev/null || true
+
+        export QML2_IMPORT_PATH="$root/build/qml''${QML2_IMPORT_PATH:+:$QML2_IMPORT_PATH}"
+        export QML_IMPORT_PATH="$root/build/qml''${QML_IMPORT_PATH:+:$QML_IMPORT_PATH}"
+
+        exec ${pkgs.quickshell}/bin/qs -p "$root" "$@"
+      '';
+    in {
+      default = pkgs.mkShell {
+        packages = with pkgs; [
+          cmake
+          ninja
+          pkg-config
+          qt6.qtbase
+          qt6.qtdeclarative
+          qt6.qtshadertools
+          spirv-tools
+          quickshell
+          morph-build
+          morph-run
+        ];
+
+        shellHook = ''
+          echo "morph-shell dev shell"
+          echo "  morph-build   configure (first time) and build the plugin"
+          echo "  morph-run     build, then run the shell against this tree"
+        '';
+      };
+    });
+
+    homeManagerModules = {
+      morph-shell = import ./nix/hm-module.nix self;
+      default = self.homeManagerModules.morph-shell;
+    };
+
+    formatter = forAllSystems (pkgs: pkgs.alejandra);
+  };
+}

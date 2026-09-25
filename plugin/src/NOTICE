@@ -1,0 +1,7 @@
+The blob rendering in this directory is derived from the Blobs module of
+caelestia-dots/shell (https://github.com/caelestia-dots/shell), which is
+licensed under the GNU General Public License v3.0.
+
+The SDF evaluation, the per-shape scene-space rendering scheme with
+owner-based discard, and the velocity-driven deformation spring are
+adapted from that work. See ../LICENSE for the full licence text.
