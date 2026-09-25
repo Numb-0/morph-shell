@@ -44,6 +44,20 @@ Singleton {
 
     readonly property QtObject bar: QtObject {
         readonly property int height: 34
+
+        // Inset from the screen edges while floating.
+        readonly property int margin: 8
+
+        // Strip at the very top edge that reveals the bar on hover. Runs
+        // down to the bar's top edge so the pointer never falls through a
+        // dead gap on its way there.
+        readonly property int reveal: margin + 1
+
+        // Dwell before revealing, so a cursor sweeping past the screen
+        // edge does not flash the bar open, and a grace period before
+        // retracting so brushing just outside does not snap it shut.
+        readonly property int openDelay: 90
+        readonly property int closeDelay: 220
     }
 
     // Token scale, matching caelestia's: 4, 8, 12, 16, 20, 28, 32, 48.
