@@ -37,14 +37,17 @@ Item {
         anchors.centerIn: parent
         spacing: Appearance.spacing.small
 
-        PlayerIcon {
+        MaterialSymbol {
             anchors.verticalCenter: parent.verticalCenter
 
-            kind: Players.playing ? "pause" : "play"
+            icon: Players.playing ? "pause" : "play_arrow"
+            size: Appearance.font.icon.normal
             color: Appearance.palette.primary
 
-            implicitWidth: 13
-            implicitHeight: 13
+            // Solid, as the drawn transport icons were. An outlined
+            // triangle at this size reads as a hollow arrow rather than
+            // as a play button.
+            fill: 1
         }
 
         StyledText {

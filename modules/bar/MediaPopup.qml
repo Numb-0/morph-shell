@@ -8,11 +8,11 @@ import qs.services
 BlobPopup {
     id: root
 
-    // A tap target around one of the shape-drawn transport icons.
+    // A tap target around one transport glyph.
     component Button: Item {
         id: btn
 
-        required property string kind
+        required property string icon
 
         signal activated
 
@@ -37,11 +37,15 @@ BlobPopup {
             onTapped: btn.activated()
         }
 
-        PlayerIcon {
+        MaterialSymbol {
             anchors.centerIn: parent
 
-            kind: btn.kind
-            color: Appearance.palette.text
+            icon: btn.icon
+            size: Appearance.font.icon.normal
+
+            // Solid, as the drawn icons were -- transport controls read
+            // as buttons rather than as outlines.
+            fill: 1
         }
     }
 
@@ -150,21 +154,21 @@ BlobPopup {
             spacing: Appearance.spacing.large
 
             Button {
-                kind: "previous"
+                icon: "skip_previous"
                 visible: Players.canGoPrevious
 
                 onActivated: Players.active.previous()
             }
 
             Button {
-                kind: Players.playing ? "pause" : "play"
+                icon: Players.playing ? "pause" : "play_arrow"
                 visible: Players.canTogglePlaying
 
                 onActivated: Players.active.togglePlaying()
             }
 
             Button {
-                kind: "next"
+                icon: "skip_next"
                 visible: Players.canGoNext
 
                 onActivated: Players.active.next()

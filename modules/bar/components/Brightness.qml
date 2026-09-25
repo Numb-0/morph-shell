@@ -48,7 +48,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             icon: Backlight.icon
-            size: Appearance.font.icon.small
+            size: Appearance.font.icon.normal
 
             // There is no state here worth calling out the way mute or a
             // flat battery is, so FILL carries the level instead: the sun

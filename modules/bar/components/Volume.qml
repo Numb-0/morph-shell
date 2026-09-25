@@ -58,7 +58,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             icon: Audio.icon
-            size: Appearance.font.icon.small
+            size: Appearance.font.icon.normal
             color: root.accent
 
             // Muted is the state worth seeing at a glance, so it is the

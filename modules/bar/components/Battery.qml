@@ -46,7 +46,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             icon: Power.icon
-            size: Appearance.font.icon.small
+            size: Appearance.font.icon.normal
             color: root.accent
 
             // Solid once the battery wants attention, outlined the rest
