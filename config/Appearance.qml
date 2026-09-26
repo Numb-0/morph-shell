@@ -80,6 +80,48 @@ Singleton {
         readonly property int closeDelay: 220
     }
 
+    readonly property QtObject dock: QtObject {
+        readonly property int height: 58
+
+        // Inset from the screen edges while floating, as the bar is.
+        readonly property int margin: 8
+
+        // Strip at the very bottom edge that reveals the dock on hover,
+        // running up to the dock's own edge so the pointer never falls
+        // through a dead gap on its way there.
+        readonly property int reveal: margin + 1
+
+        readonly property int openDelay: 90
+        readonly property int closeDelay: 220
+
+        readonly property int iconSize: 38
+
+        // Which applications sit in the dock, by desktop entry id -- the
+        // .desktop file's name without the suffix. Exact ids are matched
+        // first and near misses are looked up heuristically, so "code"
+        // finds code-url-handler. An id nothing answers to is skipped
+        // rather than drawn as a hole.
+        //
+        // This is content rather than appearance, and belongs in a config
+        // of its own once there is more than one thing to put there.
+        readonly property var pinned: ["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]
+
+        // What the dock grows into. The width is the panel's; the height
+        // is everything above the pinned row, which stays put.
+        readonly property int launcherWidth: 520
+        readonly property int resultHeight: 48
+        readonly property int maxResults: 7
+
+        // Derived rather than picked, so the panel always ends on a whole
+        // row. A height chosen by eye leaves a row sliced through the
+        // middle at the bottom edge, which reads as the list being cut
+        // off rather than as more of it being below.
+        //
+        // Top padding, the search field, the gap under it, the rows and
+        // the gaps between them, and a breath before the pinned icons.
+        readonly property int launcherHeight: 16 + resultHeight + 8 + maxResults * resultHeight + (maxResults - 1) * 4 + 8
+    }
+
     // Token scale, matching caelestia's: 4, 8, 12, 16, 20, 28, 32, 48.
     readonly property QtObject rounding: QtObject {
         readonly property int extraSmall: 4

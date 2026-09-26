@@ -2,9 +2,15 @@ self: {
   config,
   lib,
   pkgs,
+  osConfig ? null,
   ...
 }: let
   cfg = config.programs.morph-shell;
+
+  # Only set when Home Manager runs as a NixOS module. System services
+  # are out of Home Manager's reach, so the best it can do is point out
+  # the ones the shell needs.
+  osEnabled = path: osConfig == null || lib.attrByPath path false osConfig;
 in {
   options.programs.morph-shell = {
     enable = lib.mkEnableOption "the morph-shell Quickshell desktop shell";
@@ -39,6 +45,12 @@ in {
 
   config = lib.mkIf cfg.enable {
     home.packages = [cfg.package];
+
+    warnings =
+      lib.optional (!osEnabled ["services" "upower" "enable"])
+      "programs.morph-shell: services.upower.enable is off in your NixOS config; the battery widget will be empty."
+      ++ lib.optional (!osEnabled ["services" "pipewire" "enable"])
+      "programs.morph-shell: services.pipewire.enable is off in your NixOS config; the volume widget will be empty.";
 
     systemd.user.services.morph-shell = lib.mkIf cfg.systemd.enable {
       Unit = {

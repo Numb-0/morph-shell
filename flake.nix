@@ -76,6 +76,41 @@
       };
     });
 
+    nixosModules = {
+      morph-shell = import ./nix/nixos-module.nix self;
+      default = self.nixosModules.morph-shell;
+    };
+
+    # `nix flake check`: build the package and evaluate the NixOS module
+    # with everything it switches on.
+    checks = forAllSystems (pkgs: {
+      package = self.packages.${pkgs.stdenv.hostPlatform.system}.morph-shell;
+
+      nixos-module = let
+        eval = nixpkgs.lib.nixosSystem {
+          inherit (pkgs.stdenv.hostPlatform) system;
+          modules = [
+            self.nixosModules.default
+            {
+              programs.morph-shell = {
+                enable = true;
+                systemd.enable = true;
+              };
+              boot.loader.grub.enable = false;
+              fileSystems."/".device = "nodev";
+              system.stateVersion = "25.11";
+            }
+          ];
+        };
+        cfg = eval.config;
+      in
+        assert cfg.services.upower.enable;
+        assert cfg.services.pipewire.enable;
+        assert builtins.elem pkgs.material-symbols cfg.fonts.packages;
+          pkgs.writeText "morph-shell-nixos-module-check"
+          cfg.systemd.user.services.morph-shell.serviceConfig.ExecStart;
+    });
+
     homeManagerModules = {
       morph-shell = import ./nix/hm-module.nix self;
       default = self.homeManagerModules.morph-shell;
