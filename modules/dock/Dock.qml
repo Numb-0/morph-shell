@@ -300,7 +300,16 @@ Scope {
                     // An id nothing answers to is dropped rather than
                     // drawn as a gap, so a pin for something that is not
                     // installed costs nothing.
-                    model: Appearance.dock.pinned.map(id => Apps.byId(id)).filter(entry => entry !== null)
+                    //
+                    // Reads Apps.all first so the binding depends on it:
+                    // byId is a plain call that notifies nothing, and at
+                    // startup the entries are not indexed yet, so without
+                    // this every pin resolves to null once and the row
+                    // stays empty for good.
+                    model: {
+                        Apps.all;
+                        return Appearance.dock.pinned.map(id => Apps.byId(id)).filter(entry => entry !== null);
+                    }
 
                     DockApp {
                         required property var modelData
