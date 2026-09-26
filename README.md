@@ -43,6 +43,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | UPower | Battery widget | System service: the NixOS module turns it on. |
 | PipeWire | Volume widget | System service: the NixOS module turns it on. |
 | MPRIS | Media widget | Nothing to install; players expose it themselves. |
+| NetworkManager | Network widget | System service: enable it yourself (`networking.networkmanager.enable`). The shell talks to it over D-Bus, so `nmcli` isn't needed. |
 
 `morph-shell` also checks for UPower and PipeWire at startup and prints a
 warning if either one is missing (set `MORPH_SHELL_NO_CHECK=1` to skip

@@ -11,6 +11,10 @@ Singleton {
         readonly property color subtext: "#bac2de"
         readonly property color primary: "#89b4fa"
 
+        // Borders and the off state of controls: the unchecked switch,
+        // an unfocused field.
+        readonly property color outline: "#6c7086"
+
         // States. Warning and error carry the battery as it drains;
         // success calls out charging.
         readonly property color success: "#a6e3a1"

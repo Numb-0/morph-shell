@@ -52,6 +52,13 @@
         "On NixOS set services.pipewire.enable = true."
     fi
 
+    if ! ${dbus}/bin/dbus-send --system --print-reply=literal \
+        --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
+        org.freedesktop.DBus.Peer.Ping >/dev/null 2>&1; then
+      warn "NetworkManager is not available; the network widget will be empty." \
+        "On NixOS set networking.networkmanager.enable = true."
+    fi
+
     exit 0
   '';
 in

@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Wayland
 import Morph.Blobs
 import qs.components
 import qs.config
@@ -23,6 +24,7 @@ Variants {
         readonly property bool volumeOpen: openPanel === "volume"
         readonly property bool batteryOpen: openPanel === "battery"
         readonly property bool brightnessOpen: openPanel === "brightness"
+        readonly property bool networkOpen: openPanel === "network"
 
         function toggle(panel: string): void {
             openPanel = openPanel === panel ? "" : panel;
@@ -36,7 +38,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -80,6 +82,14 @@ Variants {
         screen: modelData
         color: "transparent"
 
+        // The keyboard only while the network panel is asking for a
+        // password, and then outright, so the field takes typing the
+        // moment it appears. The rest of the time the bar never holds
+        // it. Guarded, as the dock's is, because the attached object
+        // exists only on a layer-shell compositor.
+        Component.onCompleted: if (this.WlrLayershell !== null)
+            this.WlrLayershell.keyboardFocus = Qt.binding(() => win.networkOpen && Net.passwordNetwork !== null ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None)
+
         // Floats over everything and reserves nothing, so windows lay out
         // as if the bar were not there.
         implicitHeight: 460
@@ -114,6 +124,10 @@ Variants {
 
             Region {
                 item: brightnessPopup.maskItem
+            }
+
+            Region {
+                item: networkPopup.maskItem
             }
         }
 
@@ -187,6 +201,15 @@ Variants {
             open: win.brightnessOpen && Backlight.available
         }
 
+        NetworkPopup {
+            id: networkPopup
+
+            group: group
+            anchor: network
+            anchorBottom: surface.y + surface.height
+            open: win.networkOpen
+        }
+
         BatteryPopup {
             id: batteryPopup
 
@@ -244,8 +267,8 @@ Variants {
         }
 
         // The status widgets sit at the far end of the bar, inside the
-        // surface's own margin: battery, volume, backlight, reading
-        // outward from the edge.
+        // surface's own margin: battery, volume, backlight, network,
+        // reading outward from the edge.
         Battery {
             id: battery
 
@@ -293,6 +316,20 @@ Variants {
             opacity: win.reveal
 
             onClicked: win.toggle("brightness")
+        }
+
+        Network {
+            id: network
+
+            // Hangs off whichever of its neighbours is drawn: the
+            // backlight is missing on a desktop.
+            anchors.right: brightness.visible ? brightness.left : volume.left
+
+            y: surface.y + (surface.height - height) / 2
+
+            opacity: win.reveal
+
+            onClicked: win.toggle("network")
         }
     }
 }
