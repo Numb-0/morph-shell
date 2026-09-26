@@ -17,7 +17,7 @@ Item {
     // the bar along; the panel has room for all of it.
     readonly property int maxLabelWidth: 140
 
-    implicitWidth: row.implicitWidth + Appearance.padding.large * 2
+    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {

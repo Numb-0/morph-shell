@@ -23,7 +23,7 @@ Item {
     // is boxed rather than sized to the track.
     readonly property int labelWidth: 36
 
-    implicitWidth: row.implicitWidth + Appearance.padding.large * 2
+    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -40,7 +40,7 @@ Item {
         id: row
 
         anchors.centerIn: parent
-        spacing: Appearance.spacing.extraSmall
+        spacing: 0//Appearance.spacing.extraSmall
 
         MaterialSymbol {
             anchors.verticalCenter: parent.verticalCenter

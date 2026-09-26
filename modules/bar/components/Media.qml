@@ -18,7 +18,7 @@ Item {
     // sideways on every song change.
     readonly property int titleWidth: 180
 
-    implicitWidth: row.implicitWidth + Appearance.padding.large * 2
+    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {

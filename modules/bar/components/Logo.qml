@@ -13,7 +13,7 @@ Item {
 
     property int size: Appearance.font.icon.normal + 2
 
-    implicitWidth: size + Appearance.padding.large * 2
+    implicitWidth: size + Appearance.bar.itemPadding * 2
     implicitHeight: size + Appearance.padding.small * 2
 
     Image {

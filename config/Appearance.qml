@@ -72,6 +72,11 @@ Singleton {
         // Inset from the screen edges while floating.
         readonly property int margin: 8
 
+        // Space either side of each widget's content. Neighbours touch,
+        // so this is also half the gap between them -- and the hover and
+        // click target reaches this far past the glyph.
+        readonly property int itemPadding: 8
+
         // Strip at the very top edge that reveals the bar on hover. Runs
         // down to the bar's top edge so the pointer never falls through a
         // dead gap on its way there.

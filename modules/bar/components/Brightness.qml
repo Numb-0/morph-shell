@@ -16,7 +16,7 @@ Item {
     // volume are, so crossing 100% does not shuffle the bar.
     readonly property int labelWidth: 36
 
-    implicitWidth: row.implicitWidth + Appearance.padding.large * 2
+    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {

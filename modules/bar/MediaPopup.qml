@@ -16,8 +16,8 @@ BlobPopup {
 
         signal activated
 
-        implicitWidth: 34
-        implicitHeight: 34
+        implicitWidth: 40
+        implicitHeight: 40
 
         opacity: hover.hovered ? 1 : 0.85
 

@@ -243,6 +243,8 @@ Variants {
 
         // Bar widgets last, on top of the surface.
         Logo {
+            id: logo
+
             anchors.left: parent.left
             anchors.leftMargin: win.barMargin + Appearance.padding.small
 
@@ -265,8 +267,8 @@ Variants {
         Media {
             id: media
 
-            anchors.right: clock.left
-            anchors.rightMargin: Appearance.spacing.large
+            anchors.left: logo.right
+            anchors.leftMargin: Appearance.spacing.normal
 
             y: surface.y + (surface.height - height) / 2
 
