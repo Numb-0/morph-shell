@@ -242,6 +242,15 @@ Variants {
         }
 
         // Bar widgets last, on top of the surface.
+        Logo {
+            anchors.left: parent.left
+            anchors.leftMargin: win.barMargin + Appearance.padding.small
+
+            y: surface.y + (surface.height - height) / 2
+
+            opacity: win.reveal
+        }
+
         Clock {
             id: clock
 
