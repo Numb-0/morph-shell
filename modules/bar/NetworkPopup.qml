@@ -101,7 +101,7 @@ BlobPopup {
             // list item does in M3; the rest only light up under the
             // pointer.
             radius: height / 2
-            color: item.active ? Qt.alpha(Appearance.palette.m3primary, 0.18) : itemHover.hovered ? Qt.alpha(Appearance.palette.m3onSurface, 0.08) : "transparent"
+            color: item.active ? Appearance.palette.m3secondaryContainer : itemHover.hovered ? Qt.alpha(Appearance.palette.m3onSurface, 0.08) : "transparent"
 
             Behavior on color {
                 CAnim {}
@@ -126,7 +126,7 @@ BlobPopup {
 
                 MaterialSymbol {
                     icon: Net.strengthIcon(item.modelData.signalStrength)
-                    color: item.active ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+                    color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
                     fill: 1
                 }
 
@@ -140,7 +140,7 @@ BlobPopup {
                         text: item.modelData.name
                         font.pixelSize: Appearance.font.normal
                         font.weight: item.active ? Font.Medium : Font.Normal
-                        color: item.active ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+                        color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
                         elide: Text.ElideRight
                     }
 
@@ -215,7 +215,7 @@ BlobPopup {
             implicitHeight: 44
 
             radius: height / 2
-            color: Appearance.palette.m3surface
+            color: Appearance.palette.m3surfaceContainerHighest
             border.width: 2
             border.color: password.activeFocus ? Appearance.palette.m3primary : Appearance.palette.m3outline
 
@@ -309,7 +309,7 @@ BlobPopup {
                 implicitHeight: 56
 
                 radius: Appearance.rounding.extraLarge
-                color: Net.wifiEnabled ? Qt.alpha(Appearance.palette.m3primary, 0.18) : Appearance.palette.m3surface
+                color: Net.wifiEnabled ? Appearance.palette.m3primaryContainer : Appearance.palette.m3surfaceContainerHigh
 
                 Behavior on color {
                     CAnim {}
@@ -324,7 +324,7 @@ BlobPopup {
                     MaterialSymbol {
                         icon: Net.wifiEnabled ? "wifi" : "wifi_off"
                         size: Appearance.font.icon.normal
-                        color: Net.wifiEnabled ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
+                        color: Net.wifiEnabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
                         fill: Net.wifiEnabled ? 1 : 0
                     }
 
@@ -336,6 +336,7 @@ BlobPopup {
                             text: qsTr("Wi-Fi")
                             font.pixelSize: Appearance.font.normal
                             font.weight: Font.Medium
+                            color: Net.wifiEnabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurface
                         }
 
                         StyledText {
@@ -343,7 +344,7 @@ BlobPopup {
 
                             animate: true
                             text: !Net.wifi ? qsTr("No adapter") : Net.wifiBlocked ? qsTr("Blocked by hardware switch") : !Net.wifiEnabled ? qsTr("Off") : Net.active?.name ?? qsTr("Not connected")
-                            color: Appearance.palette.m3onSurfaceVariant
+                            color: Net.wifiEnabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
                             elide: Text.ElideRight
                         }
                     }

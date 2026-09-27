@@ -77,7 +77,7 @@ BlobPopup {
                     Layout.preferredHeight: 64
 
                     radius: Appearance.rounding.medium
-                    color: Appearance.palette.m3surface
+                    color: Appearance.palette.m3surfaceContainerHighest
                     clip: true
 
                     Image {
@@ -211,7 +211,7 @@ BlobPopup {
                     Layout.preferredHeight: 64
 
                     radius: Appearance.rounding.medium
-                    color: Appearance.palette.m3surface
+                    color: Appearance.palette.m3surfaceContainerHighest
                     clip: true
 
                     // Stands in for art the player never sent, or that
@@ -311,7 +311,7 @@ BlobPopup {
                         implicitHeight: 36
 
                         radius: height / 2
-                        color: Appearance.palette.m3surface
+                        color: Appearance.palette.m3surfaceContainerHigh
                         opacity: chipHover.hovered ? 1 : 0.85
 
                         Behavior on opacity {

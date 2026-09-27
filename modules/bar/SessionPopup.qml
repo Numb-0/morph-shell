@@ -62,7 +62,7 @@ BlobPopup {
             implicitHeight: 64
 
             radius: btn.hovered || btn.armed ? height / 2 : Appearance.rounding.large
-            color: btn.armed ? Appearance.palette.m3error : Qt.alpha(btn.confirm ? Appearance.palette.m3error : Appearance.palette.m3primary, 0.14)
+            color: btn.armed ? Appearance.palette.m3error : btn.confirm ? Appearance.palette.m3errorContainer : Appearance.palette.m3primaryContainer
 
             Behavior on radius {
                 Anim {
@@ -80,7 +80,7 @@ BlobPopup {
                 anchors.fill: parent
 
                 radius: parent.radius
-                color: btn.armed ? Appearance.palette.m3onError : Appearance.palette.m3onSurface
+                color: btn.armed ? Appearance.palette.m3onError : btn.confirm ? Appearance.palette.m3onErrorContainer : Appearance.palette.m3onPrimaryContainer
                 opacity: btnTap.pressed ? 0.16 : btn.hovered ? 0.08 : 0
 
                 Behavior on opacity {
@@ -95,7 +95,7 @@ BlobPopup {
 
                 icon: btn.icon
                 size: Appearance.font.icon.large
-                color: btn.armed ? Appearance.palette.m3onError : btn.confirm ? Appearance.palette.m3error : Appearance.palette.m3primary
+                color: btn.armed ? Appearance.palette.m3onError : btn.confirm ? Appearance.palette.m3onErrorContainer : Appearance.palette.m3onPrimaryContainer
                 fill: btn.hovered || btn.armed ? 1 : 0
 
                 Behavior on fill {

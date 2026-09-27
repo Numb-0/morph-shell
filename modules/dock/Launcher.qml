@@ -126,7 +126,7 @@ Item {
         implicitHeight: Appearance.dock.resultHeight
 
         radius: height / 2
-        color: Appearance.palette.m3surface
+        color: Appearance.palette.m3surfaceContainerHighest
 
         // Closed until the open state says otherwise.
         opacity: 0
@@ -266,11 +266,7 @@ Item {
 
         highlight: Rectangle {
             radius: Appearance.rounding.large
-            color: Appearance.palette.m3surfaceContainer
-
-            // Lightened rather than tinted: the surface is already the
-            // panel's colour, so a flat fill would be invisible.
-            opacity: 0.6
+            color: Appearance.palette.m3surfaceContainerHigh
         }
 
         delegate: Item {

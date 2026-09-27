@@ -134,7 +134,7 @@ BlobPopup {
                 implicitHeight: calendar.implicitHeight + Appearance.padding.medium * 2
 
                 radius: Appearance.rounding.extraLarge
-                color: Appearance.palette.m3surface
+                color: Appearance.palette.m3surfaceContainerHigh
 
                 ColumnLayout {
                     id: calendar
@@ -275,7 +275,7 @@ BlobPopup {
 
                                 text: cell.model.day
                                 font.weight: cell.isToday ? Font.Bold : Font.Normal
-                                color: cell.isToday ? Appearance.palette.m3onPrimary : cell.inMonth ? Appearance.palette.m3onSurface : Qt.alpha(Appearance.palette.m3outline, 0.6)
+                                color: cell.isToday ? Appearance.palette.m3onPrimary : cell.inMonth ? Appearance.palette.m3onSurface : Qt.alpha(Appearance.palette.m3onSurface, 0.38)
                             }
                         }
                     }

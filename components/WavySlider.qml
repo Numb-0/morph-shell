@@ -22,7 +22,7 @@ T.Slider {
     property int handleSize: 11
 
     property color activeColor: Appearance.palette.m3primary
-    property color inactiveColor: Qt.alpha(Appearance.palette.m3onSurfaceVariant, 0.35)
+    property color inactiveColor: Appearance.palette.m3secondaryContainer
 
     // Owned here rather than inside the WavyLine so the handle can sample
     // the same wave and sit on it.

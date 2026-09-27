@@ -36,7 +36,7 @@ Item {
         anchors.fill: parent
 
         radius: height / 2
-        color: root.checked ? Appearance.palette.m3primary : Appearance.palette.m3surface
+        color: root.checked ? Appearance.palette.m3primary : Appearance.palette.m3surfaceContainerHighest
         border.width: root.checked ? 0 : 2
         border.color: Appearance.palette.m3outline
 
@@ -102,7 +102,7 @@ Item {
             icon: "check"
             size: Appearance.font.icon.small - 1
             weight: 600
-            color: Appearance.palette.m3primary
+            color: Appearance.palette.m3onPrimaryContainer
 
             opacity: root.checked ? 1 : 0
 
