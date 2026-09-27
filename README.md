@@ -3,6 +3,9 @@
 A [Quickshell](https://quickshell.org) desktop shell for Wayland, with a
 custom C++/QML plugin for the blob-morphing popups.
 
+The blob-morphing popups were inspired by
+[Caelestia Shell](https://github.com/caelestia-dots/shell).
+
 ## Installing with Nix
 
 The flake provides a package (`packages.<system>.morph-shell`) and a
