@@ -25,6 +25,7 @@ Variants {
         readonly property bool batteryOpen: openPanel === "battery"
         readonly property bool brightnessOpen: openPanel === "brightness"
         readonly property bool networkOpen: openPanel === "network"
+        readonly property bool sessionOpen: openPanel === "session"
 
         function toggle(panel: string): void {
             openPanel = openPanel === panel ? "" : panel;
@@ -38,7 +39,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || session.hovered || sessionPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -128,6 +129,10 @@ Variants {
 
             Region {
                 item: networkPopup.maskItem
+            }
+
+            Region {
+                item: sessionPopup.maskItem
             }
         }
 
@@ -222,6 +227,17 @@ Variants {
             open: win.batteryOpen && Power.available
         }
 
+        SessionPopup {
+            id: sessionPopup
+
+            group: group
+            anchor: session
+            anchorBottom: surface.y + surface.height
+            open: win.sessionOpen
+
+            onFinished: win.openPanel = ""
+        }
+
         BlobRect {
             id: surface
 
@@ -278,13 +294,26 @@ Variants {
         }
 
         // The status widgets sit at the far end of the bar, inside the
-        // surface's own margin: battery, volume, backlight, network,
-        // reading outward from the edge.
-        Battery {
-            id: battery
+        // surface's own margin: session, battery, volume, backlight,
+        // network, reading outward from the edge.
+        Session {
+            id: session
 
             anchors.right: parent.right
             anchors.rightMargin: win.barMargin + Appearance.padding.small
+
+            y: surface.y + (surface.height - height) / 2
+
+            active: win.sessionOpen
+            opacity: win.reveal
+
+            onClicked: win.toggle("session")
+        }
+
+        Battery {
+            id: battery
+
+            anchors.right: session.left
 
             y: surface.y + (surface.height - height) / 2
 
@@ -300,10 +329,9 @@ Variants {
         Volume {
             id: volume
 
-            // Falls back to the bar's end on a machine with no battery,
-            // rather than hanging off a widget that is not there.
-            anchors.right: battery.visible ? battery.left : parent.right
-            anchors.rightMargin: battery.visible ? 0 : win.barMargin + Appearance.padding.small
+            // Falls back to the session button on a machine with no
+            // battery, rather than hanging off a widget that is not there.
+            anchors.right: battery.visible ? battery.left : session.left
 
             y: surface.y + (surface.height - height) / 2
 
