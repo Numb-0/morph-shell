@@ -42,7 +42,7 @@ Item {
 
             icon: Players.playing ? "pause" : "play_arrow"
             size: Appearance.font.icon.normal
-            color: Appearance.palette.primary
+            color: Appearance.palette.m3primary
 
             // Solid, as the drawn transport icons were. An outlined
             // triangle at this size reads as a hollow arrow rather than
@@ -59,7 +59,7 @@ Item {
             // shifting the row about -- showing the last track, dimmed,
             // when there is one to pick back up from the panel.
             text: Players.active?.trackTitle || (Players.hasLast ? Players.last.title : qsTr("Nothing playing"))
-            color: Players.available ? Appearance.palette.text : Appearance.palette.subtext
+            color: Players.available ? Appearance.palette.m3onSurface : Appearance.palette.m3onSurfaceVariant
             elide: Text.ElideRight
             width: root.titleWidth
         }

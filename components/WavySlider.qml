@@ -21,8 +21,8 @@ T.Slider {
     property real amplitude: wavy ? 6 : 0
     property int handleSize: 11
 
-    property color activeColor: Appearance.palette.primary
-    property color inactiveColor: Qt.alpha(Appearance.palette.subtext, 0.35)
+    property color activeColor: Appearance.palette.m3primary
+    property color inactiveColor: Qt.alpha(Appearance.palette.m3onSurfaceVariant, 0.35)
 
     // Owned here rather than inside the WavyLine so the handle can sample
     // the same wave and sit on it.

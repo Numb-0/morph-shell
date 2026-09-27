@@ -35,6 +35,6 @@ Item {
 
         icon: "power_settings_new"
         size: Appearance.font.icon.normal
-        color: root.active || root.hovered ? Appearance.palette.error : Appearance.palette.text
+        color: root.active || root.hovered ? Appearance.palette.m3error : Appearance.palette.m3onSurface
     }
 }

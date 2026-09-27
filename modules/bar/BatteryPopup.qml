@@ -12,7 +12,7 @@ BlobPopup {
 
     // The same tinting the bar widget uses, so the glyph does not change
     // colour as the panel opens under it.
-    readonly property color accent: Power.critical ? Appearance.palette.error : Power.low ? Appearance.palette.warning : Power.charging ? Appearance.palette.success : Appearance.palette.text
+    readonly property color accent: Power.critical ? Appearance.palette.m3error : Power.low ? Appearance.palette.m3warning : Power.charging ? Appearance.palette.m3success : Appearance.palette.m3onSurface
 
     ColumnLayout {
         anchors.centerIn: parent
@@ -56,7 +56,7 @@ BlobPopup {
 
             animate: true
             text: Power.charging ? qsTr("%1 until full").arg(Power.formatTime(Power.timeRemaining)) : qsTr("%1 remaining").arg(Power.formatTime(Power.timeRemaining))
-            color: Appearance.palette.subtext
+            color: Appearance.palette.m3onSurfaceVariant
         }
 
         StyledText {
@@ -65,7 +65,7 @@ BlobPopup {
             visible: Power.healthSupported
 
             text: qsTr("Health %1%").arg(Math.round(Power.health * 100))
-            color: Appearance.palette.subtext
+            color: Appearance.palette.m3onSurfaceVariant
         }
     }
 }

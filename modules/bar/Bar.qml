@@ -161,7 +161,7 @@ Variants {
         BlobGroup {
             id: group
 
-            color: Appearance.palette.surface
+            color: Appearance.palette.m3surfaceContainer
             smoothing: Appearance.border.smoothing
         }
 

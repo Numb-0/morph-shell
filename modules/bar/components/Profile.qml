@@ -36,7 +36,7 @@ Item {
 
         // Performance held back by the daemon -- too hot, or on a lap --
         // reads as a warning rather than as the bolt it asked for.
-        color: Profiles.degraded ? Appearance.palette.warning : Appearance.palette.primary
+        color: Profiles.degraded ? Appearance.palette.m3warning : Appearance.palette.m3primary
         fill: root.hovered ? 1 : 0
 
         Behavior on fill {

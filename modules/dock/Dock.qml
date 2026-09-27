@@ -168,7 +168,7 @@ Scope {
             BlobGroup {
                 id: group
 
-                color: Appearance.palette.surface
+                color: Appearance.palette.m3surfaceContainer
                 smoothing: Appearance.border.smoothing
             }
 
@@ -275,7 +275,7 @@ Scope {
 
                         icon: "apps"
                         size: Appearance.font.icon.large
-                        color: win.launcherOpen || buttonHover.hovered ? Appearance.palette.primary : Appearance.palette.text
+                        color: win.launcherOpen || buttonHover.hovered ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
 
                         // Fills while the launcher is open, so the button
                         // shows the state it put the dock in.
@@ -290,7 +290,7 @@ Scope {
                     implicitWidth: 1
                     implicitHeight: Appearance.dock.iconSize * 0.6
 
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
                     opacity: 0.25
                 }
 

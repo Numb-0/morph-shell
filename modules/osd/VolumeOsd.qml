@@ -103,7 +103,7 @@ Variants {
             implicitHeight: row.implicitHeight + Appearance.padding.medium * 2
 
             radius: height / 2
-            color: Appearance.palette.surface
+            color: Appearance.palette.m3surfaceContainer
 
             RowLayout {
                 id: row
@@ -116,7 +116,7 @@ Variants {
 
                     icon: Audio.icon
                     size: Appearance.font.icon.large
-                    color: Audio.muted ? Appearance.palette.error : Appearance.palette.primary
+                    color: Audio.muted ? Appearance.palette.m3error : Appearance.palette.m3primary
                     fill: Audio.muted ? 1 : 0
                 }
 
@@ -132,7 +132,7 @@ Variants {
                     // The window unmapping does not hide its items, so
                     // the wave is stopped by hand while the OSD is down.
                     animateWave: wavy && win.visible
-                    activeColor: Audio.muted ? Appearance.palette.subtext : Appearance.palette.primary
+                    activeColor: Audio.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3primary
                 }
 
                 StyledText {
@@ -142,7 +142,7 @@ Variants {
                     horizontalAlignment: Text.AlignRight
                     text: Math.round(Audio.volume * 100) + "%"
                     font.pixelSize: Appearance.font.normal
-                    color: Audio.muted ? Appearance.palette.subtext : Appearance.palette.text
+                    color: Audio.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onSurface
                 }
             }
         }

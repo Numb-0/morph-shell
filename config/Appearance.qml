@@ -2,24 +2,189 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 
 Singleton {
+    id: root
+
+    // Where the colours come from. A theme switcher swaps this file (or
+    // what it links to) and the shell follows; with no file the defaults
+    // below, Catppuccin Mocha, stand.
+    readonly property string colorsPath: `${Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state"}/morph-shell/colors.json`
+
+    // Material 3 colour roles, named as material-color-utilities names
+    // them behind an m3 prefix: QML reads a property called onSurface as
+    // a handler for a surface signal, so the bare names cannot be
+    // declared. The fallbacks are Catppuccin Mocha.
+    //
+    // Each role fades to its new value rather than cutting, so a theme
+    // change washes over the whole shell at once and no widget needs a
+    // colour animation of its own for it.
     readonly property QtObject palette: QtObject {
-        readonly property color background: "#1e1e2e"
-        readonly property color surface: "#313244"
-        readonly property color text: "#cdd6f4"
-        readonly property color subtext: "#bac2de"
-        readonly property color primary: "#89b4fa"
+        default property list<QtObject> behaviors
+
+        // The base the panels are cut from, and the containers on it.
+        // Panels sit on surfaceContainer; wells and cards inset into a
+        // panel drop back to surface.
+        property color m3surface: root.loaded.surface ?? "#1e1e2e"
+        property color m3surfaceContainer: root.loaded.surfaceContainer ?? "#313244"
+
+        // Content on any surface: body text, then the quieter secondary
+        // text and inactive glyphs.
+        property color m3onSurface: root.loaded.onSurface ?? "#cdd6f4"
+        property color m3onSurfaceVariant: root.loaded.onSurfaceVariant ?? "#bac2de"
+
+        property color m3primary: root.loaded.primary ?? "#89b4fa"
+        property color m3onPrimary: root.loaded.onPrimary ?? "#1e1e2e"
 
         // Borders and the off state of controls: the unchecked switch,
         // an unfocused field.
-        readonly property color outline: "#6c7086"
+        property color m3outline: root.loaded.outline ?? "#6c7086"
 
         // States. Warning and error carry the battery as it drains;
-        // success calls out charging.
-        readonly property color success: "#a6e3a1"
-        readonly property color warning: "#f9e2af"
-        readonly property color error: "#f38ba8"
+        // success calls out charging. Material has no success or warning
+        // role, so a theme supplies them as custom colours, ideally
+        // harmonised towards primary.
+        property color m3error: root.loaded.error ?? "#f38ba8"
+        property color m3onError: root.loaded.onError ?? "#1e1e2e"
+        property color m3success: root.loaded.success ?? "#a6e3a1"
+        property color m3warning: root.loaded.warning ?? "#f9e2af"
+
+        Behavior on m3surface {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3surfaceContainer {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3onSurface {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3onSurfaceVariant {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3primary {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3onPrimary {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3outline {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3error {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3onError {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3success {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+
+        Behavior on m3warning {
+            ColorAnimation {
+                duration: root.anim.durations.slowEffects
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: root.anim.slowEffects
+            }
+        }
+    }
+
+    // The roles the file sets, by their M3 names. Keys may be camelCase
+    // or snake_case (matugen writes on_surface), and anything the file
+    // leaves out falls back to the default above.
+    //
+    //   { "primary": "#a8c8ff", "onPrimary": "#07305f", "surface": "#111318", ... }
+    property var loaded: ({})
+
+    function load(text: string): void {
+        try {
+            const roles = {};
+            const parsed = JSON.parse(text);
+            for (const key in parsed)
+                roles[key.replace(/_(\w)/g, (_, c) => c.toUpperCase())] = parsed[key];
+            loaded = roles;
+        } catch (e) {
+            // Mid-write or malformed: keep the colours already up rather
+            // than flashing back to the defaults.
+            console.warn(`palette: ${colorsPath}: ${e}`);
+        }
+    }
+
+    FileView {
+        id: colorsFile
+
+        path: root.colorsPath
+
+        // Picks up edits in place. A switcher that repoints a symlink
+        // somewhere up the path goes unseen by the watch, so it should
+        // also call the reload below.
+        watchChanges: true
+        onFileChanged: reload()
+
+        onLoaded: root.load(text())
+
+        // No file is a normal state -- the defaults apply -- not an error.
+        printErrors: false
+        onLoadFailed: root.loaded = {}
+    }
+
+    //   qs -p ~/morph-shell ipc call palette reload
+    IpcHandler {
+        target: "palette"
+
+        function reload(): void {
+            colorsFile.reload();
+        }
     }
 
     readonly property QtObject font: QtObject {

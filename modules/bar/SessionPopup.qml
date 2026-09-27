@@ -62,7 +62,7 @@ BlobPopup {
             implicitHeight: 64
 
             radius: btn.hovered || btn.armed ? height / 2 : Appearance.rounding.large
-            color: btn.armed ? Appearance.palette.error : Qt.alpha(btn.confirm ? Appearance.palette.error : Appearance.palette.primary, 0.14)
+            color: btn.armed ? Appearance.palette.m3error : Qt.alpha(btn.confirm ? Appearance.palette.m3error : Appearance.palette.m3primary, 0.14)
 
             Behavior on radius {
                 Anim {
@@ -80,7 +80,7 @@ BlobPopup {
                 anchors.fill: parent
 
                 radius: parent.radius
-                color: btn.armed ? Appearance.palette.background : Appearance.palette.text
+                color: btn.armed ? Appearance.palette.m3onError : Appearance.palette.m3onSurface
                 opacity: btnTap.pressed ? 0.16 : btn.hovered ? 0.08 : 0
 
                 Behavior on opacity {
@@ -95,7 +95,7 @@ BlobPopup {
 
                 icon: btn.icon
                 size: Appearance.font.icon.large
-                color: btn.armed ? Appearance.palette.background : btn.confirm ? Appearance.palette.error : Appearance.palette.primary
+                color: btn.armed ? Appearance.palette.m3onError : btn.confirm ? Appearance.palette.m3error : Appearance.palette.m3primary
                 fill: btn.hovered || btn.armed ? 1 : 0
 
                 Behavior on fill {
@@ -124,7 +124,7 @@ BlobPopup {
             animate: true
             text: btn.armed ? qsTr("Confirm") : btn.label
             font.pixelSize: Appearance.font.small
-            color: btn.armed ? Appearance.palette.error : Appearance.palette.subtext
+            color: btn.armed ? Appearance.palette.m3error : Appearance.palette.m3onSurfaceVariant
         }
     }
 

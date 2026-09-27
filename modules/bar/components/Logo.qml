@@ -35,7 +35,7 @@ Item {
     Rectangle {
         anchors.fill: glyph
 
-        color: Appearance.palette.primary
+        color: Appearance.palette.m3primary
 
         layer.enabled: true
         layer.effect: MultiEffect {

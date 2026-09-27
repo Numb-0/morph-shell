@@ -19,7 +19,7 @@ Text {
     property int size: Appearance.font.icon.normal
 
     text: icon
-    color: Appearance.palette.text
+    color: Appearance.palette.m3onSurface
 
     font.family: Appearance.font.material
     font.pixelSize: size

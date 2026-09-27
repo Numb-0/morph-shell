@@ -77,7 +77,7 @@ BlobPopup {
                     Layout.preferredHeight: 64
 
                     radius: Appearance.rounding.medium
-                    color: Appearance.palette.background
+                    color: Appearance.palette.m3surface
                     clip: true
 
                     Image {
@@ -108,7 +108,7 @@ BlobPopup {
 
                         animate: true
                         text: Players.active?.trackArtist ?? ""
-                        color: Appearance.palette.subtext
+                        color: Appearance.palette.m3onSurfaceVariant
                         elide: Text.ElideRight
                         visible: text.length > 0
                     }
@@ -151,7 +151,7 @@ BlobPopup {
 
                 StyledText {
                     text: Players.formatTime(Players.position)
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
                 }
 
                 Item {
@@ -160,7 +160,7 @@ BlobPopup {
 
                 StyledText {
                     text: Players.formatTime(Players.length)
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
                 }
             }
 
@@ -211,7 +211,7 @@ BlobPopup {
                     Layout.preferredHeight: 64
 
                     radius: Appearance.rounding.medium
-                    color: Appearance.palette.background
+                    color: Appearance.palette.m3surface
                     clip: true
 
                     // Stands in for art the player never sent, or that
@@ -223,7 +223,7 @@ BlobPopup {
 
                         icon: "music_note"
                         size: Appearance.font.icon.large
-                        color: Appearance.palette.subtext
+                        color: Appearance.palette.m3onSurfaceVariant
                     }
 
                     Image {
@@ -249,7 +249,7 @@ BlobPopup {
 
                     StyledText {
                         text: qsTr("Last played")
-                        color: Appearance.palette.subtext
+                        color: Appearance.palette.m3onSurfaceVariant
                     }
 
                     StyledText {
@@ -264,7 +264,7 @@ BlobPopup {
                         Layout.fillWidth: true
 
                         text: [Players.last.artist, Players.last.identity].filter(t => t.length > 0).join(" \u00b7 ")
-                        color: Appearance.palette.subtext
+                        color: Appearance.palette.m3onSurfaceVariant
                         elide: Text.ElideRight
                         visible: text.length > 0
                     }
@@ -285,7 +285,7 @@ BlobPopup {
 
                 text: qsTr("Nothing playing")
                 font.pixelSize: Appearance.font.normal
-                color: Appearance.palette.subtext
+                color: Appearance.palette.m3onSurfaceVariant
             }
 
             Flow {
@@ -311,7 +311,7 @@ BlobPopup {
                         implicitHeight: 36
 
                         radius: height / 2
-                        color: Appearance.palette.background
+                        color: Appearance.palette.m3surface
                         opacity: chipHover.hovered ? 1 : 0.85
 
                         Behavior on opacity {

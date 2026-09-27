@@ -39,7 +39,7 @@ BlobPopup {
         id: btn
 
         required property string icon
-        property color color: Appearance.palette.text
+        property color color: Appearance.palette.m3onSurface
 
         signal activated
 
@@ -101,7 +101,7 @@ BlobPopup {
             // list item does in M3; the rest only light up under the
             // pointer.
             radius: height / 2
-            color: item.active ? Qt.alpha(Appearance.palette.primary, 0.18) : itemHover.hovered ? Qt.alpha(Appearance.palette.text, 0.08) : "transparent"
+            color: item.active ? Qt.alpha(Appearance.palette.m3primary, 0.18) : itemHover.hovered ? Qt.alpha(Appearance.palette.m3onSurface, 0.08) : "transparent"
 
             Behavior on color {
                 CAnim {}
@@ -126,7 +126,7 @@ BlobPopup {
 
                 MaterialSymbol {
                     icon: Net.strengthIcon(item.modelData.signalStrength)
-                    color: item.active ? Appearance.palette.primary : Appearance.palette.text
+                    color: item.active ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
                     fill: 1
                 }
 
@@ -140,7 +140,7 @@ BlobPopup {
                         text: item.modelData.name
                         font.pixelSize: Appearance.font.normal
                         font.weight: item.active ? Font.Medium : Font.Normal
-                        color: item.active ? Appearance.palette.primary : Appearance.palette.text
+                        color: item.active ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
                         elide: Text.ElideRight
                     }
 
@@ -154,7 +154,7 @@ BlobPopup {
 
                         animate: true
                         text: item.connecting ? qsTr("Connecting…") : item.active ? qsTr("Connected") : item.modelData.known ? qsTr("Saved") : ""
-                        color: Appearance.palette.subtext
+                        color: Appearance.palette.m3onSurfaceVariant
                     }
                 }
 
@@ -163,7 +163,7 @@ BlobPopup {
 
                     icon: "lock"
                     size: Appearance.font.icon.small
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
                 }
 
                 // Leave, for the joined one; a spinner while joining;
@@ -178,7 +178,7 @@ BlobPopup {
                         visible: item.active
 
                         icon: "link_off"
-                        color: Appearance.palette.primary
+                        color: Appearance.palette.m3primary
 
                         onActivated: Net.disconnectWifi()
                     }
@@ -190,7 +190,7 @@ BlobPopup {
 
                         icon: "progress_activity"
                         size: Appearance.font.icon.small
-                        color: Appearance.palette.primary
+                        color: Appearance.palette.m3primary
 
                         RotationAnimation on rotation {
                             running: item.connecting
@@ -215,9 +215,9 @@ BlobPopup {
             implicitHeight: 44
 
             radius: height / 2
-            color: Appearance.palette.background
+            color: Appearance.palette.m3surface
             border.width: 2
-            border.color: password.activeFocus ? Appearance.palette.primary : Appearance.palette.outline
+            border.color: password.activeFocus ? Appearance.palette.m3primary : Appearance.palette.m3outline
 
             Behavior on border.color {
                 CAnim {}
@@ -243,7 +243,7 @@ BlobPopup {
 
                     Layout.fillWidth: true
 
-                    color: Appearance.palette.text
+                    color: Appearance.palette.m3onSurface
                     font.family: Appearance.font.family
                     font.pixelSize: Appearance.font.normal
 
@@ -251,8 +251,8 @@ BlobPopup {
                     echoMode: TextInput.Password
                     passwordCharacter: "•"
                     selectByMouse: true
-                    selectionColor: Appearance.palette.primary
-                    selectedTextColor: Appearance.palette.background
+                    selectionColor: Appearance.palette.m3primary
+                    selectedTextColor: Appearance.palette.m3onPrimary
                     clip: true
 
                     Keys.onReturnPressed: Net.connectWithPassword(item.modelData, text)
@@ -266,20 +266,20 @@ BlobPopup {
 
                         text: qsTr("Password")
                         font.pixelSize: Appearance.font.normal
-                        color: Appearance.palette.subtext
+                        color: Appearance.palette.m3onSurfaceVariant
                     }
                 }
 
                 IconButton {
                     icon: password.echoMode === TextInput.Password ? "visibility" : "visibility_off"
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
 
                     onActivated: password.echoMode = password.echoMode === TextInput.Password ? TextInput.Normal : TextInput.Password
                 }
 
                 IconButton {
                     icon: "arrow_forward"
-                    color: Appearance.palette.primary
+                    color: Appearance.palette.m3primary
 
                     onActivated: Net.connectWithPassword(item.modelData, password.text)
                 }
@@ -309,7 +309,7 @@ BlobPopup {
                 implicitHeight: 56
 
                 radius: Appearance.rounding.extraLarge
-                color: Net.wifiEnabled ? Qt.alpha(Appearance.palette.primary, 0.18) : Appearance.palette.background
+                color: Net.wifiEnabled ? Qt.alpha(Appearance.palette.m3primary, 0.18) : Appearance.palette.m3surface
 
                 Behavior on color {
                     CAnim {}
@@ -324,7 +324,7 @@ BlobPopup {
                     MaterialSymbol {
                         icon: Net.wifiEnabled ? "wifi" : "wifi_off"
                         size: Appearance.font.icon.normal
-                        color: Net.wifiEnabled ? Appearance.palette.primary : Appearance.palette.subtext
+                        color: Net.wifiEnabled ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
                         fill: Net.wifiEnabled ? 1 : 0
                     }
 
@@ -343,7 +343,7 @@ BlobPopup {
 
                             animate: true
                             text: !Net.wifi ? qsTr("No adapter") : Net.wifiBlocked ? qsTr("Blocked by hardware switch") : !Net.wifiEnabled ? qsTr("Off") : Net.active?.name ?? qsTr("Not connected")
-                            color: Appearance.palette.subtext
+                            color: Appearance.palette.m3onSurfaceVariant
                             elide: Text.ElideRight
                         }
                     }
@@ -370,7 +370,7 @@ BlobPopup {
 
                 MaterialSymbol {
                     icon: "lan"
-                    color: Appearance.palette.primary
+                    color: Appearance.palette.m3primary
                     fill: 1
                 }
 
@@ -383,7 +383,7 @@ BlobPopup {
 
                 StyledText {
                     text: Net.ethernet?.name ?? ""
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
                 }
             }
 
@@ -400,7 +400,7 @@ BlobPopup {
 
                     animate: true
                     text: Net.networks.length === 1 ? qsTr("1 network available") : qsTr("%1 networks available").arg(Net.networks.length)
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
                 }
 
                 // The scanner is on for as long as the panel is open
@@ -409,7 +409,7 @@ BlobPopup {
                 MaterialSymbol {
                     icon: "progress_activity"
                     size: Appearance.font.icon.small
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
 
                     RotationAnimation on rotation {
                         running: root.open
@@ -448,7 +448,7 @@ BlobPopup {
                 Layout.rightMargin: Appearance.padding.large
 
                 text: Net.error
-                color: Appearance.palette.error
+                color: Appearance.palette.m3error
                 wrapMode: Text.Wrap
             }
         }

@@ -15,7 +15,7 @@ Item {
     // Shared with the panel, which tints the same way. A tenth left is
     // an error, a fifth a warning, and charging is called out rather
     // than left to read as ordinary.
-    readonly property color accent: Power.critical ? Appearance.palette.error : Power.low ? Appearance.palette.warning : Power.charging ? Appearance.palette.success : Appearance.palette.text
+    readonly property color accent: Power.critical ? Appearance.palette.m3error : Power.low ? Appearance.palette.m3warning : Power.charging ? Appearance.palette.m3success : Appearance.palette.m3onSurface
 
     // The number is two digits for almost all of its life and three at
     // the top. Giving it a fixed box and hanging it off the right keeps

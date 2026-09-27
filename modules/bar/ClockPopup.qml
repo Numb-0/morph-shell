@@ -42,7 +42,7 @@ BlobPopup {
         id: btn
 
         required property string icon
-        property color color: Appearance.palette.text
+        property color color: Appearance.palette.m3onSurface
 
         signal activated
 
@@ -110,12 +110,12 @@ BlobPopup {
                     StyledText {
                         text: Time.format("dddd")
                         font.pixelSize: Appearance.font.large
-                        color: Appearance.palette.primary
+                        color: Appearance.palette.m3primary
                     }
 
                     StyledText {
                         text: Time.format("d MMMM yyyy")
-                        color: Appearance.palette.subtext
+                        color: Appearance.palette.m3onSurfaceVariant
                     }
                 }
 
@@ -134,7 +134,7 @@ BlobPopup {
                 implicitHeight: calendar.implicitHeight + Appearance.padding.medium * 2
 
                 radius: Appearance.rounding.extraLarge
-                color: Appearance.palette.background
+                color: Appearance.palette.m3surface
 
                 ColumnLayout {
                     id: calendar
@@ -163,7 +163,7 @@ BlobPopup {
 
                         IconButton {
                             icon: "today"
-                            color: Appearance.palette.primary
+                            color: Appearance.palette.m3primary
 
                             opacity: root.onToday ? 0 : 1
                             visible: opacity > 0
@@ -203,7 +203,7 @@ BlobPopup {
 
                             text: Qt.formatDate(new Date(2024, 0, day), "ddd").charAt(0)
                             horizontalAlignment: Text.AlignHCenter
-                            color: Appearance.palette.outline
+                            color: Appearance.palette.m3outline
                             font.weight: Font.Medium
                         }
                     }
@@ -253,7 +253,7 @@ BlobPopup {
                                 height: 32
 
                                 radius: width / 2
-                                color: cell.isToday ? Appearance.palette.primary : Appearance.palette.text
+                                color: cell.isToday ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
                                 opacity: cell.isToday ? 1 : cellHover.hovered && cell.inMonth ? 0.1 : 0
                                 scale: cell.isToday || cellHover.hovered ? 1 : 0.6
 
@@ -275,7 +275,7 @@ BlobPopup {
 
                                 text: cell.model.day
                                 font.weight: cell.isToday ? Font.Bold : Font.Normal
-                                color: cell.isToday ? Appearance.palette.background : cell.inMonth ? Appearance.palette.text : Qt.alpha(Appearance.palette.outline, 0.6)
+                                color: cell.isToday ? Appearance.palette.m3onPrimary : cell.inMonth ? Appearance.palette.m3onSurface : Qt.alpha(Appearance.palette.m3outline, 0.6)
                             }
                         }
                     }

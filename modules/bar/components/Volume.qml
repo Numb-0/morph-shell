@@ -13,7 +13,7 @@ Item {
 
     readonly property bool hovered: hover.hovered
 
-    readonly property color accent: Audio.muted ? Appearance.palette.subtext : Appearance.palette.text
+    readonly property color accent: Audio.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onSurface
 
     // As with the battery: boxed rather than sized to the number, so
     // crossing 100% does not shuffle the bar.

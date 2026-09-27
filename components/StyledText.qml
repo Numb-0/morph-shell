@@ -10,7 +10,7 @@ Text {
     textFormat: Text.PlainText
     verticalAlignment: Text.AlignVCenter
 
-    color: Appearance.palette.text
+    color: Appearance.palette.m3onSurface
     font.family: Appearance.font.family
     font.pixelSize: Appearance.font.small
 

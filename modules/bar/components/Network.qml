@@ -65,7 +65,7 @@ Item {
 
             // Dimmed while there is no link at all, so an unplugged machine
             // reads at a glance -- as a muted output does.
-            color: Net.connected ? Appearance.palette.text : Appearance.palette.subtext
+            color: Net.connected ? Appearance.palette.m3onSurface : Appearance.palette.m3onSurfaceVariant
 
             // Solid while connected: the fan filled up to its signal.
             fill: Net.connected ? 1 : 0

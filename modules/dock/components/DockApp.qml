@@ -86,7 +86,7 @@ Item {
         implicitHeight: implicitWidth
 
         radius: height / 2
-        color: Appearance.palette.primary
+        color: Appearance.palette.m3primary
 
         Behavior on implicitWidth {
             Anim {

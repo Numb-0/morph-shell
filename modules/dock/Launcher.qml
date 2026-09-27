@@ -126,7 +126,7 @@ Item {
         implicitHeight: Appearance.dock.resultHeight
 
         radius: height / 2
-        color: Appearance.palette.background
+        color: Appearance.palette.m3surface
 
         // Closed until the open state says otherwise.
         opacity: 0
@@ -142,7 +142,7 @@ Item {
 
                 icon: "search"
                 size: Appearance.font.icon.normal
-                color: Appearance.palette.subtext
+                color: Appearance.palette.m3onSurfaceVariant
             }
 
             TextInput {
@@ -152,14 +152,14 @@ Item {
 
                 width: parent.width - parent.spacing - Appearance.font.icon.normal
 
-                color: Appearance.palette.text
+                color: Appearance.palette.m3onSurface
                 font.family: Appearance.font.family
                 font.pixelSize: Appearance.font.normal
 
                 renderType: TextInput.NativeRendering
                 selectByMouse: true
-                selectionColor: Appearance.palette.primary
-                selectedTextColor: Appearance.palette.background
+                selectionColor: Appearance.palette.m3primary
+                selectedTextColor: Appearance.palette.m3onPrimary
 
                 // A new search starts from the top of its own results
                 // rather than from wherever the last one had got to.
@@ -181,7 +181,7 @@ Item {
 
                     text: qsTr("Search applications")
                     font.pixelSize: Appearance.font.normal
-                    color: Appearance.palette.subtext
+                    color: Appearance.palette.m3onSurfaceVariant
                 }
             }
         }
@@ -266,7 +266,7 @@ Item {
 
         highlight: Rectangle {
             radius: Appearance.rounding.large
-            color: Appearance.palette.surface
+            color: Appearance.palette.m3surfaceContainer
 
             // Lightened rather than tinted: the surface is already the
             // panel's colour, so a flat fill would be invisible.
@@ -331,7 +331,7 @@ Item {
                         // so a list of mixed entries does not jitter.
                         visible: text.length > 0
                         text: item.modelData.genericName || item.modelData.comment || ""
-                        color: Appearance.palette.subtext
+                        color: Appearance.palette.m3onSurfaceVariant
                         elide: Text.ElideRight
                     }
                 }
@@ -344,7 +344,7 @@ Item {
             visible: root.results.length === 0
 
             text: qsTr("No applications match")
-            color: Appearance.palette.subtext
+            color: Appearance.palette.m3onSurfaceVariant
         }
     }
 }

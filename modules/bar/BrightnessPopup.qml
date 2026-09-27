@@ -18,7 +18,7 @@ BlobPopup {
 
             icon: Backlight.icon
             size: Appearance.font.icon.large
-            color: Appearance.palette.primary
+            color: Appearance.palette.m3primary
 
             // As in the bar: FILL rides the level rather than marking a
             // state, so the sun fills as the panel brightens.
