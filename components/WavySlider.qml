@@ -10,7 +10,10 @@ T.Slider {
     id: root
 
     property bool wavy: true
-    property bool animateWave: wavy && enabled
+    // Only while it can be seen. The wave loops forever, and a hidden
+    // slider -- a panel shut, the OSD down -- would otherwise keep the
+    // animation driver ticking and the line repainting for nobody.
+    property bool animateWave: wavy && enabled && visible
     property int waveFrequency: 6
     property int waveDuration: 1600
     property int trackWidth: 3

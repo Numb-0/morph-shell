@@ -12,6 +12,12 @@ import qs.services
 BlobPopup {
     id: root
 
+    // The position is only polled while a panel shows it.
+    onOpenChanged: Players.watchPosition(open)
+
+    Component.onDestruction: if (open)
+        Players.watchPosition(false)
+
     // A tap target around one transport glyph.
     component Button: Item {
         id: btn

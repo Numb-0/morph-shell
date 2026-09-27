@@ -128,6 +128,10 @@ Variants {
 
                     value: Audio.volume
                     wavy: !Audio.muted && Audio.volume > 0
+
+                    // The window unmapping does not hide its items, so
+                    // the wave is stopped by hand while the OSD is down.
+                    animateWave: wavy && win.visible
                     activeColor: Audio.muted ? Appearance.palette.subtext : Appearance.palette.primary
                 }
 

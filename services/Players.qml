@@ -131,8 +131,26 @@ Singleton {
         onTriggered: root.release()
     }
 
+    // How many open panels are showing the position. A count rather than
+    // a flag, as Net's scan requests are: every screen has its own bar,
+    // and one panel closing must not freeze the slider another is
+    // showing. Nothing else reads the position, so with no panel open
+    // the player is not asked at all.
+    property int positionWatchers: 0
+
+    function watchPosition(watching: bool): void {
+        positionWatchers = Math.max(0, positionWatchers + (watching ? 1 : -1));
+    }
+
+    // A panel opening shows where the track is now, not where it was
+    // when the last one closed.
+    onPositionWatchersChanged: active?.positionChanged()
+
     // MPRIS only reports position when asked. Sixty times a second while
-    // playing, so the handle glides instead of stepping.
+    // playing and a panel is showing it, so the handle glides instead of
+    // stepping. Not while the panels are shut: each report moves the
+    // hidden slider, and every move costs the bar a frame -- sixty a
+    // second, for nobody, for as long as music plays.
     //
     // A timer rather than a FrameAnimation, which is what this wants to
     // be: a FrameAnimation fires inside the animation system's own tick,
@@ -141,7 +159,7 @@ Singleton {
     // time never leaves zero, so it never moves at all -- which is to say
     // the progress handle would sit frozen wherever it first appeared.
     Timer {
-        running: root.playing
+        running: root.playing && root.positionWatchers > 0
 
         interval: 16
         repeat: true
@@ -151,9 +169,10 @@ Singleton {
 
     // While paused nothing asks, so the position would sit at whatever it
     // last happened to be -- zero, if we never played. Poll slowly to keep
-    // the readout honest, and refresh once whenever the player changes.
+    // the readout honest, and refresh once whenever the player changes or
+    // a panel opens.
     Timer {
-        running: root.available && !root.playing
+        running: root.available && !root.playing && root.positionWatchers > 0
 
         interval: 1000
         repeat: true
