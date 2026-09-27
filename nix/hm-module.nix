@@ -50,7 +50,9 @@ in {
       lib.optional (!osEnabled ["services" "upower" "enable"])
       "programs.morph-shell: services.upower.enable is off in your NixOS config; the battery widget will be empty."
       ++ lib.optional (!osEnabled ["services" "pipewire" "enable"])
-      "programs.morph-shell: services.pipewire.enable is off in your NixOS config; the volume widget will be empty.";
+      "programs.morph-shell: services.pipewire.enable is off in your NixOS config; the volume widget will be empty."
+      ++ lib.optional (!osEnabled ["services" "power-profiles-daemon" "enable"])
+      "programs.morph-shell: services.power-profiles-daemon.enable is off in your NixOS config; the power profile widget will be hidden.";
 
     systemd.user.services.morph-shell = lib.mkIf cfg.systemd.enable {
       Unit = {

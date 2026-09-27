@@ -47,12 +47,14 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | PipeWire | Volume widget | System service: the NixOS module turns it on. |
 | MPRIS | Media widget | Nothing to install; players expose it themselves. |
 | NetworkManager | Network widget | System service: enable it yourself (`networking.networkmanager.enable`). The shell talks to it over D-Bus, so `nmcli` isn't needed. |
+| power-profiles-daemon | Power profile widget | System service: the NixOS module turns it on, unless TLP is enabled (the two conflict). The shell talks to it over D-Bus, so `powerprofilesctl` isn't needed. The widget hides itself when the daemon isn't running. |
 
-`morph-shell` also checks for UPower, PipeWire and NetworkManager at
-startup and prints a warning if any of them is missing (set
-`MORPH_SHELL_NO_CHECK=1` to skip the check). A missing service never
-stops the shell; it just leaves that widget empty. Subcommands that only
-talk to a running shell, such as `morph-shell ipc`, skip the check.
+`morph-shell` also checks for UPower, PipeWire, NetworkManager and
+power-profiles-daemon at startup and prints a warning if any of them is
+missing (set `MORPH_SHELL_NO_CHECK=1` to skip the check). A missing
+service never stops the shell; it just leaves that widget empty.
+Subcommands that only talk to a running shell, such as `morph-shell
+ipc`, skip the check.
 
 ### 2a. NixOS module (system services)
 
@@ -67,15 +69,16 @@ import it even if you also use Home Manager:
 }
 ```
 
-This installs the package and fonts, and sets `services.upower.enable`
-and `services.pipewire.enable` (with `pulse.enable`). Both are set with
-`mkDefault`, so any value you set yourself takes priority.
+This installs the package and fonts, and sets `services.upower.enable`,
+`services.pipewire.enable` (with `pulse.enable`) and
+`services.power-profiles-daemon.enable` (only when TLP is off). All are
+set with `mkDefault`, so any value you set yourself takes priority.
 
 | Option | Default | Description |
 | --- | --- | --- |
 | `programs.morph-shell.enable` | `false` | Install the shell. |
 | `programs.morph-shell.package` | flake package | Package to use. |
-| `programs.morph-shell.enableServices` | `true` | Turn on UPower and PipeWire. |
+| `programs.morph-shell.enableServices` | `true` | Turn on UPower, PipeWire and power-profiles-daemon. |
 | `programs.morph-shell.systemd.enable` | `false` | Start the shell as a systemd user service for every user. |
 | `programs.morph-shell.systemd.target` | `"graphical-session.target"` | Target that starts the service. |
 
@@ -96,7 +99,8 @@ If Home Manager runs as a NixOS module, put this inside
 `home-manager.users.<you> = { ... };` and add
 `home-manager.extraSpecialArgs = { inherit inputs; };`. Home Manager
 can't turn on system services, but when it runs inside NixOS it reads
-the system config and warns at build time if UPower or PipeWire is off.
+the system config and warns at build time if UPower, PipeWire or
+power-profiles-daemon is off.
 
 This installs `morph-shell` and a systemd user service that starts with
 `graphical-session.target`:

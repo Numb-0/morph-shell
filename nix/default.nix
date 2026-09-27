@@ -16,7 +16,9 @@
   extraRuntimeDeps ? [],
   fonts ? [jetbrains-mono material-symbols],
 }: let
-  runtimeDeps = [brightnessctl] ++ extraRuntimeDeps;
+  # dbus-send: the power profile widget pings power-profiles-daemon once
+  # at startup to decide whether to show itself.
+  runtimeDeps = [brightnessctl dbus] ++ extraRuntimeDeps;
 
   # Layer the bundled fonts on top of the system fontconfig, so the shell
   # finds them whether or not they are installed, and every other font
@@ -57,6 +59,13 @@
         org.freedesktop.DBus.Peer.Ping >/dev/null 2>&1; then
       warn "NetworkManager is not available; the network widget will be empty." \
         "On NixOS set networking.networkmanager.enable = true."
+    fi
+
+    if ! ${dbus}/bin/dbus-send --system --print-reply=literal \
+        --dest=org.freedesktop.UPower.PowerProfiles /org/freedesktop/UPower/PowerProfiles \
+        org.freedesktop.DBus.Peer.Ping >/dev/null 2>&1; then
+      warn "power-profiles-daemon is not available; the power profile widget will be hidden." \
+        "On NixOS set services.power-profiles-daemon.enable = true."
     fi
 
     exit 0

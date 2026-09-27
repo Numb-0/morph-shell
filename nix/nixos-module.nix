@@ -20,8 +20,10 @@ in {
       default = true;
       description = ''
         Turn on the system services the widgets read from: UPower for the
-        battery and PipeWire for volume. Each is set with mkDefault, so an
-        explicit setting elsewhere in your config wins.
+        battery, PipeWire for volume and power-profiles-daemon for the
+        power profile switch. Each is set with mkDefault, so an explicit
+        setting elsewhere in your config wins. power-profiles-daemon is
+        left off when TLP is on, since the two conflict.
       '';
     };
 
@@ -51,6 +53,7 @@ in {
 
     (lib.mkIf cfg.enableServices {
       services.upower.enable = lib.mkDefault true;
+      services.power-profiles-daemon.enable = lib.mkDefault (!config.services.tlp.enable);
       services.pipewire = {
         enable = lib.mkDefault true;
         pulse.enable = lib.mkDefault true;

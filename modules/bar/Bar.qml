@@ -39,7 +39,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || session.hovered || sessionPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || profile.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || session.hovered || sessionPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -291,6 +291,20 @@ Variants {
             opacity: win.reveal
 
             onClicked: win.toggle("media")
+        }
+
+        Profile {
+            id: profile
+
+            anchors.left: media.right
+
+            y: surface.y + (surface.height - height) / 2
+
+            // A machine without power-profiles-daemon has nothing to
+            // switch, so the widget is not drawn at all.
+            visible: Profiles.available
+
+            opacity: win.reveal
         }
 
         // The status widgets sit at the far end of the bar, inside the
