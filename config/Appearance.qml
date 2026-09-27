@@ -131,6 +131,15 @@ Singleton {
         readonly property int launcherHeight: 16 + resultHeight + 8 + maxResults * resultHeight + (maxResults - 1) * 4 + 8
     }
 
+    readonly property QtObject osd: QtObject {
+        // How long the volume OSD stays up after the level last moved.
+        readonly property int timeout: 1500
+
+        // Distance from the bottom edge. Clears the dock, revealed or
+        // not, so the two never sit on top of each other.
+        readonly property int margin: dock.margin + dock.height + 12
+    }
+
     readonly property QtObject media: QtObject {
         // The players the media panel offers to start when nothing is
         // playing, by desktop entry id, as for the dock's pinned apps.

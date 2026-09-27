@@ -4,8 +4,10 @@
 import Quickshell
 import qs.modules.bar
 import qs.modules.dock
+import qs.modules.osd
 
 ShellRoot {
     Bar {}
     Dock {}
+    VolumeOsd {}
 }
