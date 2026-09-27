@@ -36,6 +36,76 @@ Item {
         root.dismissed();
     }
 
+    // The field and the list arrive once the dock shape has grown
+    // enough to show them -- any sooner and their fades play out behind
+    // its clip, unseen -- the field a step ahead of the list, which also
+    // rises into place. Closing fades both straight away.
+    //
+    // States rather than Behaviors: a Behavior's pause bound to `active`
+    // would still hold the previous value when the animation starts,
+    // giving opening the closing delay and the other way round.
+    states: State {
+        name: "open"
+        when: root.active
+
+        PropertyChanges {
+            field.opacity: 1
+            list.opacity: 1
+            listShift.y: 0
+        }
+    }
+
+    transitions: [
+        Transition {
+            to: "open"
+
+            ParallelAnimation {
+                SequentialAnimation {
+                    PauseAnimation {
+                        duration: Appearance.anim.durations.fastEffects
+                    }
+                    Anim {
+                        target: field
+                        property: "opacity"
+                        type: Anim.SlowEffects
+                    }
+                }
+
+                SequentialAnimation {
+                    PauseAnimation {
+                        duration: Appearance.anim.durations.slowEffects
+                    }
+                    ParallelAnimation {
+                        Anim {
+                            target: list
+                            property: "opacity"
+                            type: Anim.SlowEffects
+                        }
+                        Anim {
+                            target: listShift
+                            property: "y"
+                            type: Anim.Emphasized
+                        }
+                    }
+                }
+            }
+        },
+        Transition {
+            from: "open"
+
+            Anim {
+                targets: [field, list]
+                property: "opacity"
+                type: Anim.FastEffects
+            }
+            Anim {
+                target: listShift
+                property: "y"
+                type: Anim.FastEffects
+            }
+        }
+    ]
+
     onActiveChanged: {
         if (active) {
             reset();
@@ -57,6 +127,9 @@ Item {
 
         radius: height / 2
         color: Appearance.palette.background
+
+        // Closed until the open state says otherwise.
+        opacity: 0
 
         Row {
             anchors.fill: parent
@@ -126,6 +199,9 @@ Item {
         clip: true
         spacing: Appearance.spacing.extraSmall
 
+        // Closed, and sunk a little, until the open state says otherwise.
+        opacity: 0
+
         model: ScriptModel {
             values: root.results
         }
@@ -137,6 +213,56 @@ Item {
         preferredHighlightEnd: height
         highlightFollowsCurrentItem: true
         highlightMoveDuration: Appearance.anim.durations.fastEffects
+
+        // Rows fade and slide rather than popping as the search
+        // narrows or widens the results; the rest close ranks smoothly.
+        add: Transition {
+            Anim {
+                property: "opacity"
+                from: 0
+                to: 1
+                type: Anim.DefaultEffects
+            }
+            Anim {
+                property: "scale"
+                from: 0.9
+                to: 1
+                type: Anim.Emphasized
+            }
+        }
+
+        remove: Transition {
+            Anim {
+                property: "opacity"
+                to: 0
+                type: Anim.FastEffects
+            }
+            Anim {
+                property: "scale"
+                to: 0.9
+                type: Anim.FastEffects
+            }
+        }
+
+        displaced: Transition {
+            Anim {
+                property: "y"
+                type: Anim.Emphasized
+            }
+            // Brings back a row whose own add or remove was cut short.
+            Anim {
+                properties: "opacity,scale"
+                to: 1
+                type: Anim.DefaultEffects
+            }
+        }
+
+        // Driven by the open state below.
+        transform: Translate {
+            id: listShift
+
+            y: Appearance.spacing.large * 2
+        }
 
         highlight: Rectangle {
             radius: Appearance.rounding.large

@@ -48,10 +48,11 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | MPRIS | Media widget | Nothing to install; players expose it themselves. |
 | NetworkManager | Network widget | System service: enable it yourself (`networking.networkmanager.enable`). The shell talks to it over D-Bus, so `nmcli` isn't needed. |
 
-`morph-shell` also checks for UPower and PipeWire at startup and prints a
-warning if either one is missing (set `MORPH_SHELL_NO_CHECK=1` to skip
-the check). A missing service never stops the shell; it just leaves that
-widget empty.
+`morph-shell` also checks for UPower, PipeWire and NetworkManager at
+startup and prints a warning if any of them is missing (set
+`MORPH_SHELL_NO_CHECK=1` to skip the check). A missing service never
+stops the shell; it just leaves that widget empty. Subcommands that only
+talk to a running shell, such as `morph-shell ipc`, skip the check.
 
 ### 2a. NixOS module (system services)
 
@@ -146,6 +147,33 @@ To pull the latest version later: `nix flake update morph-shell`.
 ```sh
 nix run github:Numb-0/morph-shell
 ```
+
+## IPC
+
+The running shell can be controlled from the command line through
+Quickshell's IPC, which is handy for compositor keybinds. The installed
+`morph-shell` wrapper already points at the shell's config, so pass the
+`ipc` subcommand straight to it:
+
+```sh
+morph-shell ipc call <target> <function>
+morph-shell ipc show   # list every target and function the running shell exposes
+```
+
+| Target | Function | Description |
+| --- | --- | --- |
+| `launcher` | `toggle` | Open the app launcher, or close it if it's open. |
+| `launcher` | `open` | Open the app launcher. |
+| `launcher` | `close` | Close the app launcher. |
+
+For example, to open the launcher with Super+Space in Hyprland:
+
+```
+bind = SUPER, Space, exec, morph-shell ipc call launcher toggle
+```
+
+When running from a checkout (`morph-run`), point `qs` at the working
+tree instead: `qs -p ~/morph-shell ipc call launcher toggle`.
 
 ## Development
 

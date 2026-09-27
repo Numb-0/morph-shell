@@ -55,19 +55,21 @@ Item {
         source: Quickshell.iconPath(root.entry.icon, "application-x-executable")
 
         // Lifts towards the pointer, the way a dock is expected to. The
-        // spatial curve overshoots, so it lands rather than ramps.
+        // standard curve eases in without overshooting.
         scale: hover.hovered ? 1.18 : 1
         y: hover.hovered ? -Appearance.spacing.extraSmall : 0
 
         Behavior on scale {
             Anim {
-                type: Anim.FastSpatial
+                type: Anim.Standard
+                duration: Appearance.anim.durations.fastSpatial
             }
         }
 
         Behavior on y {
             Anim {
-                type: Anim.FastSpatial
+                type: Anim.Standard
+                duration: Appearance.anim.durations.fastSpatial
             }
         }
     }
@@ -88,7 +90,8 @@ Item {
 
         Behavior on implicitWidth {
             Anim {
-                type: Anim.FastSpatial
+                type: Anim.Standard
+                duration: Appearance.anim.durations.fastSpatial
             }
         }
     }

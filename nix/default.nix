@@ -91,9 +91,12 @@ in
     # wrapper, which has no --run for the preflight check.)
     dontWrapQtApps = true;
 
+    # The preflight check is for starting the shell. Subcommands that only
+    # talk to a running instance (e.g. `morph-shell ipc call ...` from a
+    # keybind) skip it, so they don't repeat its warnings on every call.
     postInstall = ''
       makeShellWrapper ${quickshell}/bin/quickshell $out/bin/morph-shell \
-        --run ${preflight} \
+        --run 'case "''${1:-}" in ipc|msg|log|list|kill) ;; *) ${preflight} ;; esac' \
         --prefix QML2_IMPORT_PATH : "$out/lib/qt-6/qml" \
         --prefix QML_IMPORT_PATH : "$out/lib/qt-6/qml" \
         --prefix PATH : "${lib.makeBinPath runtimeDeps}" \

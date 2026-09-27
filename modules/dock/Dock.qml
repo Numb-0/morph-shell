@@ -79,7 +79,7 @@ Scope {
 
             Behavior on reveal {
                 Anim {
-                    type: Anim.DefaultSpatial
+                    type: Anim.Emphasized
                 }
             }
 
@@ -192,20 +192,18 @@ Scope {
                 group: group
                 radius: Appearance.rounding.extraLarge
 
-                // The morph itself. Width and height ride separate
-                // spatial curves, as the bar's panels do: the growth
-                // springs harder than the widening, so the shape reads as
-                // being pulled upward rather than scaled.
+                // The morph itself. Rides the emphasized curve rather than
+                // a spatial one, so the shape settles without overshooting
+                // and wobbling back.
                 Behavior on implicitWidth {
                     Anim {
-                        type: Anim.DefaultSpatial
+                        type: Anim.Emphasized
                     }
                 }
 
                 Behavior on implicitHeight {
                     Anim {
-                        type: Anim.DefaultSpatial
-                        easing.bezierCurve: Appearance.anim.fastSpatial
+                        type: Anim.Emphasized
                     }
                 }
             }
