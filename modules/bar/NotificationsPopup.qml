@@ -331,8 +331,10 @@ BlobPopup {
                     SequentialAnimation {
                         running: root.clearing
 
+                        // The index drops to -1 while a card is on its way
+                        // out of the list, hence the floor.
                         PauseAnimation {
-                            duration: Math.min(card.index, 10) * 45
+                            duration: Math.max(0, Math.min(card.index, 10)) * 45
                         }
 
                         ScriptAction {
