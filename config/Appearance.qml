@@ -247,9 +247,10 @@ Singleton {
 
         path: root.colorsPath
 
-        // Picks up edits in place, and in testing a repointed symlink
-        // too. A switcher should still call the reload below after
-        // swapping, rather than rely on the watch seeing through links.
+        // Picks up the file being edited or replaced, and this path's own
+        // symlink being repointed -- but not a link further up the chain
+        // moving, which is how chromix switches. A switcher calls the
+        // reload below after swapping.
         watchChanges: true
         onFileChanged: reload()
 
