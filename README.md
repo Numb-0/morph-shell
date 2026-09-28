@@ -48,6 +48,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | MPRIS | Media widget | Nothing to install; players expose it themselves. |
 | NetworkManager | Network widget | System service: enable it yourself (`networking.networkmanager.enable`). The shell talks to it over D-Bus, so `nmcli` isn't needed. |
 | power-profiles-daemon | Power profile widget | System service: the NixOS module turns it on, unless TLP is enabled (the two conflict). The shell talks to it over D-Bus, so `powerprofilesctl` isn't needed. The widget hides itself when the daemon isn't running. |
+| Notification daemon | Notification centre and popups | Built in: the shell is the notification daemon itself. Don't run another one (mako, dunst, swaync) alongside it, or whichever starts first takes the D-Bus name and the other gets nothing. |
 
 `morph-shell` also checks for UPower, PipeWire, NetworkManager and
 power-profiles-daemon at startup and prints a warning if any of them is
@@ -169,6 +170,8 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `launcher` | `toggle` | Open the app launcher, or close it if it's open. |
 | `launcher` | `open` | Open the app launcher. |
 | `launcher` | `close` | Close the app launcher. |
+| `notifs` | `toggleDnd` | Turn do not disturb on or off. Only critical notifications pop up while it's on; the rest still land in the centre. |
+| `notifs` | `clear` | Dismiss every notification. |
 
 For example, to open the launcher with Super+Space in Hyprland:
 

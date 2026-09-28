@@ -26,6 +26,7 @@ Variants {
         readonly property bool brightnessOpen: openPanel === "brightness"
         readonly property bool networkOpen: openPanel === "network"
         readonly property bool sessionOpen: openPanel === "session"
+        readonly property bool notificationsOpen: openPanel === "notifications"
 
         function toggle(panel: string): void {
             openPanel = openPanel === panel ? "" : panel;
@@ -39,7 +40,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || profile.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || session.hovered || sessionPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || profile.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || notifications.hovered || notificationsPopup.hovered || session.hovered || sessionPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -134,6 +135,10 @@ Variants {
             Region {
                 item: sessionPopup.maskItem
             }
+
+            Region {
+                item: notificationsPopup.maskItem
+            }
         }
 
         // A thin strip at the screen edge, enlarged to the bar's whole
@@ -213,6 +218,15 @@ Variants {
             anchor: network
             anchorBottom: surface.y + surface.height
             open: win.networkOpen
+        }
+
+        NotificationsPopup {
+            id: notificationsPopup
+
+            group: group
+            anchor: notifications
+            anchorBottom: surface.y + surface.height
+            open: win.notificationsOpen
         }
 
         BatteryPopup {
@@ -309,7 +323,7 @@ Variants {
 
         // The status widgets sit at the far end of the bar, inside the
         // surface's own margin: session, battery, volume, backlight,
-        // network, reading outward from the edge.
+        // network, notifications, reading outward from the edge.
         Session {
             id: session
 
@@ -383,6 +397,19 @@ Variants {
             opacity: win.reveal
 
             onClicked: win.toggle("network")
+        }
+
+        Notifications {
+            id: notifications
+
+            anchors.right: network.left
+
+            y: surface.y + (surface.height - height) / 2
+
+            active: win.notificationsOpen
+            opacity: win.reveal
+
+            onClicked: win.toggle("notifications")
         }
     }
 }
