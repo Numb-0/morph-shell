@@ -489,7 +489,11 @@ Variants {
 
             y: surface.y + (surface.height - height) / 2
 
+            pinned: BarState.pinned
+            horizontalPadding: Appearance.bar.itemPadding
             opacity: win.reveal
+
+            onToggled: BarState.togglePinned()
         }
 
         Notifications {

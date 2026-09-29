@@ -66,14 +66,15 @@ Scope {
             // Everything hoverable that sits inside the hit area is OR'd
             // in here. The launcher's own insides are not: while it is
             // open the dock is held out anyway.
-            readonly property bool pointerInside: revealHover.hovered || buttonHover.hovered || hoveredApps > 0
+            readonly property bool pointerInside: revealHover.hovered || buttonHover.hovered || pin.hovered || hoveredApps > 0
 
             // Latched rather than bound straight to the pointer, as the
             // bar is, so a cursor crossing the screen edge on its way
             // somewhere else does not flash the dock open and shut.
             property bool revealed: false
 
-            readonly property bool shown: revealed || launcherOpen
+            // Pinned, the dock stays up whatever the pointer does.
+            readonly property bool shown: revealed || launcherOpen || DockState.pinned
 
             property real reveal: shown ? 1 : 0
 
@@ -111,9 +112,11 @@ Scope {
             color: "transparent"
 
             // Floats over everything and reserves nothing, so windows lay
-            // out as if the dock were not there.
+            // out as if the dock were not there -- unless it is pinned,
+            // when it keeps its own strip of the screen and windows tile
+            // above it rather than under it.
             implicitHeight: dockMargin + dockHeight + Appearance.dock.launcherHeight + 60
-            exclusiveZone: 0
+            exclusiveZone: DockState.pinned ? dockMargin + dockHeight : 0
 
             anchors {
                 bottom: true
@@ -316,6 +319,30 @@ Scope {
 
                         onHoveredChanged: win.hoveredApps += hovered ? 1 : -1
                     }
+                }
+
+                // Divides the applications from the pin, as the launcher
+                // button is divided from them.
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    implicitWidth: 1
+                    implicitHeight: Appearance.dock.iconSize * 0.6
+
+                    color: Appearance.palette.m3onSurfaceVariant
+                    opacity: 0.25
+                }
+
+                // Holds the dock up, as the bar's pin holds the bar down.
+                Pin {
+                    id: pin
+
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    pinned: DockState.pinned
+                    size: Appearance.font.icon.large
+
+                    onToggled: DockState.togglePinned()
                 }
             }
         }
