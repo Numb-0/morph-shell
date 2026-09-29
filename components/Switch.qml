@@ -96,13 +96,17 @@ Item {
             }
         }
 
+        // Coloured as the track rather than onPrimaryContainer, as M3
+        // has it: a scheme is free to make that role black (content and
+        // fidelity schemes do), which vanishes on the dark handle, while
+        // primary always stands off onPrimary.
         MaterialSymbol {
             anchors.centerIn: parent
 
             icon: "check"
             size: Appearance.font.icon.small - 1
             weight: 600
-            color: Appearance.palette.m3onPrimaryContainer
+            color: Appearance.palette.m3primary
 
             opacity: root.checked ? 1 : 0
 
