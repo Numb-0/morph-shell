@@ -16,9 +16,14 @@ import qs.services
 BlobPopup {
     id: root
 
-    // Enough to pick from without the panel running down the screen;
-    // the rest are almost always too weak to join anyway.
-    readonly property int maxNetworks: 7
+    // A bound on the rows built, not on what is shown: the list scrolls
+    // past visibleRows. Anything further down is too weak to join.
+    readonly property int maxNetworks: 30
+
+    // How many rows the list shows before it scrolls, so the panel does
+    // not run down the screen in a crowded building.
+    readonly property int visibleRows: 7
+    readonly property int rowHeight: 44
 
     readonly property int panelWidth: 300
 
@@ -90,12 +95,17 @@ BlobPopup {
         readonly property bool connecting: modelData.state === ConnectionState.Connecting
         readonly property bool askingPassword: Net.passwordNetwork === modelData
 
+        // A row near the bottom of the list would open its field out of
+        // sight, so the list scrolls to it once the field has laid out.
+        onAskingPasswordChanged: if (askingPassword)
+            Qt.callLater(list.reveal, item)
+
         Layout.fillWidth: true
         spacing: Appearance.spacing.extraSmall
 
         Rectangle {
             Layout.fillWidth: true
-            implicitHeight: 44
+            implicitHeight: root.rowHeight
 
             // The joined network sits on a tonal pill, as a selected
             // list item does in M3; the rest only light up under the
@@ -422,22 +432,45 @@ BlobPopup {
                 }
             }
 
-            ColumnLayout {
+            // A Flickable over the rows rather than a ListView: a ListView
+            // destroys rows scrolled out of view, and a half typed
+            // password with them.
+            Flickable {
+                id: list
+
+                function reveal(row: Item): void {
+                    contentY = Math.max(Math.min(contentY, row.y), row.y + row.height - height);
+                }
+
                 visible: Net.wifiEnabled
 
                 Layout.fillWidth: true
-                spacing: Appearance.spacing.extraSmall
+                implicitHeight: Math.min(contentHeight, root.visibleRows * root.rowHeight + (root.visibleRows - 1) * rows.spacing)
 
-                Repeater {
-                    // The networks are the module's own objects, so a
-                    // re-sort moves the rows it already has rather than
-                    // rebuilding them, and a half typed password is not
-                    // thrown away with its row.
-                    model: ScriptModel {
-                        values: Net.networks.slice(0, root.maxNetworks)
+                contentWidth: width
+                contentHeight: rows.implicitHeight
+
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                interactive: contentHeight > height
+
+                ColumnLayout {
+                    id: rows
+
+                    width: list.width
+                    spacing: Appearance.spacing.extraSmall
+
+                    Repeater {
+                        // The networks are the module's own objects, so a
+                        // re-sort moves the rows it already has rather than
+                        // rebuilding them, and a half typed password is not
+                        // thrown away with its row.
+                        model: ScriptModel {
+                            values: Net.networks.slice(0, root.maxNetworks)
+                        }
+
+                        NetworkItem {}
                     }
-
-                    NetworkItem {}
                 }
             }
 

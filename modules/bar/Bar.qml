@@ -95,7 +95,13 @@ Variants {
 
         // Floats over everything and reserves nothing, so windows lay out
         // as if the bar were not there.
-        implicitHeight: 460
+        //
+        // The panels are drawn inside this surface, so it runs the full
+        // height of the screen: a fixed height clipped the bottom off the
+        // taller ones. The mask keeps the empty part clicking through.
+        // Sized once rather than to the open panel, since a layer surface
+        // resize waits on the compositor and would stall the animation.
+        implicitHeight: modelData.height
         exclusiveZone: 0
 
         anchors {
