@@ -340,12 +340,6 @@ Singleton {
             // Slots always drawn; the row grows past this to reach the
             // highest workspace in use rather than hiding it.
             readonly property int shown: 5
-
-            // How the indicator draws itself: "liquid" (mercury drops
-            // that fuse as the active one flows between them),
-            // "constellation" (occupied workspaces as linked stars) or
-            // "orbit" (windows circling the active workspace as moons).
-            readonly property string style: "constellation"
         }
     }
 

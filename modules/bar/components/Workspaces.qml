@@ -5,10 +5,10 @@ import qs.components
 import qs.config
 import qs.modules.bar.components.workspaces
 
-// Bar widget: Hyprland's workspaces, drawn in one of the styles under
-// workspaces/. This side owns what is true -- which workspaces exist, how
-// many windows each holds, which one this screen shows -- and the input;
-// a style only draws it. A click goes to the slot under the pointer and
+// Bar widget: Hyprland's workspaces, drawn as a constellation (see
+// workspaces/Constellation.qml). This side owns what is true -- which
+// workspaces exist, how many windows each holds, which one this screen
+// shows -- and the input; the constellation only draws it. A click goes to the slot under the pointer and
 // the wheel steps through workspaces in use.
 Item {
     id: root
@@ -46,8 +46,7 @@ Item {
         return n;
     }
 
-    // Each style picks how much room a workspace takes.
-    readonly property real slot: style.item?.slotWidth ?? 20
+    readonly property real slot: sky.slotWidth
     readonly property real padding: Appearance.bar.itemPadding
 
     // Continuous animations only run while anyone can see them.
@@ -93,44 +92,11 @@ Item {
         onWheel: event => root.goTo(event.angleDelta.y > 0 ? "e-1" : "e+1")
     }
 
-    Loader {
-        id: style
+    Constellation {
+        id: sky
 
         anchors.fill: parent
 
-        sourceComponent: {
-            switch (Appearance.bar.workspaces.style) {
-            case "constellation":
-                return constellation;
-            case "orbit":
-                return orbit;
-            default:
-                return liquid;
-            }
-        }
-    }
-
-    Component {
-        id: liquid
-
-        Liquid {
-            ws: root
-        }
-    }
-
-    Component {
-        id: constellation
-
-        Constellation {
-            ws: root
-        }
-    }
-
-    Component {
-        id: orbit
-
-        Orbit {
-            ws: root
-        }
+        ws: root
     }
 }
