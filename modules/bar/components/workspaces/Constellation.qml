@@ -120,44 +120,60 @@ Item {
         }
     }
 
-    // The comet's tail: laid from where the active star left to where it
-    // is going, fading out while the star crosses it.
+    // The comet's tail, drawn from its end to the star. The end heads for
+    // the same place the star does, on the same curve but more slowly so
+    // it never overtakes the star: the tail stretches out behind the star as it crosses and draws back in once
+    // it lands -- always on the line the star actually took, up and down
+    // the scatter included.
     Rectangle {
         id: trail
 
-        property real fromX: 0
-        property real toX: 0
+        property real tailX: star.homeX
+        property real tailY: root.starY(root.ws.activeId)
 
-        x: Math.min(fromX, toX)
-        width: Math.abs(toX - fromX)
+        readonly property real headX: star.x + star.width / 2
+        readonly property real headY: star.y + star.height / 2
+        readonly property real length: Math.hypot(headX - tailX, headY - tailY)
+
+        Behavior on tailX {
+            Anim {
+                type: Anim.Emphasized
+                duration: Appearance.anim.durations.slowSpatial * 1.4
+            }
+        }
+
+        Behavior on tailY {
+            Anim {
+                type: Anim.Emphasized
+                duration: Appearance.anim.durations.slowSpatial * 1.4
+            }
+        }
+
+        x: tailX
+        y: tailY - height / 2
+        width: length
         height: 2
-        y: star.y + star.height / 2 - height / 2
         radius: 1
 
-        opacity: 0
+        // Laid along the x axis and turned about its end to face the star,
+        // so the gradient always runs from nothing at the end to the star.
+        transformOrigin: Item.Left
+        rotation: Math.atan2(headY - tailY, headX - tailX) * 180 / Math.PI
+
+        visible: length > 1
+        opacity: Math.min(1, length / root.slotWidth) * 0.9
 
         gradient: Gradient {
             orientation: Gradient.Horizontal
 
             GradientStop {
                 position: 0
-                color: trail.toX > trail.fromX ? "transparent" : Appearance.palette.m3primary
+                color: "transparent"
             }
             GradientStop {
                 position: 1
-                color: trail.toX > trail.fromX ? Appearance.palette.m3primary : "transparent"
+                color: Appearance.palette.m3primary
             }
-        }
-
-        Anim {
-            id: fadeTrail
-
-            target: trail
-            property: "opacity"
-            from: 0.9
-            to: 0
-            type: Anim.SlowEffects
-            duration: Appearance.anim.durations.defaultSpatial
         }
     }
 
@@ -183,12 +199,6 @@ Item {
 
         size: 16
         color: Appearance.palette.m3primary
-
-        onHomeXChanged: {
-            trail.fromX = x + width / 2;
-            trail.toX = homeX;
-            fadeTrail.restart();
-        }
 
         Behavior on x {
             Anim {
