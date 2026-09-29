@@ -335,6 +335,18 @@ Singleton {
         // retracting so brushing just outside does not snap it shut.
         readonly property int openDelay: 90
         readonly property int closeDelay: 220
+
+        readonly property QtObject workspaces: QtObject {
+            // Slots always drawn; the row grows past this to reach the
+            // highest workspace in use rather than hiding it.
+            readonly property int shown: 5
+
+            // How the indicator draws itself: "liquid" (mercury drops
+            // that fuse as the active one flows between them),
+            // "constellation" (occupied workspaces as linked stars) or
+            // "orbit" (windows circling the active workspace as moons).
+            readonly property string style: "constellation"
+        }
     }
 
     readonly property QtObject dock: QtObject {

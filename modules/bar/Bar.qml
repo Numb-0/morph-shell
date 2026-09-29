@@ -41,14 +41,15 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || profile.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || notifications.hovered || notificationsPopup.hovered || session.hovered || sessionPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || session.hovered || sessionPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
         // flash the bar open and shut.
         property bool revealed: false
 
-        readonly property bool shown: revealed || openPanel !== ""
+        // Pinned, the bar stays down whatever the pointer does.
+        readonly property bool shown: revealed || openPanel !== "" || BarState.pinned
 
         property real reveal: shown ? 1 : 0
 
@@ -94,7 +95,7 @@ Variants {
             this.WlrLayershell.keyboardFocus = Qt.binding(() => win.networkOpen && Net.passwordNetwork !== null ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None)
 
         // Floats over everything and reserves nothing, so windows lay out
-        // as if the bar were not there.
+        // as if the bar were not there -- unless it is pinned, below.
         //
         // The panels are drawn inside this surface, so it runs the full
         // height of the screen: a fixed height clipped the bottom off the
@@ -102,7 +103,10 @@ Variants {
         // Sized once rather than to the open panel, since a layer surface
         // resize waits on the compositor and would stall the animation.
         implicitHeight: modelData.height
-        exclusiveZone: 0
+
+        // Pinned, it keeps its own strip of the screen and windows tile
+        // below it rather than under it.
+        exclusiveZone: BarState.pinned ? barMargin + barHeight : 0
 
         anchors {
             top: true
@@ -335,6 +339,17 @@ Variants {
             opacity: win.reveal
         }
 
+        Workspaces {
+            id: workspaces
+
+            anchors.left: logo.right
+
+            y: surface.y + (surface.height - height) / 2
+
+            screen: win.modelData
+            opacity: win.reveal
+        }
+
         Clock {
             id: clock
 
@@ -349,7 +364,7 @@ Variants {
         Media {
             id: media
 
-            anchors.left: logo.right
+            anchors.left: workspaces.right
             anchors.leftMargin: Appearance.spacing.normal
 
             y: surface.y + (surface.height - height) / 2
@@ -375,7 +390,7 @@ Variants {
 
         // The status widgets sit at the far end of the bar, inside the
         // surface's own margin: session, battery, volume, backlight,
-        // network, Bluetooth, notifications, reading outward from the edge.
+        // network, Bluetooth, the pin, notifications, reading outward from the edge.
         Session {
             id: session
 
@@ -467,10 +482,20 @@ Variants {
             onClicked: win.toggle("bluetooth")
         }
 
+        Pin {
+            id: pin
+
+            anchors.right: bluetooth.visible ? bluetooth.left : network.left
+
+            y: surface.y + (surface.height - height) / 2
+
+            opacity: win.reveal
+        }
+
         Notifications {
             id: notifications
 
-            anchors.right: bluetooth.visible ? bluetooth.left : network.left
+            anchors.right: pin.left
 
             y: surface.y + (surface.height - height) / 2
 
