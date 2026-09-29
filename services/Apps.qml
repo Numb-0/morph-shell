@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import Morph.Search
 
 // The desktop's applications, as the dock and the launcher want them:
 // a list to search, a way to start one, and a way to tell which are
@@ -78,54 +79,27 @@ Singleton {
         windows[(current + 1) % windows.length].activate();
     }
 
-    // Ranked rather than filtered: an exact name beats a name that
-    // starts with the query, which beats one that merely contains it,
-    // and the metadata fields -- what the app calls itself generically,
-    // its keywords, its categories -- rank below all of those. Ties go
-    // to the shorter name, so "Files" outranks "Files (Nautilus)".
+    // Below this a result is more noise than match: roughly where two
+    // unrelated words of similar length stop looking alike.
+    readonly property real threshold: 0.7
+
+    // Metadata trails the name a little, so an app found by what it is
+    // called beats one found by what it does -- "code" puts Visual
+    // Studio Code ahead of an editor that lists "code" as a keyword.
+    readonly property real metadataWeight: 0.9
+
+    // Typo-tolerant, so "firefix" still finds Firefox; see Fuzzy for how
+    // a query is held up against a name. What the app calls itself
+    // generically and its keywords get a say too, so "browser" finds
+    // Firefox.
     function score(entry: DesktopEntry, query: string): real {
-        const name = (entry.name ?? "").toLowerCase();
-        const penalty = Math.min(name.length, 60) / 100;
+        const name = Fuzzy.score(query, entry.name ?? "");
+        if (name >= 1)
+            return name;
 
-        if (name === query)
-            return 1000;
-        if (name.startsWith(query))
-            return 900 - penalty;
-        if (name.split(/[\s\-_]+/).some(word => word.startsWith(query)))
-            return 800 - penalty;
-        if (name.includes(query))
-            return 700 - penalty;
+        const metadata = [entry.genericName ?? "", ...(entry.keywords ?? [])].reduce((best, text) => Math.max(best, Fuzzy.score(query, text)), 0);
 
-        const generic = (entry.genericName ?? "").toLowerCase();
-        if (generic.includes(query))
-            return 600 - penalty;
-
-        if ((entry.keywords ?? []).some(k => k.toLowerCase().includes(query)))
-            return 500 - penalty;
-
-        if (normalise(entry.id).includes(query))
-            return 400 - penalty;
-
-        if ((entry.categories ?? []).some(c => c.toLowerCase().includes(query)))
-            return 300 - penalty;
-
-        if ((entry.comment ?? "").toLowerCase().includes(query))
-            return 200 - penalty;
-
-        // Last resort: the query's letters in order but not adjacent, so
-        // "gimp" still finds GNU Image Manipulation Program and a typed
-        // "fx" finds Firefox.
-        return subsequence(name, query) ? 100 - penalty : 0;
-    }
-
-    function subsequence(text: string, query: string): bool {
-        let at = 0;
-        for (const ch of query) {
-            at = text.indexOf(ch, at) + 1;
-            if (at === 0)
-                return false;
-        }
-        return true;
+        return Math.max(name, metadata * metadataWeight);
     }
 
     // Empty query lists everything alphabetically -- the launcher opens
@@ -136,9 +110,11 @@ Singleton {
         if (trimmed.length === 0)
             return [...all].sort((a, b) => a.name.localeCompare(b.name));
 
+        // Ties go to the shorter name, so "Files" outranks "Files
+        // (Nautilus)" when both contain the query whole.
         return all.map(entry => ({
                 entry,
                 score: score(entry, trimmed)
-            })).filter(r => r.score > 0).sort((a, b) => b.score - a.score).map(r => r.entry);
+            })).filter(r => r.score >= threshold).sort((a, b) => b.score - a.score || a.entry.name.length - b.entry.name.length).map(r => r.entry);
     }
 }

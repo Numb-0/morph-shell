@@ -5,7 +5,7 @@ project(morph-shell VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.6 REQUIRED COMPONENTS Core Gui Quick ShaderTools)
+find_package(Qt6 6.6 REQUIRED COMPONENTS Core Gui Qml Quick ShaderTools)
 
 qt_standard_project_setup(REQUIRES 6.6)
 

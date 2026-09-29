@@ -73,3 +73,30 @@ install(
     FILES "${QT_QML_OUTPUT_DIRECTORY}/Morph/Components/qmldir"
     DESTINATION "${MORPH_QML_DIR}/Morph/Components"
 )
+
+# Search helpers for the launcher: string scoring the shell would
+# otherwise do in JavaScript, entry by entry, on every keystroke.
+qt_add_library(morphsearch SHARED)
+
+qt_add_qml_module(morphsearch
+    URI Morph.Search
+    VERSION 1.0
+    SOURCES
+        src/fuzzy.cpp
+        src/fuzzy.hpp
+)
+
+target_include_directories(morphsearch PRIVATE src)
+
+target_link_libraries(morphsearch PRIVATE Qt6::Core Qt6::Qml)
+
+install(
+    TARGETS morphsearch morphsearchplugin
+    LIBRARY DESTINATION "${MORPH_QML_DIR}/Morph/Search"
+    RUNTIME DESTINATION "${MORPH_QML_DIR}/Morph/Search"
+)
+
+install(
+    FILES "${QT_QML_OUTPUT_DIRECTORY}/Morph/Search/qmldir"
+    DESTINATION "${MORPH_QML_DIR}/Morph/Search"
+)
