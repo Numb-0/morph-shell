@@ -26,13 +26,19 @@ Item {
     }
 
     TapHandler {
-        onTapped: root.clicked()
+        onTapped: {
+            glyph.press();
+            root.clicked();
+        }
     }
 
     TapHandler {
         acceptedButtons: Qt.MiddleButton
 
-        onTapped: Bt.setEnabled(!Bt.enabled)
+        onTapped: {
+            glyph.press();
+            Bt.setEnabled(!Bt.enabled);
+        }
     }
 
     Row {
@@ -55,6 +61,8 @@ Item {
         }
 
         MaterialSymbol {
+            id: glyph
+
             anchors.verticalCenter: parent.verticalCenter
 
             icon: Bt.icon

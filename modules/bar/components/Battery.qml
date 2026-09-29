@@ -33,7 +33,10 @@ Item {
     }
 
     TapHandler {
-        onTapped: root.clicked()
+        onTapped: {
+            glyph.press();
+            root.clicked();
+        }
     }
 
     Row {
@@ -43,6 +46,8 @@ Item {
         spacing: 0//Appearance.spacing.extraSmall
 
         MaterialSymbol {
+            id: glyph
+
             anchors.verticalCenter: parent.verticalCenter
 
             icon: Power.icon

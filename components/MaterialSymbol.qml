@@ -25,6 +25,12 @@ Text {
     property real weight: 400
     property int size: Appearance.font.icon.normal
 
+    // A quick press down and back, so a click on the glyph lands as
+    // something having been pushed.
+    function press(): void {
+        pressAnim.restart();
+    }
+
     text: icon
     color: Appearance.palette.m3onSurface
 
@@ -49,6 +55,23 @@ Text {
     Behavior on fill {
         Anim {
             type: Anim.DefaultEffects
+        }
+    }
+
+    SequentialAnimation {
+        id: pressAnim
+
+        Anim {
+            target: root
+            property: "scale"
+            to: 0.8
+            type: Anim.FastEffects
+        }
+        Anim {
+            target: root
+            property: "scale"
+            to: 1
+            type: Anim.FastSpatial
         }
     }
 

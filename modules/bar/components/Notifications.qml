@@ -28,13 +28,19 @@ Item {
     }
 
     TapHandler {
-        onTapped: root.clicked()
+        onTapped: {
+            bell.press();
+            root.clicked();
+        }
     }
 
     TapHandler {
         acceptedButtons: Qt.MiddleButton
 
-        onTapped: Notifs.toggleDnd()
+        onTapped: {
+            bell.press();
+            Notifs.toggleDnd();
+        }
     }
 
     Connections {

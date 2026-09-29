@@ -46,29 +46,11 @@ Item {
             }
         }
 
-        // Pushed in: a quick press down and back on every pin.
-        SequentialAnimation {
-            id: press
-
-            Anim {
-                target: glyph
-                property: "scale"
-                to: 0.8
-                type: Anim.FastEffects
-            }
-            Anim {
-                target: glyph
-                property: "scale"
-                to: 1
-                type: Anim.FastSpatial
-            }
-        }
-
         Connections {
             target: BarState
 
             function onPinnedChanged(): void {
-                press.restart();
+                glyph.press();
             }
         }
     }

@@ -28,7 +28,10 @@ Item {
     }
 
     TapHandler {
-        onTapped: root.clicked()
+        onTapped: {
+            glyph.press();
+            root.clicked();
+        }
     }
 
     Row {
@@ -38,6 +41,8 @@ Item {
         spacing: Appearance.spacing.small
 
         MaterialSymbol {
+            id: glyph
+
             anchors.verticalCenter: parent.verticalCenter
 
             icon: Players.playing ? "pause" : "play_arrow"

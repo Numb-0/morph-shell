@@ -25,7 +25,10 @@ Item {
     }
 
     TapHandler {
-        onTapped: root.clicked()
+        onTapped: {
+            glyph.press();
+            root.clicked();
+        }
     }
 
     MaterialSymbol {

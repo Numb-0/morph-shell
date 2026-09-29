@@ -29,13 +29,19 @@ Item {
     }
 
     TapHandler {
-        onTapped: root.clicked()
+        onTapped: {
+            glyph.press();
+            root.clicked();
+        }
     }
 
     TapHandler {
         acceptedButtons: Qt.MiddleButton
 
-        onTapped: Audio.toggleMute()
+        onTapped: {
+            glyph.press();
+            Audio.toggleMute();
+        }
     }
 
     WheelHandler {
@@ -55,6 +61,8 @@ Item {
         spacing: Appearance.spacing.extraSmall
 
         MaterialSymbol {
+            id: glyph
+
             anchors.verticalCenter: parent.verticalCenter
 
             icon: Audio.icon

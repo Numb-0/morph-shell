@@ -26,7 +26,10 @@ Item {
     }
 
     TapHandler {
-        onTapped: root.clicked()
+        onTapped: {
+            glyph.press();
+            root.clicked();
+        }
     }
 
     WheelHandler {
@@ -45,6 +48,8 @@ Item {
         spacing: Appearance.spacing.extraSmall
 
         MaterialSymbol {
+            id: glyph
+
             anchors.verticalCenter: parent.verticalCenter
 
             icon: Backlight.icon

@@ -27,13 +27,19 @@ Item {
     }
 
     TapHandler {
-        onTapped: root.clicked()
+        onTapped: {
+            glyph.press();
+            root.clicked();
+        }
     }
 
     TapHandler {
         acceptedButtons: Qt.MiddleButton
 
-        onTapped: Net.setWifiEnabled(!Net.wifiEnabled)
+        onTapped: {
+            glyph.press();
+            Net.setWifiEnabled(!Net.wifiEnabled);
+        }
     }
 
     Row {
