@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Wayland
 import Morph.Blobs
 import qs.components
@@ -31,6 +32,16 @@ Variants {
 
         function toggle(panel: string): void {
             openPanel = openPanel === panel ? "" : panel;
+        }
+
+        // Panel toggles from IPC go to the focused screen only.
+        Connections {
+            target: BarState
+
+            function onPanelToggled(panel: string): void {
+                if (Hyprland.focusedMonitor?.name === win.modelData.name)
+                    win.toggle(panel);
+            }
         }
 
         readonly property int barHeight: Appearance.bar.height

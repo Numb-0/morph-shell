@@ -16,6 +16,11 @@ Singleton {
         state.pinned = !state.pinned;
     }
 
+    // Asks the bar on the focused screen to open or close one of its
+    // panels. Each screen's bar keeps its own open panel, so this only
+    // passes the request on; the bars decide which of them answers.
+    signal panelToggled(string panel)
+
     FileView {
         path: Quickshell.statePath("bar.json")
 
@@ -29,11 +34,16 @@ Singleton {
     }
 
     //   qs -p ~/morph-shell ipc call bar togglePinned
+    //   qs -p ~/morph-shell ipc call bar toggle session
     IpcHandler {
         target: "bar"
 
         function togglePinned(): void {
             root.togglePinned();
+        }
+
+        function toggle(panel: string): void {
+            root.panelToggled(panel);
         }
     }
 }
