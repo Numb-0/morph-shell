@@ -61,7 +61,7 @@ Item {
         return padding + (id - 0.5) * slot;
     }
 
-    function focus(id: string): void {
+    function goTo(id: string): void {
         Hyprland.dispatch(`hl.dsp.focus({ workspace = "${id}" })`);
     }
 
@@ -84,13 +84,13 @@ Item {
         onTapped: point => {
             const id = Math.floor((point.position.x - root.padding) / root.slot) + 1;
             if (id >= 1 && id <= root.count)
-                root.focus(String(id));
+                root.goTo(String(id));
         }
     }
 
     WheelHandler {
         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-        onWheel: event => root.focus(event.angleDelta.y > 0 ? "e-1" : "e+1")
+        onWheel: event => root.goTo(event.angleDelta.y > 0 ? "e-1" : "e+1")
     }
 
     Loader {
