@@ -150,6 +150,10 @@ Variants {
             Region {
                 item: notificationsPopup.maskItem
             }
+
+            Region {
+                item: dismissArea
+            }
         }
 
         // A thin strip at the screen edge, enlarged to the bar's whole
@@ -169,6 +173,31 @@ Variants {
 
             HoverHandler {
                 id: revealHover
+            }
+        }
+
+        // Closes the open panel, and the bar with it, on a click anywhere
+        // else. While a panel is open it spans the whole surface and is
+        // part of the mask, so the rest of the screen stops clicking
+        // through; it sits below everything else, so the bar and the
+        // panel still get their own clicks first. The click that closes
+        // is swallowed rather than passed on to the window underneath.
+        MouseArea {
+            id: dismissArea
+
+            width: win.openPanel !== "" ? win.width : 0
+            height: win.openPanel !== "" ? win.height : 0
+
+            acceptedButtons: Qt.AllButtons
+            onPressed: mouse => {
+                // Empty space on the bar itself is not outside it.
+                if (mouse.y < hitArea.height)
+                    return;
+
+                openTimer.stop();
+                closeTimer.stop();
+                win.revealed = false;
+                win.openPanel = "";
             }
         }
 

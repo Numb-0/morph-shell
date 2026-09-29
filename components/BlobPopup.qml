@@ -136,6 +136,13 @@ Item {
         HoverHandler {
             id: hover
         }
+
+        // Takes clicks on the panel's empty space, which would otherwise
+        // fall through to the bar's dismiss area and close it.
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+        }
     }
 
     // Reparents the injected content, clipped so it cannot spill out
