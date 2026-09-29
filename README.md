@@ -47,6 +47,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | PipeWire | Volume widget | System service: the NixOS module turns it on. |
 | MPRIS | Media widget | Nothing to install; players expose it themselves. |
 | NetworkManager | Network widget | System service: enable it yourself (`networking.networkmanager.enable`). The shell talks to it over D-Bus, so `nmcli` isn't needed. |
+| BlueZ | Bluetooth widget | System service: enable it yourself (`hardware.bluetooth.enable`). The shell talks to it over D-Bus, so `bluetoothctl` isn't needed. The widget hides itself when there is no adapter. Devices that pair without a PIN (headphones, most mice) pair from the panel; one that asks for a passkey needs an agent such as `blueman-applet` running. |
 | power-profiles-daemon | Power profile widget | System service: the NixOS module turns it on, unless TLP is enabled (the two conflict). The shell talks to it over D-Bus, so `powerprofilesctl` isn't needed. The widget hides itself when the daemon isn't running. |
 | Notification daemon | Notification centre and popups | Built in: the shell is the notification daemon itself. Don't run another one (mako, dunst, swaync) alongside it, or whichever starts first takes the D-Bus name and the other gets nothing. |
 

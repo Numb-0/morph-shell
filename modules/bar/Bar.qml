@@ -25,6 +25,7 @@ Variants {
         readonly property bool batteryOpen: openPanel === "battery"
         readonly property bool brightnessOpen: openPanel === "brightness"
         readonly property bool networkOpen: openPanel === "network"
+        readonly property bool bluetoothOpen: openPanel === "bluetooth"
         readonly property bool sessionOpen: openPanel === "session"
         readonly property bool notificationsOpen: openPanel === "notifications"
 
@@ -40,7 +41,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || profile.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || notifications.hovered || notificationsPopup.hovered || session.hovered || sessionPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || media.hovered || mediaPopup.hovered || profile.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || notifications.hovered || notificationsPopup.hovered || session.hovered || sessionPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -133,6 +134,10 @@ Variants {
             }
 
             Region {
+                item: bluetoothPopup.maskItem
+            }
+
+            Region {
                 item: sessionPopup.maskItem
             }
 
@@ -218,6 +223,18 @@ Variants {
             anchor: network
             anchorBottom: surface.y + surface.height
             open: win.networkOpen
+        }
+
+        BluetoothPopup {
+            id: bluetoothPopup
+
+            group: group
+            anchor: bluetooth
+            anchorBottom: surface.y + surface.height
+
+            // Never reachable without an adapter, since the widget that
+            // opens it is not drawn either.
+            open: win.bluetoothOpen && Bt.available
         }
 
         NotificationsPopup {
@@ -323,7 +340,7 @@ Variants {
 
         // The status widgets sit at the far end of the bar, inside the
         // surface's own margin: session, battery, volume, backlight,
-        // network, notifications, reading outward from the edge.
+        // network, Bluetooth, notifications, reading outward from the edge.
         Session {
             id: session
 
@@ -399,10 +416,26 @@ Variants {
             onClicked: win.toggle("network")
         }
 
+        Bluetooth {
+            id: bluetooth
+
+            anchors.right: network.left
+
+            y: surface.y + (surface.height - height) / 2
+
+            // A machine without an adapter, or without bluetoothd
+            // running, has nothing to show here.
+            visible: Bt.available
+
+            opacity: win.reveal
+
+            onClicked: win.toggle("bluetooth")
+        }
+
         Notifications {
             id: notifications
 
-            anchors.right: network.left
+            anchors.right: bluetooth.visible ? bluetooth.left : network.left
 
             y: surface.y + (surface.height - height) / 2
 

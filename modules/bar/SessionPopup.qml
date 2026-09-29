@@ -118,9 +118,29 @@ BlobPopup {
             }
         }
 
-        StyledText {
-            Layout.alignment: Qt.AlignHCenter
+        // Sized to the wider of the label and "Confirm", so arming a
+        // button does not resize it and shove its neighbours about.
+        TextMetrics {
+            id: labelMetrics
 
+            font: labelText.font
+            text: btn.label
+        }
+
+        TextMetrics {
+            id: confirmMetrics
+
+            font: labelText.font
+            text: qsTr("Confirm")
+        }
+
+        StyledText {
+            id: labelText
+
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredWidth: Math.ceil(Math.max(labelMetrics.advanceWidth, confirmMetrics.advanceWidth))
+
+            horizontalAlignment: Text.AlignHCenter
             animate: true
             text: btn.armed ? qsTr("Confirm") : btn.label
             font.pixelSize: Appearance.font.small
