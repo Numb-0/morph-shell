@@ -319,7 +319,7 @@ BlobPopup {
                 implicitHeight: 56
 
                 radius: Appearance.rounding.extraLarge
-                color: Net.wifiEnabled ? Appearance.palette.m3primaryContainer : Appearance.palette.m3surfaceContainerHigh
+                color: Net.wifiEnabled ? Appearance.palette.m3secondaryContainer : Appearance.palette.m3surfaceContainerHigh
 
                 Behavior on color {
                     CAnim {}
@@ -334,7 +334,7 @@ BlobPopup {
                     MaterialSymbol {
                         icon: Net.wifiEnabled ? "wifi" : "wifi_off"
                         size: Appearance.font.icon.normal
-                        color: Net.wifiEnabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
+                        color: Net.wifiEnabled ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurfaceVariant
                         fill: Net.wifiEnabled ? 1 : 0
                     }
 
@@ -346,7 +346,7 @@ BlobPopup {
                             text: qsTr("Wi-Fi")
                             font.pixelSize: Appearance.font.normal
                             font.weight: Font.Medium
-                            color: Net.wifiEnabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurface
+                            color: Net.wifiEnabled ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
                         }
 
                         StyledText {
@@ -354,7 +354,7 @@ BlobPopup {
 
                             animate: true
                             text: !Net.wifi ? qsTr("No adapter") : Net.wifiBlocked ? qsTr("Blocked by hardware switch") : !Net.wifiEnabled ? qsTr("Off") : Net.active?.name ?? qsTr("Not connected")
-                            color: Net.wifiEnabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
+                            color: Net.wifiEnabled ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurfaceVariant
                             elide: Text.ElideRight
                         }
                     }
