@@ -6,6 +6,20 @@ custom C++/QML plugin for the blob-morphing popups.
 The blob-morphing popups were inspired by
 [Caelestia Shell](https://github.com/caelestia-dots/shell).
 
+## Compositor support
+
+Most of the shell runs on any Wayland compositor that supports the
+layer-shell protocol. A few features talk to Hyprland directly, through
+Quickshell's Hyprland integration, and only work there:
+
+| Feature | On Hyprland | Elsewhere |
+| --- | --- | --- |
+| Workspaces widget | Shows each monitor's workspaces, and switches them on click and scroll. | Shows only empty slots, with the active star parked on the first, and clicks and scrolls do nothing. |
+| `bar toggle <panel>` over IPC | Opens the panel on the focused monitor. | Opens nothing: there is no focused monitor to pick. Panels still open from the bar itself. |
+
+Switching workspaces uses Hyprland's Lua dispatchers, so it needs a
+Hyprland with the Lua config (tested on 0.56).
+
 ## Installing with Nix
 
 The flake provides a package (`packages.<system>.morph-shell`) and a
@@ -168,9 +182,9 @@ morph-shell ipc show   # list every target and function the running shell expose
 
 | Target | Function | Description |
 | --- | --- | --- |
-| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen: `clock`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications`, `session` or `theme`. |
-| `launcher` | `toggle` | Open the app launcher, or close it if it's open. |
-| `launcher` | `open` | Open the app launcher. |
+| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications`, `session` or `theme`. |
+| `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
+| `launcher` | `open` | Open the app launcher on the focused screen. Off Hyprland it opens on the first screen. |
 | `launcher` | `close` | Close the app launcher. |
 | `notifs` | `toggleDnd` | Turn do not disturb on or off. Only critical notifications pop up while it's on; the rest still land in the centre. |
 | `notifs` | `clear` | Dismiss every notification. |

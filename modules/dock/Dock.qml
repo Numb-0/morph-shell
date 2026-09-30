@@ -27,7 +27,9 @@ Scope {
         launcherScreen = launcherScreen === screen ? "" : screen;
     }
 
-    readonly property string focusedScreen: Hyprland.focusedMonitor?.name ?? ""
+    // Where a key opens it: the focused monitor on Hyprland, and the
+    // first screen anywhere else, where there is no focus to ask about.
+    readonly property string focusedScreen: Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? ""
 
     // So a key can open it. The compositor side is one line, e.g. in
     // hyprland.conf:
