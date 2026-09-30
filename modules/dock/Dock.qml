@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import Morph.Blobs
@@ -18,8 +19,15 @@ Scope {
     id: root
 
     // One launcher for the session rather than one per screen: two open
-    // at once would each be holding the keyboard.
-    property bool launcherOpen: false
+    // at once would each be holding the keyboard. Holds the name of the
+    // screen it is open on, or "" when it is closed.
+    property string launcherScreen: ""
+
+    function toggleLauncher(screen: string): void {
+        launcherScreen = launcherScreen === screen ? "" : screen;
+    }
+
+    readonly property string focusedScreen: Hyprland.focusedMonitor?.name ?? ""
 
     // So a key can open it. The compositor side is one line, e.g. in
     // hyprland.conf:
@@ -28,16 +36,17 @@ Scope {
     IpcHandler {
         target: "launcher"
 
+        // From a key, the launcher opens on the focused screen.
         function toggle(): void {
-            root.launcherOpen = !root.launcherOpen;
+            root.toggleLauncher(root.focusedScreen);
         }
 
         function open(): void {
-            root.launcherOpen = true;
+            root.launcherScreen = root.focusedScreen;
         }
 
         function close(): void {
-            root.launcherOpen = false;
+            root.launcherScreen = "";
         }
     }
 
@@ -52,7 +61,7 @@ Scope {
             readonly property int dockMargin: Appearance.dock.margin
             readonly property int dockHeight: Appearance.dock.height
 
-            readonly property bool launcherOpen: root.launcherOpen
+            readonly property bool launcherOpen: root.launcherScreen === modelData.name
 
             // How many pinned icons the pointer is on. A count rather
             // than a flag because the icons come out of a Repeater and
@@ -161,7 +170,7 @@ Scope {
                 TapHandler {
                     enabled: win.launcherOpen
 
-                    onTapped: root.launcherOpen = false
+                    onTapped: root.launcherScreen = ""
                 }
             }
 
@@ -240,7 +249,7 @@ Scope {
 
                     active: win.launcherOpen
 
-                    onDismissed: root.launcherOpen = false
+                    onDismissed: root.launcherScreen = ""
                 }
             }
 
@@ -270,7 +279,7 @@ Scope {
                     }
 
                     TapHandler {
-                        onTapped: root.launcherOpen = !root.launcherOpen
+                        onTapped: root.toggleLauncher(win.modelData.name)
                     }
 
                     MaterialSymbol {
