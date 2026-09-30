@@ -8,9 +8,11 @@ The blob-morphing popups were inspired by
 
 ## Compositor support
 
+morph-shell is made for Hyprland: for full functionality, run it there.
+
 Most of the shell runs on any Wayland compositor that supports the
-layer-shell protocol. A few features talk to Hyprland directly, through
-Quickshell's Hyprland integration, and only work there:
+layer-shell protocol (so not GNOME). A few features talk to Hyprland
+directly, through Quickshell's Hyprland integration, and only work there:
 
 | Feature | On Hyprland | Elsewhere |
 | --- | --- | --- |
