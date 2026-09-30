@@ -95,6 +95,10 @@ BlobPopup {
         readonly property bool connecting: modelData.state === ConnectionState.Connecting
         readonly property bool askingPassword: Net.passwordNetwork === modelData
 
+        // What went wrong on this network, if the last thing to go wrong
+        // did so here.
+        readonly property string error: Net.errorNetwork === modelData ? Net.error : ""
+
         // A row near the bottom of the list would open its field out of
         // sight, so the list scrolls to it once the field has laid out.
         onAskingPasswordChanged: if (askingPassword)
@@ -157,14 +161,18 @@ BlobPopup {
                     StyledText {
                         Layout.fillWidth: true
 
-                        // Only for the one joined or being joined, and the
-                        // ones joined before, so the list stays a list of
-                        // names rather than of fine print.
+                        // Only for the one joined or being joined, one that
+                        // just failed, and the ones joined before, so the
+                        // list stays a list of names rather than of fine
+                        // print.
                         visible: text !== ""
 
+                        readonly property bool showsError: item.error !== "" && !item.connecting && !item.active
+
                         animate: true
-                        text: item.connecting ? qsTr("Connecting…") : item.active ? qsTr("Connected") : item.modelData.known ? qsTr("Saved") : ""
-                        color: Appearance.palette.m3onSurfaceVariant
+                        text: item.connecting ? qsTr("Connecting…") : item.active ? qsTr("Connected") : showsError ? item.error : item.modelData.known && item.modelData !== Net.trial ? qsTr("Saved") : ""
+                        color: showsError ? Appearance.palette.m3error : Appearance.palette.m3onSurfaceVariant
+                        elide: Text.ElideRight
                     }
                 }
 
@@ -227,7 +235,7 @@ BlobPopup {
             radius: height / 2
             color: Appearance.palette.m3surfaceContainerHighest
             border.width: 2
-            border.color: password.activeFocus ? Appearance.palette.m3primary : Appearance.palette.m3outline
+            border.color: item.error !== "" ? Appearance.palette.m3error : password.activeFocus ? Appearance.palette.m3primary : Appearance.palette.m3outline
 
             Behavior on border.color {
                 CAnim {}
@@ -474,17 +482,6 @@ BlobPopup {
                 }
             }
 
-            StyledText {
-                visible: Net.error !== ""
-
-                Layout.fillWidth: true
-                Layout.leftMargin: Appearance.padding.large
-                Layout.rightMargin: Appearance.padding.large
-
-                text: Net.error
-                color: Appearance.palette.m3error
-                wrapMode: Text.Wrap
-            }
         }
     }
 }

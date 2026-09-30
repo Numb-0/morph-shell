@@ -46,8 +46,27 @@ Singleton {
     // password field. Null the rest of the time.
     property var passwordNetwork: null
 
-    // The last thing that went wrong, for the panel to say.
+    // The last thing that went wrong, and the network it went wrong on,
+    // so the panel can say it on that network's row.
     property string error: ""
+    property var errorNetwork: null
+
+    function clearError(): void {
+        error = "";
+        errorNetwork = null;
+    }
+
+    // A network being joined for the first time. NetworkManager saves a
+    // profile for it the moment it is tried, before any password, so a
+    // try that never connects would leave it listed as saved. Held here
+    // until it connects, and its profile forgotten if it never does.
+    property var trial: null
+
+    function dropTrial(): void {
+        if (trial && !trial.connected)
+            trial.forget();
+        trial = null;
+    }
 
     // How many open panels want the list of what is in range. A count
     // rather than a flag: every screen has its own bar, and one panel
@@ -99,8 +118,11 @@ Singleton {
         if (!network || network.connected || network.stateChanging)
             return;
 
-        error = "";
+        clearError();
         passwordNetwork = null;
+        dropTrial();
+        if (!network.known)
+            trial = network;
         network.connect();
     }
 
@@ -108,13 +130,17 @@ Singleton {
         if (!network || password.length === 0)
             return;
 
-        error = "";
+        clearError();
         passwordNetwork = null;
         pending.network = network;
         network.connectWithPsk(password);
     }
 
     function cancelPassword(): void {
+        if (passwordNetwork !== null && passwordNetwork === trial)
+            dropTrial();
+        if (passwordNetwork !== null && passwordNetwork === errorNetwork)
+            clearError();
         passwordNetwork = null;
     }
 
@@ -154,19 +180,34 @@ Singleton {
                 const retried = pending.network === modelData;
                 pending.network = null;
 
-                if (reason === ConnectionFailReason.NoSecrets && root.takesPassword(modelData)) {
-                    root.passwordNetwork = modelData;
+                const wantsPassword = reason === ConnectionFailReason.NoSecrets && root.takesPassword(modelData);
+
+                root.errorNetwork = modelData;
+                if (wantsPassword)
                     root.error = retried ? qsTr("Wrong password") : "";
-                } else if (reason === ConnectionFailReason.NoSecrets) {
+                else if (reason === ConnectionFailReason.NoSecrets)
                     root.error = qsTr("This network needs a full network manager to join");
-                } else {
+                else
                     root.error = ConnectionFailReason.toString(reason);
-                }
+
+                // Asked again for a password only while a panel is open to
+                // take it. Otherwise nothing more will be asked of it, so a
+                // first try ends here.
+                if (wantsPassword && root.scanRequests > 0)
+                    root.passwordNetwork = modelData;
+                else if (root.trial === modelData)
+                    root.dropTrial();
             }
 
+
             function onConnectedChanged(): void {
-                if (modelData.connected && root.passwordNetwork === modelData)
+                if (!modelData.connected)
+                    return;
+                if (root.passwordNetwork === modelData)
                     root.passwordNetwork = null;
+                // Joined, so its profile is really saved now.
+                if (root.trial === modelData)
+                    root.trial = null;
             }
         }
     }
