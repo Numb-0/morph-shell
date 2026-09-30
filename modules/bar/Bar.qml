@@ -30,6 +30,23 @@ Variants {
         readonly property bool sessionOpen: openPanel === "session"
         readonly property bool notificationsOpen: openPanel === "notifications"
         readonly property bool themeOpen: openPanel === "theme"
+        readonly property bool trayOpen: openPanel === "tray"
+
+        // Which tray item's menu is open, and the icon it hangs from.
+        property var trayItem: null
+        property Item trayIcon: null
+
+        // A right click on the icon whose menu is open closes it; on any
+        // other, the menu moves over to that one.
+        function toggleTray(item: var, icon: Item): void {
+            if (trayOpen && trayItem === item) {
+                openPanel = "";
+                return;
+            }
+            trayItem = item;
+            trayIcon = icon;
+            openPanel = "tray";
+        }
 
         function toggle(panel: string): void {
             openPanel = openPanel === panel ? "" : panel;
@@ -74,7 +91,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || session.hovered || sessionPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered || sessionPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -196,6 +213,10 @@ Variants {
 
             Region {
                 item: themePopup.maskItem
+            }
+
+            Region {
+                item: trayPopup.maskItem
             }
 
             Region {
@@ -363,6 +384,33 @@ Variants {
             open: win.themeOpen && Themes.available
         }
 
+        // Grows out of whichever tray icon asked, through a stand-in in
+        // the bar's own coordinates: the popups place themselves by
+        // their anchor's position, and an icon's is inside the tray.
+        Item {
+            id: trayAnchor
+
+            x: tray.x + tray.rowX + (win.trayIcon?.x ?? 0)
+            y: tray.y
+            width: win.trayIcon?.width ?? tray.width
+            height: tray.height
+        }
+
+        TrayMenuPopup {
+            id: trayPopup
+
+            group: group
+            anchor: trayAnchor
+            anchorBottom: surface.y + surface.height
+
+            item: win.trayItem
+
+            // An application leaving the tray takes its menu with it.
+            open: win.trayOpen && win.trayItem !== null
+
+            onFinished: win.openPanel = ""
+        }
+
         BlobRect {
             id: surface
 
@@ -461,7 +509,8 @@ Variants {
 
         // The status widgets sit at the far end of the bar, inside the
         // surface's own margin: session, battery, volume, backlight,
-        // network, Bluetooth, the pin, notifications, reading outward from the edge.
+        // network, Bluetooth, the pin, notifications and the tray, reading
+        // outward from the edge.
         Session {
             id: session
 
@@ -578,6 +627,19 @@ Variants {
             opacity: win.reveal
 
             onClicked: win.toggle("notifications")
+        }
+
+        Tray {
+            id: tray
+
+            anchors.right: notifications.left
+
+            y: surface.y + (surface.height - height) / 2
+
+            activeItem: win.trayOpen ? win.trayItem : null
+            opacity: win.reveal
+
+            onMenuRequested: (item, icon) => win.toggleTray(item, icon)
         }
     }
 }
