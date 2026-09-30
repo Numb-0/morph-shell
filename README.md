@@ -59,6 +59,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | --- | --- | --- |
 | JetBrains Mono, Material Symbols Rounded | Text and icons | Bundled with the package; installing them yourself isn't needed. |
 | `brightnessctl` | Brightness widget | Put on the wrapper's `PATH`. |
+| `grim`, `wl-clipboard`, `libnotify`, `satty` | Screenshots | Put on the wrapper's `PATH`. |
 | UPower | Battery widget | System service: the NixOS module turns it on. |
 | PipeWire | Volume widget | System service: the NixOS module turns it on. |
 | MPRIS | Media widget | Nothing to install; players expose it themselves. |
@@ -219,6 +220,8 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `notifs` | `toggleDnd` | Turn do not disturb on or off. Only critical notifications pop up while it's on; the rest still land in the centre. |
 | `notifs` | `clear` | Dismiss every notification. |
 | `palette` | `reload` | Re-read `colors.json` (see [Colours](#colours)). |
+| `screenshot` | `region` | Pick a region to screenshot (see [Screenshots](#screenshots)). |
+| `screenshot` | `cancel` | Close the region picker without taking anything. |
 
 For example, to open the launcher with Super+Space in Hyprland:
 
@@ -228,6 +231,28 @@ bind = SUPER, Space, exec, morph-shell ipc call launcher toggle
 
 When running from a checkout (`morph-run`), point `qs` at the working
 tree instead: `qs -p ~/morph-shell ipc call launcher toggle`.
+
+## Screenshots
+
+`morph-shell ipc call screenshot region` dims every screen and outlines
+what a click would take: the window under the pointer, or the whole
+screen over bare desktop. Drag to take a rectangle instead. Escape or a
+right click cancels.
+
+The shell only picks the region, the way `slurp` would; `grim` takes the
+picture. It goes straight to the clipboard and to
+`~/Pictures/Screenshots/<date>_<time>.png` (under `$XDG_PICTURES_DIR`
+when that is set), and a notification says so for 8 seconds. Clicking
+it, or its Edit button, opens the file in `satty`. The notification
+stays in the centre after the popup goes, and Edit still works from
+there.
+
+The picker snaps to windows through Hyprland's IPC. Elsewhere it still
+works, but only by dragging or taking the whole screen.
+
+```
+bind = , Print, exec, morph-shell ipc call screenshot region
+```
 
 ## Development
 

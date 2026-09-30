@@ -11,14 +11,21 @@
   quickshell,
   dbus,
   brightnessctl,
+  coreutils,
+  grim,
+  wl-clipboard,
+  libnotify,
+  satty,
   jetbrains-mono,
   material-symbols,
   extraRuntimeDeps ? [],
   fonts ? [jetbrains-mono material-symbols],
 }: let
   # dbus-send: the power profile widget pings power-profiles-daemon once
-  # at startup to decide whether to show itself.
-  runtimeDeps = [brightnessctl dbus] ++ extraRuntimeDeps;
+  # at startup to decide whether to show itself. grim, wl-copy,
+  # notify-send and satty: the screenshot pipeline, which also wants
+  # coreutils even when the shell runs as a service with a bare PATH.
+  runtimeDeps = [brightnessctl dbus coreutils grim wl-clipboard libnotify satty] ++ extraRuntimeDeps;
 
   # Layer the bundled fonts on top of the system fontconfig, so the shell
   # finds them whether or not they are installed, and every other font
