@@ -170,6 +170,34 @@ To pull the latest version later: `nix flake update morph-shell`.
 nix run github:Numb-0/morph-shell
 ```
 
+## Colours
+
+The shell reads its Material 3 palette from
+`$XDG_STATE_HOME/morph-shell/colors.json` (by default
+`~/.local/state/morph-shell/colors.json`). The file is a flat JSON object
+of role names to hex colours, in camelCase or snake_case, the way
+matugen writes them:
+
+```json
+{ "primary": "#a8c8ff", "onPrimary": "#07305f", "surface": "#111318", ... }
+```
+
+Keys the shell doesn't know are ignored, and a role the file leaves out
+falls back to the built-in default, as does every role when the file is
+missing. The palette lives in `config/Appearance.qml`; besides the
+standard M3 roles it reads `success`, `warning` and their `on…`/`…Container`
+variants.
+
+The shell watches the file and fades to the new colours when it is
+edited or replaced. A switcher that repoints a symlink further up the
+chain, which the watch can't see, should call
+`morph-shell ipc call palette reload` afterwards.
+
+[chromix](https://github.com/Numb-0/chromix) writes this file: its
+`morph-shell` target renders the matugen template for each theme, links
+the result here and triggers the reload. It also drives the theme panel
+in the bar, which only shows when chromix is installed.
+
 ## IPC
 
 The running shell can be controlled from the command line through
@@ -190,6 +218,7 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `launcher` | `close` | Close the app launcher. |
 | `notifs` | `toggleDnd` | Turn do not disturb on or off. Only critical notifications pop up while it's on; the rest still land in the centre. |
 | `notifs` | `clear` | Dismiss every notification. |
+| `palette` | `reload` | Re-read `colors.json` (see [Colours](#colours)). |
 
 For example, to open the launcher with Super+Space in Hyprland:
 
