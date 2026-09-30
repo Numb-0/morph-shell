@@ -63,34 +63,4 @@ Singleton {
         const at = used.indexOf(from);
         goTo(monitor, used[(at + delta + used.length) % used.length]);
     }
-
-    // Quickshell keeps its picture of Hyprland from the events it
-    // understands, but some changes -- a window moved between workspaces,
-    // a workspace moved to another monitor -- can leave counts or a
-    // monitor's active workspace behind. On any event that touches them,
-    // ask Hyprland for the lot again.
-    readonly property var events: ["openwindow", "closewindow", "movewindow", "movewindowv2", "urgent", "workspace", "workspacev2", "focusedmon", "focusedmonv2", "createworkspace", "createworkspacev2", "destroyworkspace", "destroyworkspacev2", "moveworkspace", "moveworkspacev2", "renameworkspace", "monitoradded", "monitoraddedv2", "monitorremoved", "monitorremovedv2"]
-
-    Connections {
-        target: Hyprland
-
-        function onRawEvent(event: HyprlandEvent): void {
-            if (root.events.includes(event.name))
-                refresh.restart();
-        }
-    }
-
-    // Events come in bursts -- a switch is several at once -- so wait
-    // for the burst to end and refresh once.
-    Timer {
-        id: refresh
-
-        interval: 50
-
-        onTriggered: {
-            Hyprland.refreshMonitors();
-            Hyprland.refreshWorkspaces();
-            Hyprland.refreshToplevels();
-        }
-    }
 }
