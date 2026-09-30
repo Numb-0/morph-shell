@@ -76,11 +76,13 @@ Item {
 
     // The running mark. Sits under the icon rather than over it, and is
     // a dot rather than a bar so it reads at a glance without competing
-    // with the icon it belongs to.
+    // with the icon it belongs to. Measured from the icon's resting edge
+    // rather than from the dock's, so it stays close to the icon instead
+    // of sinking towards the border.
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: -Appearance.padding.extraSmall / 2
+        anchors.top: parent.verticalCenter
+        anchors.topMargin: root.size / 2 + Appearance.padding.extraSmall
 
         implicitWidth: root.running ? Appearance.padding.extraSmall : 0
         implicitHeight: implicitWidth
