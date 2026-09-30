@@ -119,14 +119,19 @@ Variants {
         screen: modelData
         color: "transparent"
 
-        // The keyboard outright while the network panel is asking for a
-        // password, so the field takes typing the moment it appears; on
-        // demand while any other panel is open, so the focus grab has a
-        // surface that can take it. The rest of the time the bar never
-        // holds it. Guarded, as the dock's is, because the attached
-        // object exists only on a layer-shell compositor.
+        // The keyboard while a panel is open, so the network panel's
+        // password field takes typing the moment it appears. On Hyprland
+        // the focus grab hands it over, so the bar only has to be willing
+        // to take it: taking it outright would itself clear the grab.
+        // Anywhere else it is taken outright, and only for the password
+        // field. The rest of the time the bar never holds it. Guarded, as
+        // the dock's is, because the attached object exists only on a
+        // layer-shell compositor.
+        readonly property bool askingPassword: networkOpen && Net.passwordNetwork !== null
+        readonly property int keyboardMode: openPanel === "" ? WlrKeyboardFocus.None : onHyprland ? WlrKeyboardFocus.OnDemand : askingPassword ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+
         Component.onCompleted: if (this.WlrLayershell !== null)
-            this.WlrLayershell.keyboardFocus = Qt.binding(() => win.networkOpen && Net.passwordNetwork !== null ? WlrKeyboardFocus.Exclusive : win.openPanel !== "" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None)
+            this.WlrLayershell.keyboardFocus = Qt.binding(() => win.keyboardMode)
 
         // Floats over everything and reserves nothing, so windows lay out
         // as if the bar were not there -- unless it is pinned, below.

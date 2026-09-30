@@ -29,6 +29,8 @@ Scope {
 
     // Where a key opens it: the focused monitor on Hyprland, and the
     // first screen anywhere else, where there is no focus to ask about.
+    readonly property bool onHyprland: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null
+
     readonly property string focusedScreen: Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? ""
 
     // So a key can open it. The compositor side is one line, e.g. in
@@ -135,39 +137,23 @@ Scope {
                 right: true
             }
 
-            // The launcher wants the keyboard outright: it is opened by a
-            // key as often as by a click, and on-demand focus only
-            // arrives with a click. Guarded because the attached object
+            // The launcher wants the keyboard the moment it opens: it is
+            // opened by a key as often as by a click. On Hyprland the
+            // focus grab hands it over, so the dock only has to be willing
+            // to take it: taking it outright would itself clear the grab.
+            // Anywhere else, on-demand focus only arrives with a click, so
+            // it is taken outright. Guarded because the attached object
             // exists only on a layer-shell compositor.
             Component.onCompleted: if (this.WlrLayershell !== null)
-                this.WlrLayershell.keyboardFocus = Qt.binding(() => win.launcherOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None)
+                this.WlrLayershell.keyboardFocus = Qt.binding(() => !win.launcherOpen ? WlrKeyboardFocus.None : root.onHyprland ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.Exclusive)
 
             // On Hyprland, a click anywhere outside the dock, on any
-            // monitor, puts the launcher away too. Started a moment after
-            // the launcher opens rather than with it: the launcher takes
-            // the keyboard as it opens, and a grab already running when
-            // that lands is cleared on the spot, closing the launcher
-            // before it has been seen.
+            // monitor, puts the launcher away too.
             HyprlandFocusGrab {
-                id: grab
-
                 windows: [win]
+                active: win.launcherOpen && root.onHyprland
 
                 onCleared: root.launcherScreen = ""
-            }
-
-            onLauncherOpenChanged: {
-                grabDelay.stop();
-                grab.active = false;
-                if (launcherOpen && Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null)
-                    grabDelay.start();
-            }
-
-            Timer {
-                id: grabDelay
-
-                interval: 100
-                onTriggered: grab.active = true
             }
 
             // Input is limited to the hit area; everything else clicks
