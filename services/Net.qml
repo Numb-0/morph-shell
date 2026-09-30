@@ -111,9 +111,17 @@ Singleton {
         scanRequests = Math.max(0, scanRequests + (watching ? 1 : -1));
     }
 
-    // Tried without a password first, as the module suggests: a saved
-    // network comes up on its stored key, and the field only opens once
-    // NetworkManager actually asks for one.
+    // A secured network never joined has no key to try, so the field
+    // opens straight away and the first try carries the password.
+    // Trying without one first would fail on the spot -- the shell is not
+    // a NetworkManager secret agent, so nothing can be asked for the key
+    // mid-connection -- and the failure costs the network already joined:
+    // NetworkManager drops it for the try, then autoconnects back to it,
+    // racing the password typed in the meantime.
+    //
+    // Anything else is tried as it is: a saved network comes up on its
+    // stored key, and the field only opens if NetworkManager turns out
+    // to have none for it.
     function connectTo(network: var): void {
         if (!network || network.connected || network.stateChanging)
             return;
@@ -121,6 +129,12 @@ Singleton {
         clearError();
         passwordNetwork = null;
         dropTrial();
+
+        if (!network.known && takesPassword(network)) {
+            passwordNetwork = network;
+            return;
+        }
+
         if (!network.known)
             trial = network;
         network.connect();
@@ -132,6 +146,13 @@ Singleton {
 
         clearError();
         passwordNetwork = null;
+        // The first try at a new network saves a profile for it, which
+        // only stays if the try connects. A retry after a wrong password
+        // is still the same first try.
+        if (!network.known && trial !== network) {
+            dropTrial();
+            trial = network;
+        }
         pending.network = network;
         network.connectWithPsk(password);
     }
