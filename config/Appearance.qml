@@ -261,12 +261,18 @@ Singleton {
         onLoadFailed: root.fadeTo({})
     }
 
+    // Re-reads the colours file, for a switcher that repoints a link the
+    // watch above cannot see.
+    function reloadPalette(): void {
+        colorsFile.reload();
+    }
+
     //   qs -p ~/morph-shell ipc call palette reload
     IpcHandler {
         target: "palette"
 
         function reload(): void {
-            colorsFile.reload();
+            root.reloadPalette();
         }
     }
 

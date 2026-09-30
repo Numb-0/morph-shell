@@ -168,7 +168,7 @@ morph-shell ipc show   # list every target and function the running shell expose
 
 | Target | Function | Description |
 | --- | --- | --- |
-| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen: `clock`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications` or `session`. |
+| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen: `clock`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications`, `session` or `theme`. |
 | `launcher` | `toggle` | Open the app launcher, or close it if it's open. |
 | `launcher` | `open` | Open the app launcher. |
 | `launcher` | `close` | Close the app launcher. |

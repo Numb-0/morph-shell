@@ -29,6 +29,7 @@ Variants {
         readonly property bool bluetoothOpen: openPanel === "bluetooth"
         readonly property bool sessionOpen: openPanel === "session"
         readonly property bool notificationsOpen: openPanel === "notifications"
+        readonly property bool themeOpen: openPanel === "theme"
 
         function toggle(panel: string): void {
             openPanel = openPanel === panel ? "" : panel;
@@ -52,7 +53,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || session.hovered || sessionPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || session.hovered || sessionPopup.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -164,6 +165,10 @@ Variants {
 
             Region {
                 item: notificationsPopup.maskItem
+            }
+
+            Region {
+                item: themePopup.maskItem
             }
 
             Region {
@@ -319,6 +324,18 @@ Variants {
             onFinished: win.openPanel = ""
         }
 
+        ThemePopup {
+            id: themePopup
+
+            group: group
+            anchor: theme
+            anchorBottom: surface.y + surface.height
+
+            // Never reachable without chromix, since the widget that
+            // opens it is not drawn either.
+            open: win.themeOpen && Themes.available
+        }
+
         BlobRect {
             id: surface
 
@@ -397,6 +414,22 @@ Variants {
             visible: Profiles.available
 
             opacity: win.reveal
+        }
+
+        Theme {
+            id: theme
+
+            anchors.left: profile.visible ? profile.right : media.right
+
+            y: surface.y + (surface.height - height) / 2
+
+            // Nothing to switch without a chromix manifest.
+            visible: Themes.available
+
+            active: win.themeOpen
+            opacity: win.reveal
+
+            onClicked: win.toggle("theme")
         }
 
         // The status widgets sit at the far end of the bar, inside the
