@@ -35,6 +35,27 @@ Variants {
             openPanel = openPanel === panel ? "" : panel;
         }
 
+        // Closes the open panel, and the bar with it.
+        function dismiss(): void {
+            openTimer.stop();
+            closeTimer.stop();
+            revealed = false;
+            openPanel = "";
+        }
+
+        // How a click outside closes the open panel. On Hyprland, a focus
+        // grab: it ends on a click anywhere outside the bar, on any
+        // monitor, and puts nothing over the windows underneath. Anywhere
+        // else, the dismiss area below.
+        readonly property bool onHyprland: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null
+
+        HyprlandFocusGrab {
+            windows: [win]
+            active: win.onHyprland && win.openPanel !== ""
+
+            onCleared: win.dismiss()
+        }
+
         // Panel toggles from IPC go to the focused screen only.
         Connections {
             target: BarState
@@ -98,13 +119,14 @@ Variants {
         screen: modelData
         color: "transparent"
 
-        // The keyboard only while the network panel is asking for a
-        // password, and then outright, so the field takes typing the
-        // moment it appears. The rest of the time the bar never holds
-        // it. Guarded, as the dock's is, because the attached object
-        // exists only on a layer-shell compositor.
+        // The keyboard outright while the network panel is asking for a
+        // password, so the field takes typing the moment it appears; on
+        // demand while any other panel is open, so the focus grab has a
+        // surface that can take it. The rest of the time the bar never
+        // holds it. Guarded, as the dock's is, because the attached
+        // object exists only on a layer-shell compositor.
         Component.onCompleted: if (this.WlrLayershell !== null)
-            this.WlrLayershell.keyboardFocus = Qt.binding(() => win.networkOpen && Net.passwordNetwork !== null ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None)
+            this.WlrLayershell.keyboardFocus = Qt.binding(() => win.networkOpen && Net.passwordNetwork !== null ? WlrKeyboardFocus.Exclusive : win.openPanel !== "" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None)
 
         // Floats over everything and reserves nothing, so windows lay out
         // as if the bar were not there -- unless it is pinned, below.
@@ -196,17 +218,20 @@ Variants {
             }
         }
 
-        // Closes the open panel, and the bar with it, on a click anywhere
-        // else. While a panel is open it spans the whole surface and is
-        // part of the mask, so the rest of the screen stops clicking
-        // through; it sits below everything else, so the bar and the
-        // panel still get their own clicks first. The click that closes
-        // is swallowed rather than passed on to the window underneath.
+        // Off Hyprland, closes the open panel on a click anywhere else on
+        // this screen. While a panel is open it spans the whole surface
+        // and is part of the mask, so the rest of the screen stops
+        // clicking through; it sits below everything else, so the bar and
+        // the panel still get their own clicks first. The click that
+        // closes is swallowed rather than passed on to the window
+        // underneath.
         MouseArea {
             id: dismissArea
 
-            width: win.openPanel !== "" ? win.width : 0
-            height: win.openPanel !== "" ? win.height : 0
+            readonly property bool armed: !win.onHyprland && win.openPanel !== ""
+
+            width: armed ? win.width : 0
+            height: armed ? win.height : 0
 
             acceptedButtons: Qt.AllButtons
             onPressed: mouse => {
@@ -214,10 +239,7 @@ Variants {
                 if (mouse.y < hitArea.height)
                     return;
 
-                openTimer.stop();
-                closeTimer.stop();
-                win.revealed = false;
-                win.openPanel = "";
+                win.dismiss();
             }
         }
 

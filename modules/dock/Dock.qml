@@ -142,6 +142,34 @@ Scope {
             Component.onCompleted: if (this.WlrLayershell !== null)
                 this.WlrLayershell.keyboardFocus = Qt.binding(() => win.launcherOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None)
 
+            // On Hyprland, a click anywhere outside the dock, on any
+            // monitor, puts the launcher away too. Started a moment after
+            // the launcher opens rather than with it: the launcher takes
+            // the keyboard as it opens, and a grab already running when
+            // that lands is cleared on the spot, closing the launcher
+            // before it has been seen.
+            HyprlandFocusGrab {
+                id: grab
+
+                windows: [win]
+
+                onCleared: root.launcherScreen = ""
+            }
+
+            onLauncherOpenChanged: {
+                grabDelay.stop();
+                grab.active = false;
+                if (launcherOpen && Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null)
+                    grabDelay.start();
+            }
+
+            Timer {
+                id: grabDelay
+
+                interval: 100
+                onTriggered: grab.active = true
+            }
+
             // Input is limited to the hit area; everything else clicks
             // through. It is a sliver at the screen edge until the
             // pointer is in it, and the dock's whole extent after that --
