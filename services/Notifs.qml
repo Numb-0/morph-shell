@@ -170,23 +170,45 @@ Singleton {
             holds = 0;
         }
 
+        // Only told to the sender while it is still in the list: once it
+        // has closed -- by the sender, or by an action -- Quickshell keeps
+        // the object around only for reading, and refuses to close it
+        // again.
         function dismiss(): void {
             const n = notification;
+            const live = root.list.includes(notif);
             popup = false;
             root.remove(notif);
-            n?.dismiss();
+            if (live)
+                n?.dismiss();
         }
 
+        // Set for the rest of the event that invoked an action. A tap on
+        // a button also reaches the body behind it, whose handler would
+        // fire the default action on top; the button comes first, being
+        // on top, and this turns the body's second go away.
+        property bool invoking: false
+
         // The default action is what a click on the body means. Resident
-        // notifications stay after an action, as the spec asks.
+        // notifications stay after an action, as the spec asks; any other
+        // Quickshell closes itself as it invokes the action, so only the
+        // wrapper is left to put away here.
         function invoke(identifier: string): void {
+            if (invoking || !root.list.includes(notif))
+                return;
             const action = notification?.actions.find(a => a.identifier === identifier);
             if (!action)
                 return;
+
+            invoking = true;
+            Qt.callLater(() => notif.invoking = false);
+
             const resident = notification?.resident ?? false;
             action.invoke();
-            if (!resident)
-                dismiss();
+            if (!resident) {
+                popup = false;
+                root.remove(notif);
+            }
         }
 
         readonly property bool hasDefault: actions.some(a => a.identifier === "default")
