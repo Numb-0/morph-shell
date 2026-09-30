@@ -4,12 +4,14 @@ import Quickshell.Hyprland
 import qs.components
 import qs.config
 import qs.modules.bar.components.workspaces
+import qs.services
 
 // Bar widget: Hyprland's workspaces, drawn as a constellation (see
-// workspaces/Constellation.qml). This side owns what is true -- which
-// workspaces exist, how many windows each holds, which one this screen
-// shows -- and the input; the constellation only draws it. A click goes to the slot under the pointer and
-// the wheel steps through workspaces in use.
+// workspaces/Constellation.qml). What is true of the workspaces -- which
+// exist, how many windows each holds -- is shared by every bar and lives
+// in WorkspacesState; this side adds only which one this screen shows,
+// and the input. The constellation only draws it. A click goes to the
+// slot under the pointer and the wheel steps through workspaces in use.
 Item {
     id: root
 
@@ -17,34 +19,16 @@ Item {
 
     readonly property bool hovered: hover.hovered
 
+    // The workspace this screen shows, and where a click or a scroll
+    // opens one.
     readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)
+
     readonly property int activeId: monitor?.activeWorkspace?.id ?? 1
 
-    // Window count by workspace id, for the named ones only: special
-    // workspaces have negative ids and live outside the row.
-    readonly property var windows: {
-        const out = {};
-        for (const ws of Hyprland.workspaces.values)
-            if (ws.id > 0)
-                out[ws.id] = ws.toplevels.values.length;
-        return out;
-    }
+    readonly property var windows: WorkspacesState.windows
+    readonly property var urgent: WorkspacesState.urgent
 
-    readonly property var urgent: {
-        const out = {};
-        for (const ws of Hyprland.workspaces.values)
-            if (ws.id > 0 && ws.urgent)
-                out[ws.id] = true;
-        return out;
-    }
-
-    readonly property int count: {
-        let n = Math.max(Appearance.bar.workspaces.shown, activeId);
-        for (const id in windows)
-            if (windows[id] > 0)
-                n = Math.max(n, +id);
-        return n;
-    }
+    readonly property int count: Math.max(Appearance.bar.workspaces.shown, activeId, WorkspacesState.occupied[WorkspacesState.occupied.length - 1] ?? 1)
 
     readonly property real slot: sky.slotWidth
     readonly property real padding: Appearance.bar.itemPadding
@@ -53,15 +37,11 @@ Item {
     readonly property bool running: opacity > 0 && visible
 
     function windowsOn(id: int): int {
-        return windows[id] ?? 0;
+        return WorkspacesState.windowsOn(id);
     }
 
     function centerOf(id: int): real {
         return padding + (id - 0.5) * slot;
-    }
-
-    function goTo(id: string): void {
-        Hyprland.dispatch(`hl.dsp.focus({ workspace = "${id}" })`);
     }
 
     implicitWidth: count * slot + padding * 2
@@ -83,13 +63,13 @@ Item {
         onTapped: point => {
             const id = Math.floor((point.position.x - root.padding) / root.slot) + 1;
             if (id >= 1 && id <= root.count)
-                root.goTo(String(id));
+                WorkspacesState.goTo(root.monitor, id);
         }
     }
 
     WheelHandler {
         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-        onWheel: event => root.goTo(event.angleDelta.y > 0 ? "e-1" : "e+1")
+        onWheel: event => WorkspacesState.step(root.monitor, event.angleDelta.y > 0 ? -1 : 1)
     }
 
     Constellation {
