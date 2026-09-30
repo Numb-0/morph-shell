@@ -214,15 +214,71 @@ BlobPopup {
             // panel. Both lines run the panel's full width and centre
             // their own text, so they sit in the middle whatever the
             // layout makes of them.
+            //
+            // Arrives rather than appears when the last card goes while
+            // the panel is open: fades in and springs up to size, the
+            // icon a beat behind the words. Opening onto an empty panel
+            // needs none of that -- the panel's own opening is motion
+            // enough.
             ColumnLayout {
-                visible: Notifs.list.length === 0
+                id: caughtUp
+
+                readonly property bool empty: Notifs.list.length === 0
+
+                visible: empty
+
+                onEmptyChanged: {
+                    if (empty && root.open) {
+                        arrive.restart();
+                    } else {
+                        arrive.complete();
+                    }
+                }
 
                 Layout.fillWidth: true
                 Layout.topMargin: Appearance.spacing.extraLarge
                 Layout.bottomMargin: Appearance.spacing.extraLarge
                 spacing: Appearance.spacing.small
 
+                transformOrigin: Item.Center
+
+                ParallelAnimation {
+                    id: arrive
+
+                    Anim {
+                        target: caughtUp
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        type: Anim.DefaultEffects
+                    }
+
+                    Anim {
+                        target: caughtUp
+                        property: "scale"
+                        from: 0.85
+                        to: 1
+                        type: Anim.DefaultSpatial
+                    }
+
+                    SequentialAnimation {
+                        PauseAnimation {
+                            duration: 80
+                        }
+
+                        Anim {
+                            target: caughtUpIcon
+                            property: "rotation"
+                            from: -30
+                            to: 0
+                            type: Anim.SlowSpatial
+                        }
+                    }
+                }
+
                 MaterialSymbol {
+                    id: caughtUpIcon
+
                     Layout.fillWidth: true
 
                     icon: "notifications_paused"

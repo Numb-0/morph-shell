@@ -97,7 +97,23 @@ Item {
         readonly property real openY: root.anchorBottom + root.gap
         readonly property real closedWidth: root.anchor.width * root.closedWidthScale
         readonly property real openWidth: (root.content?.implicitWidth ?? 0) + root.padding * 2
-        readonly property real openHeight: (root.content?.implicitHeight ?? 0) + root.padding * 2 + root.topInset
+        readonly property real contentHeight: (root.content?.implicitHeight ?? 0) + root.padding * 2 + root.topInset
+
+        // Follows the content as it grows and shrinks while open -- a
+        // card dismissed, a list filling in -- rather than snapping to
+        // it. Closed, it keeps up at once, so the next opening starts
+        // from the right size.
+        property real openHeight: contentHeight
+
+        // Without overshoot: a shrinking panel that dipped past its size
+        // would bounce its clipped edge over the content.
+        Behavior on openHeight {
+            enabled: root.open
+
+            Anim {
+                type: Anim.Emphasized
+            }
+        }
 
         // Centred on the anchor, then pulled back inside the margins.
         // Only ever bites once the panel has grown wider than the room
@@ -147,6 +163,12 @@ Item {
 
     // Reparents the injected content, clipped so it cannot spill out
     // while the shape is still growing.
+    //
+    // The clip follows the shape, but the content is laid out in a box
+    // sized to where the shape is heading rather than where it is: a
+    // resize while open then only uncovers or covers the content, rather
+    // than dragging content centred in the box along with it. Opening
+    // still grows the box with the shape, as before.
     Item {
         x: rect.x
         y: rect.y + root.topInset
@@ -158,6 +180,11 @@ Item {
         opacity: root.contentOpacity
         visible: opacity > 0
 
-        children: [root.content]
+        Item {
+            width: parent.width
+            height: Math.max(0, rect.contentHeight * root.progressY - root.topInset)
+
+            children: [root.content]
+        }
     }
 }
