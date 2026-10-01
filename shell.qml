@@ -7,6 +7,7 @@ import qs.modules.bar
 import qs.modules.dock
 import qs.modules.notifications
 import qs.modules.osd
+import qs.modules.polkit
 import qs.modules.screenshot
 
 ShellRoot {
@@ -16,4 +17,5 @@ ShellRoot {
     VolumeOsd {}
     NotificationPopups {}
     Screenshot {}
+    Polkit {}
 }

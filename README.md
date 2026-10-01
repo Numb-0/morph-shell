@@ -67,6 +67,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | BlueZ | Bluetooth widget | System service: enable it yourself (`hardware.bluetooth.enable`). The shell talks to it over D-Bus, so `bluetoothctl` isn't needed. The widget hides itself when there is no adapter. Devices that pair without a PIN (headphones, most mice) pair from the panel; one that asks for a passkey needs an agent such as `blueman-applet` running. |
 | power-profiles-daemon | Power profile widget | System service: the NixOS module turns it on, unless TLP is enabled (the two conflict). The shell talks to it over D-Bus, so `powerprofilesctl` isn't needed. The widget hides itself when the daemon isn't running. |
 | Notification daemon | Notification centre and popups | Built in: the shell is the notification daemon itself. Don't run another one (mako, dunst, swaync) alongside it, or whichever starts first takes the D-Bus name and the other gets nothing. |
+| polkit agent | Password prompts for `pkexec` and other privileged actions | Built in: the shell is the session's polkit agent. polkitd itself is a system service (`security.polkit.enable`, on by default on NixOS). Don't run another agent (hyprpolkitagent, polkit-gnome) alongside it: only one can register per session, and whichever starts first wins. |
 
 `morph-shell` also checks for UPower, PipeWire, NetworkManager and
 power-profiles-daemon at startup and prints a warning if any of them is
