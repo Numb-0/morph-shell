@@ -12,6 +12,12 @@ Singleton {
     // below stand.
     readonly property string colorsPath: `${Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state"}/morph-shell/colors.json`
 
+    // The image the background shows, from a file beside the colours
+    // and swapped the same way. With no file, or no image in it, the
+    // background is plain surface.
+    readonly property string wallpaperPath: `${Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state"}/morph-shell/wallpaper.json`
+    property string wallpaper: ""
+
     // The full Material 3 role set, named as material-color-utilities
     // names them behind an m3 prefix: QML reads a property called
     // onSurface as a handler for a surface signal, so the bare names
@@ -261,10 +267,34 @@ Singleton {
         onLoadFailed: root.fadeTo({})
     }
 
-    // Re-reads the colours file, for a switcher that repoints a link the
-    // watch above cannot see.
+    // Either { "image": path }, or chromix's own { "source": { "image" } }
+    // for a theme it made from a wallpaper.
+    FileView {
+        id: wallpaperFile
+
+        path: root.wallpaperPath
+
+        watchChanges: true
+        onFileChanged: reload()
+
+        onLoaded: {
+            try {
+                const parsed = JSON.parse(text());
+                root.wallpaper = parsed.image ?? parsed.source?.image ?? "";
+            } catch (e) {
+                // Mid-write: keep the image already up.
+            }
+        }
+
+        printErrors: false
+        onLoadFailed: root.wallpaper = ""
+    }
+
+    // Re-reads the colours and wallpaper files, for a switcher that
+    // repoints a link the watches above cannot see.
     function reloadPalette(): void {
         colorsFile.reload();
+        wallpaperFile.reload();
     }
 
     //   qs -p ~/morph-shell ipc call palette reload

@@ -199,6 +199,26 @@ chain, which the watch can't see, should call
 the result here and triggers the reload. It also drives the theme panel
 in the bar, which only shows when chromix is installed.
 
+## Wallpaper
+
+The shell draws the wallpaper itself, on the background layer of every
+screen, so no wallpaper daemon is needed. It reads the image from
+`$XDG_STATE_HOME/morph-shell/wallpaper.json` (by default
+`~/.local/state/morph-shell/wallpaper.json`), next to the colours:
+
+```json
+{ "image": "/path/to/wallpaper.png" }
+```
+
+chromix's own `chromix.json`, with the image under `source.image`, is
+read as is. When the image changes, the new one loads in the background
+and crossfades over the old one. With no file, or no image in it, the
+screen is plain `surface`. The file is watched like `colors.json`, and
+`morph-shell ipc call palette reload` re-reads both.
+
+chromix's `morph-shell` target links each theme's `chromix.json` here,
+so switching theme also switches the wallpaper.
+
 ## IPC
 
 The running shell can be controlled from the command line through
@@ -219,7 +239,7 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `launcher` | `close` | Close the app launcher. |
 | `notifs` | `toggleDnd` | Turn do not disturb on or off. Only critical notifications pop up while it's on; the rest still land in the centre. |
 | `notifs` | `clear` | Dismiss every notification. |
-| `palette` | `reload` | Re-read `colors.json` (see [Colours](#colours)). |
+| `palette` | `reload` | Re-read `colors.json` and `wallpaper.json` (see [Colours](#colours) and [Wallpaper](#wallpaper)). |
 | `screenshot` | `region` | Pick a region to screenshot (see [Screenshots](#screenshots)). |
 | `screenshot` | `cancel` | Close the region picker without taking anything. |
 
