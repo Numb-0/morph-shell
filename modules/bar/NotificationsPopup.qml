@@ -348,10 +348,25 @@ BlobPopup {
                     }
                 }
 
+                // Also brings scale and opacity the rest of the way: a
+                // card pushed down while its add is still running has that
+                // add cut short, and would stay part grown and part faded.
                 displaced: Transition {
                     Anim {
                         property: "y"
                         type: Anim.DefaultSpatial
+                    }
+
+                    Anim {
+                        property: "scale"
+                        to: 1
+                        type: Anim.DefaultSpatial
+                    }
+
+                    Anim {
+                        property: "opacity"
+                        to: 1
+                        type: Anim.DefaultEffects
                     }
                 }
 
