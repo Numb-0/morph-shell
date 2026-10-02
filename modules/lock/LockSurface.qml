@@ -383,9 +383,13 @@ WlSessionLockSurface {
 
                         // 0 to 1 on arrival, overshooting a little on the
                         // way. Past 1 the blob squashes, short of it it
-                        // stretches: a drop landing rather than a pop.
+                        // stretches. The first dot drops in; every one
+                        // after splits off the dot before it, sliding out
+                        // sideways with a neck between them that thins
+                        // and breaks as they part.
                         property real born: 0
                         readonly property real stretch: 1 - born
+                        readonly property bool splits: index > 0
 
                         // 0 to 1 as the dots draw in to the middle on the
                         // right password, the outer ones a beat after.
@@ -424,60 +428,32 @@ WlSessionLockSurface {
                             }
                         }
 
+                        // The neck, from the dot before to this one's
+                        // middle, gone by the time they have parted.
+                        Rectangle {
+                            visible: dot.splits && height > 0.5
+
+                            x: field.dotSize / 2 - field.step
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            width: field.step * Math.max(0, Math.min(1, dot.born))
+                            height: field.dotSize * 0.7 * Math.max(0, 1 - dot.born * 1.3)
+                            radius: height / 2
+                            color: field.content
+                        }
+
                         Rectangle {
                             anchors.centerIn: parent
-                            anchors.horizontalCenterOffset: (dot.centre - dot.x) * dot.gather
-                            anchors.verticalCenterOffset: -dot.lift - 10 * dot.stretch
+                            anchors.horizontalCenterOffset: (dot.centre - dot.x) * dot.gather - (dot.splits ? field.step * dot.stretch : 0)
+                            anchors.verticalCenterOffset: -dot.lift - (dot.splits ? 0 : 10 * dot.stretch)
 
-                            width: field.dotSize * (1 - 0.35 * dot.stretch) + dot.lift * 0.15
-                            height: field.dotSize * (1 + 0.6 * dot.stretch) + dot.lift * 0.3
+                            width: field.dotSize * (dot.splits ? 1 + 0.7 * dot.stretch : 1 - 0.35 * dot.stretch) + dot.lift * 0.15
+                            height: field.dotSize * (dot.splits ? 1 - 0.3 * dot.stretch : 1 + 0.6 * dot.stretch) + dot.lift * 0.3
                             radius: Math.min(width, height) / 2
                             color: field.content
 
-                            scale: Math.max(0, Math.min(1, dot.born * 1.4)) * (1 - 0.4 * dot.gather)
+                            scale: Math.max(0, Math.min(1, dot.splits ? 0.5 + dot.born * 0.5 : dot.born * 1.4)) * (1 - 0.4 * dot.gather)
                             opacity: 1 - Math.max(0, dot.gather - 0.7) / 0.3
-                        }
-
-                        // A ripple off each dot as it lands.
-                        Rectangle {
-                            id: ripple
-
-                            anchors.centerIn: parent
-
-                            width: field.dotSize
-                            height: field.dotSize
-                            radius: width / 2
-                            color: "transparent"
-                            border.width: 1.5
-                            border.color: field.content
-
-                            opacity: 0
-
-                            ParallelAnimation {
-                                running: true
-
-                                NumberAnimation {
-                                    target: ripple
-                                    property: "scale"
-                                    from: 0.6
-                                    to: 3.4
-                                    duration: 500
-                                    easing.type: Easing.OutCubic
-                                }
-                                SequentialAnimation {
-                                    PauseAnimation {
-                                        duration: 60
-                                    }
-                                    NumberAnimation {
-                                        target: ripple
-                                        property: "opacity"
-                                        from: 0.4
-                                        to: 0
-                                        duration: 440
-                                        easing.type: Easing.OutQuad
-                                    }
-                                }
-                            }
                         }
                     }
                 }
