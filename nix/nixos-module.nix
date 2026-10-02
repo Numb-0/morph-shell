@@ -74,7 +74,7 @@ in {
           Type = "exec";
           ExecStart = lib.getExe cfg.package;
           Restart = "on-failure";
-          RestartSec = 5;
+          RestartSec = 1;
         };
       };
     })

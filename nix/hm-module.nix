@@ -65,7 +65,7 @@ in {
         Type = "exec";
         ExecStart = lib.getExe cfg.package;
         Restart = "on-failure";
-        RestartSec = 5;
+        RestartSec = 1;
         Environment = ["QT_QPA_PLATFORM=wayland"] ++ cfg.systemd.environment;
       };
 
