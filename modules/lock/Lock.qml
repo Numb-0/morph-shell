@@ -21,8 +21,6 @@ import Quickshell.Wayland
 Scope {
     id: root
 
-    readonly property bool locked: sessionLock.locked
-
     property string buffer: ""
 
     // Between Enter and PAM's answer. The buffer is held as it was, dots
@@ -169,8 +167,11 @@ Scope {
             root.lock();
         }
 
+        // Read off the lock each time rather than through a binding:
+        // WlSessionLock only signals the change when it unlocks, so a
+        // bound copy would still say false while locked.
         function isLocked(): bool {
-            return root.locked;
+            return sessionLock.locked;
         }
     }
 

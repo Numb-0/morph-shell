@@ -269,8 +269,9 @@ WlSessionLockSurface {
                             loops: Animation.Infinite
                             alwaysRunToEnd: true
 
+                            // index is -1 for a moment as the delegate is made.
                             PauseAnimation {
-                                duration: dot.index * 60
+                                duration: Math.max(0, dot.index) * 60
                             }
                             Anim {
                                 to: 0.35
