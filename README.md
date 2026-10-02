@@ -18,6 +18,10 @@ directly, through Quickshell's Hyprland integration, and only work there:
 | --- | --- | --- |
 | Workspaces widget | Shows each monitor's workspaces, and switches them on click and scroll. | Shows only empty slots, with the active one parked on the first, and clicks and scrolls do nothing. |
 | `bar toggle <panel>` over IPC | Opens the panel on the focused monitor. | Opens nothing: there is no focused monitor to pick. Panels still open from the bar itself. |
+| Closing bar panels on an outside click | A click anywhere outside them, on any monitor, closes them, through a Hyprland focus grab. | Only a click elsewhere on the same screen closes them. |
+| Closing the launcher on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. |
+| `launcher toggle`/`open` over IPC | Opens the launcher on the focused monitor. | Opens it on the first screen. |
+| Screenshot region picker | Snaps to the window under the pointer, and outlines it from the first frame. | Only drags or the whole screen, and the outline waits for the pointer to move. |
 
 Switching workspaces uses Hyprland's Lua dispatchers, so it needs a
 Hyprland with the Lua config (tested on 0.56).
@@ -59,7 +63,12 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | --- | --- | --- |
 | JetBrains Mono, Material Symbols Rounded | Text and icons | Bundled with the package; installing them yourself isn't needed. |
 | `brightnessctl` | Brightness widget | Put on the wrapper's `PATH`. |
-| `grim`, `wl-clipboard`, `libnotify`, `satty` | Screenshots | Put on the wrapper's `PATH`. |
+| `grim`, `wl-clipboard`, `libnotify`, `satty`, `coreutils` | Screenshots | Put on the wrapper's `PATH`. |
+| `dbus-send` | Power profile widget's startup check | Put on the wrapper's `PATH`. |
+| `hyprctl` | Screenshot picker's pointer position | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
+| `loginctl`, `systemctl` | Session panel's Lock, Restart and Shut down | Part of systemd; not put on the `PATH`. |
+| [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
+| StatusNotifierItem | System tray | Nothing to install: the shell is the tray host, and apps that support it show up there. Apps that only speak the old XEmbed tray don't. |
 | UPower | Battery widget | System service: the NixOS module turns it on. |
 | PipeWire | Volume widget | System service: the NixOS module turns it on. |
 | MPRIS | Media widget | Nothing to install; players expose it themselves. |
@@ -237,6 +246,8 @@ morph-shell ipc show   # list every target and function the running shell expose
 | Target | Function | Description |
 | --- | --- | --- |
 | `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications`, `session` or `theme`. |
+| `bar` | `togglePinned` | Pin or unpin the bar (see [Bar and dock](#bar-and-dock)). |
+| `dock` | `togglePinned` | Pin or unpin the dock (see [Bar and dock](#bar-and-dock)). |
 | `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
 | `launcher` | `open` | Open the app launcher on the focused screen. Off Hyprland it opens on the first screen. |
 | `launcher` | `close` | Close the app launcher. |
@@ -256,6 +267,47 @@ bind = SUPER, Space, exec, morph-shell ipc call launcher toggle
 
 When running from a checkout (`morph-run`), point `qs` at the working
 tree instead: `qs -p ~/morph-shell ipc call launcher toggle`.
+
+## Bar and dock
+
+The bar floats at the top of the screen and the dock at the bottom.
+Both hide until the pointer reaches their edge, unless pinned: the pin
+button on each, or `bar togglePinned` / `dock togglePinned` over IPC,
+holds it open and keeps room for it so windows don't go under it. The
+pinned state, like the media panel's last played track, is kept in
+Quickshell's state directory for the shell and survives restarts.
+
+The dock shows the pinned apps, a dot under the ones running, and
+bounces an icon while its app launches. Opening the launcher grows the
+dock into a fuzzy search over every desktop entry.
+
+The workspaces widget comes in three styles:
+
+| Style | Look |
+| --- | --- |
+| `drop` (default) | A drop that leaps from slot to slot and splashes down. |
+| `fluid` | A pool of liquid poured from slot to slot. |
+| `constellation` | Workspaces in use as linked stars, the active one a comet. |
+
+The bar also carries a system tray, whose menus open as panels like the
+rest.
+
+## Configuration
+
+There is no config file yet: the knobs live in `config/Appearance.qml`,
+so changing them means editing a checkout (or overriding the package's
+source). The ones you're most likely to want:
+
+| Property | Default | Description |
+| --- | --- | --- |
+| `bar.workspaces.style` | `"drop"` | Workspaces style: `drop`, `fluid` or `constellation`. |
+| `bar.workspaces.shown` | `5` | Slots always drawn; the row grows past it to reach the highest workspace in use. |
+| `dock.pinned` | `["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]` | Apps in the dock, by desktop entry id (the `.desktop` file's name without the suffix). Near misses are looked up heuristically, and ids nothing answers to are skipped. |
+| `dock.maxResults` | `7` | Rows the launcher shows. |
+| `media.launchers` | `["spotify"]` | Players the media panel offers to start when nothing is playing, by desktop entry id. |
+| `osd.timeout` | `1500` | Milliseconds the volume OSD stays up after the level last moved. |
+| `notifs.maxPopups` | `4` | Popups shown at once; older ones wait in the centre. |
+| `font.family` | `"JetBrains Mono"` | Text font. |
 
 ## Lock screen
 
