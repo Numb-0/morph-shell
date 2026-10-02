@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell.Wayland
+import Morph.Blobs
 import qs.components
 import qs.config
 import qs.services
@@ -137,8 +138,7 @@ WlSessionLockSurface {
         }
 
         // A ring that leaves the field's edge and spreads out as it fades,
-        // in the field's colour at the moment: red after a wrong try,
-        // green on the right one.
+        // after a wrong try.
         Rectangle {
             id: ring
 
@@ -182,8 +182,8 @@ WlSessionLockSurface {
         }
 
         // The field. It grows as the dots outrun it, swells a touch with
-        // each key, wobbles to rest on a wrong password and draws its
-        // dots together into a tick on the right one.
+        // each key, wobbles to rest on a wrong password and, on the right
+        // one, melts its dots together into a drop that shows the tick.
         Rectangle {
             id: field
 
@@ -205,6 +205,18 @@ WlSessionLockSurface {
             // one taken away, and back with a little give either way.
             property real bump: 0
             property real bumpSign: 1
+
+            // The right password, in three overlapping parts: the dots
+            // go soft enough to run together, a drop swells in the
+            // middle for them to pour into, and it wobbles as it fills.
+            property real melt: 0
+            property real swell: 0
+            property real wobble: 1
+
+            // How many dots join the goo. The blob shader blends a
+            // limited number of shapes at once; the rest just shrink
+            // into the drop.
+            readonly property int gooDots: 14
 
             implicitWidth: Math.max(200, dots.implicitWidth + Appearance.padding.extraLarge * 2)
             implicitHeight: 60
@@ -271,10 +283,13 @@ WlSessionLockSurface {
 
                 function onUnlockingChanged(): void {
                     if (root.lock.unlocking) {
-                        tickIn.restart();
-                        ring.burst(Appearance.palette.m3success);
+                        success.restart();
                     } else {
+                        success.stop();
                         dotModel.clear();
+                        field.melt = 0;
+                        field.swell = 0;
+                        field.wobble = 1;
                         check.shown = 0;
                     }
                 }
@@ -315,6 +330,77 @@ WlSessionLockSurface {
                         field.push(1);
                     }
                 }
+            }
+
+            BlobGroup {
+                id: goo
+
+                color: field.content
+                smoothing: 2 + 16 * field.melt
+            }
+
+            ParallelAnimation {
+                id: success
+
+                NumberAnimation {
+                    target: field
+                    property: "melt"
+                    from: 0
+                    to: 1
+                    duration: 220
+                    easing.type: Easing.OutCubic
+                }
+                SequentialAnimation {
+                    PauseAnimation {
+                        duration: 100
+                    }
+                    Anim {
+                        target: field
+                        property: "swell"
+                        from: 0
+                        to: 1
+                        type: Anim.SlowSpatial
+                    }
+                }
+                SequentialAnimation {
+                    PauseAnimation {
+                        duration: 300
+                    }
+                    NumberAnimation {
+                        target: field
+                        property: "wobble"
+                        from: 0
+                        to: 1
+                        duration: 750
+                    }
+                }
+                SequentialAnimation {
+                    PauseAnimation {
+                        duration: 340
+                    }
+                    Anim {
+                        target: check
+                        property: "shown"
+                        to: 1
+                        type: Anim.FastSpatial
+                    }
+                }
+            }
+
+            // The drop the dots pour into. It jiggles as a spring let go,
+            // wide then tall then wide, losing a little each time.
+            BlobRect {
+                readonly property real size: 36 * field.swell
+                readonly property real jiggle: field.wobble < 1 ? 0.16 * Math.exp(-4 * field.wobble) * Math.sin(field.wobble * 6 * Math.PI) : 0
+
+                x: (field.width - width) / 2
+                y: (field.height - height) / 2
+                width: size * (1 + jiggle)
+                height: size * (1 - jiggle)
+
+                group: root.lock.unlocking ? goo : null
+                radius: Math.min(width, height) / 2
+                deformScale: 0
             }
 
             // One dot per character, each dropping in on its own. A list
@@ -390,6 +476,7 @@ WlSessionLockSurface {
                         property real born: 0
                         readonly property real stretch: 1 - born
                         readonly property bool splits: index > 0
+                        readonly property bool joinsGoo: index < field.gooDots
 
                         // 0 to 1 as the dots draw in to the middle on the
                         // right password, the outer ones a beat after.
@@ -443,6 +530,8 @@ WlSessionLockSurface {
                         }
 
                         Rectangle {
+                            id: blob
+
                             anchors.centerIn: parent
                             anchors.horizontalCenterOffset: (dot.centre - dot.x) * dot.gather - (dot.splits ? field.step * dot.stretch : 0)
                             anchors.verticalCenterOffset: -dot.lift - (dot.splits ? 0 : 10 * dot.stretch)
@@ -453,7 +542,25 @@ WlSessionLockSurface {
                             color: field.content
 
                             scale: Math.max(0, Math.min(1, dot.splits ? 0.5 + dot.born * 0.5 : dot.born * 1.4)) * (1 - 0.4 * dot.gather)
-                            opacity: 1 - Math.max(0, dot.gather - 0.7) / 0.3
+
+                            // Handed over to the goo on the right password,
+                            // or, past what it can take, shrunk away into
+                            // the drop.
+                            visible: !(root.lock.unlocking && dot.joinsGoo)
+                            opacity: dot.joinsGoo ? 1 : 1 - Math.max(0, dot.gather - 0.7) / 0.3
+                        }
+
+                        // The same dot as goo, stretching as it runs in
+                        // and fusing with its neighbours on the way.
+                        BlobRect {
+                            x: blob.x + blob.width * (1 - blob.scale) / 2
+                            y: blob.y + blob.height * (1 - blob.scale) / 2
+                            width: blob.width * blob.scale
+                            height: blob.height * blob.scale
+
+                            group: root.lock.unlocking && dot.joinsGoo ? goo : null
+                            radius: Math.min(width, height) / 2
+                            deformScale: 0.0012
                         }
                     }
                 }
@@ -464,31 +571,18 @@ WlSessionLockSurface {
 
                 anchors.centerIn: parent
 
-                // 0 to 1 once the dots have met, overshooting a touch.
+                // 0 to 1 as the drop fills, overshooting a touch. Cut out
+                // of the drop in the field's own colour.
                 property real shown: 0
 
                 icon: "check"
-                size: Appearance.font.icon.large
-                weight: 600
-                color: field.content
+                size: Appearance.font.icon.normal
+                weight: 700
+                color: field.color
 
                 opacity: Math.min(1, shown * 2)
                 scale: 0.3 + 0.7 * shown
                 rotation: -45 * (1 - shown)
-
-                SequentialAnimation {
-                    id: tickIn
-
-                    PauseAnimation {
-                        duration: 200 + Math.min(dotModel.count, 12) * 9
-                    }
-                    Anim {
-                        target: check
-                        property: "shown"
-                        to: 1
-                        type: Anim.FastSpatial
-                    }
-                }
             }
         }
 

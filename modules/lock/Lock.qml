@@ -145,10 +145,11 @@ Scope {
         onLoadFailed: root.hasOwnService = false
     }
 
+    // Once the dots have melted into the drop and the tick is in it.
     Timer {
         id: fadeOut
 
-        interval: 350
+        interval: 750
         onTriggered: root.leaving = true
     }
 
@@ -156,7 +157,7 @@ Scope {
     Timer {
         id: release
 
-        interval: 750
+        interval: 1150
         onTriggered: {
             sessionLock.locked = false;
             root.unlocking = false;
