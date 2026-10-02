@@ -68,8 +68,8 @@ Scope {
     function type(text: string): void {
         if (checking || unlocking)
             return;
-        buffer += text;
         wrong = false;
+        buffer += text;
     }
 
     function erase(all: bool): void {
@@ -113,13 +113,17 @@ Scope {
         onCompleted: result => {
             root.checking = false;
             if (result === PamResult.Success) {
-                root.buffer = "";
+                // Unlocking before the buffer empties, so the field
+                // gathers its dots into the tick rather than wiping them.
                 root.unlocking = true;
+                root.buffer = "";
                 fadeOut.restart();
                 release.restart();
             } else {
-                root.buffer = "";
+                // Wrong before the buffer empties, so the dots fall out
+                // of the field rather than being wiped.
                 root.wrong = true;
+                root.buffer = "";
                 if (result === PamResult.MaxTries)
                     root.message = qsTr("Too many tries");
                 root.failed();
