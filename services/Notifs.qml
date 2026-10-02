@@ -5,6 +5,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Notifications
+import qs.config
 
 // The notification daemon, as the shell wants it: everything that has
 // arrived and not been dismissed, for the notification centre, and the
@@ -152,6 +153,13 @@ Singleton {
         property bool popup: false
         property bool read: false
 
+        // A popup past the cap, kept off the screen until one above it
+        // goes. Its countdown waits with it: run down unseen, it would
+        // have nobody to take it away, and turn up already spent.
+        readonly property bool waiting: popup && root.popups.indexOf(notif) >= Appearance.notifs.maxPopups
+
+        onWaitingChanged: waiting ? disarm() : arm()
+
         // How many popups on any screen have a pointer on them. The
         // countdown only runs while this is zero.
         property int holds: 0
@@ -224,7 +232,7 @@ Singleton {
         property real armedAt: 0
 
         function arm(): void {
-            if (!ready || !popup || holds > 0 || expiry.running)
+            if (!ready || !popup || waiting || holds > 0 || expiry.running)
                 return;
             armedAt = Date.now();
             expiry.interval = Math.max(1, left);
