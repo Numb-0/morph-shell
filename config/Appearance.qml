@@ -376,6 +376,12 @@ Singleton {
             // Slots always drawn; the row grows past this to reach the
             // highest workspace in use rather than hiding it.
             readonly property int shown: 5
+
+            // How the indicator draws itself: "drop" (a drop that leaps
+            // from slot to slot and splashes down), "fluid" (a pool of
+            // liquid poured from slot to slot) or "constellation"
+            // (workspaces in use as linked stars, the active one a comet).
+            readonly property string style: "drop"
         }
     }
 

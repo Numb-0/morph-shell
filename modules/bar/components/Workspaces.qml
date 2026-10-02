@@ -6,11 +6,11 @@ import qs.config
 import qs.modules.bar.components.workspaces
 import qs.services
 
-// Bar widget: Hyprland's workspaces, drawn as a constellation (see
-// workspaces/Constellation.qml). What is true of the workspaces -- which
-// exist, how many windows each holds -- is shared by every bar and lives
-// in WorkspacesState; this side adds only which one this screen shows,
-// and the input. The constellation only draws it. A click goes to the
+// Bar widget: Hyprland's workspaces, drawn in one of the styles under
+// workspaces/ (Appearance.bar.workspaces.style). What is true of the
+// workspaces -- which exist, how many windows each holds -- is shared by
+// every bar and lives in WorkspacesState; this side adds only which one
+// this screen shows, and the input. A style only draws it. A click goes to the
 // slot under the pointer and the wheel steps through workspaces in use.
 Item {
     id: root
@@ -30,7 +30,8 @@ Item {
 
     readonly property int count: Math.max(Appearance.bar.workspaces.shown, activeId, WorkspacesState.occupied[WorkspacesState.occupied.length - 1] ?? 1)
 
-    readonly property real slot: sky.slotWidth
+    // Each style picks how much room a workspace takes.
+    readonly property real slot: style.item?.slotWidth ?? 20
     readonly property real padding: Appearance.bar.itemPadding
 
     // Continuous animations only run while anyone can see them.
@@ -72,11 +73,44 @@ Item {
         onWheel: event => WorkspacesState.step(root.monitor, event.angleDelta.y > 0 ? -1 : 1)
     }
 
-    Constellation {
-        id: sky
+    Loader {
+        id: style
 
         anchors.fill: parent
 
-        ws: root
+        sourceComponent: {
+            switch (Appearance.bar.workspaces.style) {
+            case "constellation":
+                return constellation;
+            case "fluid":
+                return fluid;
+            default:
+                return drop;
+            }
+        }
+    }
+
+    Component {
+        id: drop
+
+        Drop {
+            ws: root
+        }
+    }
+
+    Component {
+        id: fluid
+
+        Fluid {
+            ws: root
+        }
+    }
+
+    Component {
+        id: constellation
+
+        Constellation {
+            ws: root
+        }
     }
 }

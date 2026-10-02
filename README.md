@@ -16,7 +16,7 @@ directly, through Quickshell's Hyprland integration, and only work there:
 
 | Feature | On Hyprland | Elsewhere |
 | --- | --- | --- |
-| Workspaces widget | Shows each monitor's workspaces, and switches them on click and scroll. | Shows only empty slots, with the active star parked on the first, and clicks and scrolls do nothing. |
+| Workspaces widget | Shows each monitor's workspaces, and switches them on click and scroll. | Shows only empty slots, with the active one parked on the first, and clicks and scrolls do nothing. |
 | `bar toggle <panel>` over IPC | Opens the panel on the focused monitor. | Opens nothing: there is no focused monitor to pick. Panels still open from the bar itself. |
 
 Switching workspaces uses Hyprland's Lua dispatchers, so it needs a
