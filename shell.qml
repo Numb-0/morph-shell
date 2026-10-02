@@ -5,6 +5,7 @@ import Quickshell
 import qs.modules.background
 import qs.modules.bar
 import qs.modules.dock
+import qs.modules.lock
 import qs.modules.notifications
 import qs.modules.osd
 import qs.modules.polkit
@@ -18,4 +19,5 @@ ShellRoot {
     NotificationPopups {}
     Screenshot {}
     Polkit {}
+    Lock {}
 }

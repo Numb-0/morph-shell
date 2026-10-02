@@ -107,6 +107,7 @@
         assert cfg.services.upower.enable;
         assert cfg.services.pipewire.enable;
         assert builtins.elem pkgs.material-symbols cfg.fonts.packages;
+        assert cfg.security.pam.services ? morph-shell;
           pkgs.writeText "morph-shell-nixos-module-check"
           cfg.systemd.user.services.morph-shell.serviceConfig.ExecStart;
     });

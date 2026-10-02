@@ -68,6 +68,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | power-profiles-daemon | Power profile widget | System service: the NixOS module turns it on, unless TLP is enabled (the two conflict). The shell talks to it over D-Bus, so `powerprofilesctl` isn't needed. The widget hides itself when the daemon isn't running. |
 | Notification daemon | Notification centre and popups | Built in: the shell is the notification daemon itself. Don't run another one (mako, dunst, swaync) alongside it, or whichever starts first takes the D-Bus name and the other gets nothing. |
 | polkit agent | Password prompts for `pkexec` and other privileged actions | Built in: the shell is the session's polkit agent. polkitd itself is a system service (`security.polkit.enable`, on by default on NixOS). Don't run another agent (hyprpolkitagent, polkit-gnome) alongside it: only one can register per session, and whichever starts first wins. |
+| Screen locker | Locking the session | Built in: the shell is the locker, through the session-lock protocol, so hyprlock isn't needed. The NixOS module adds the `morph-shell` PAM service it checks passwords against; without it, the lock falls back to `login`'s. An idle daemon still decides when to lock (see [Lock screen](#lock-screen)). |
 
 `morph-shell` also checks for UPower, PipeWire, NetworkManager and
 power-profiles-daemon at startup and prints a warning if any of them is
@@ -89,7 +90,8 @@ import it even if you also use Home Manager:
 }
 ```
 
-This installs the package and fonts, and sets `services.upower.enable`,
+This installs the package and fonts, adds the `morph-shell` PAM service
+the lock screen uses, and sets `services.upower.enable`,
 `services.pipewire.enable` (with `pulse.enable`) and
 `services.power-profiles-daemon.enable` (only when TLP is off). All are
 set with `mkDefault`, so any value you set yourself takes priority.
@@ -238,6 +240,8 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
 | `launcher` | `open` | Open the app launcher on the focused screen. Off Hyprland it opens on the first screen. |
 | `launcher` | `close` | Close the app launcher. |
+| `lock` | `lock` | Lock the session (see [Lock screen](#lock-screen)). Does nothing if it's already locked. |
+| `lock` | `isLocked` | Print whether the session is locked. |
 | `notifs` | `toggleDnd` | Turn do not disturb on or off. Only critical notifications pop up while it's on; the rest still land in the centre. |
 | `notifs` | `clear` | Dismiss every notification. |
 | `palette` | `reload` | Re-read `colors.json` and `wallpaper.json` (see [Colours](#colours) and [Wallpaper](#wallpaper)). |
@@ -252,6 +256,31 @@ bind = SUPER, Space, exec, morph-shell ipc call launcher toggle
 
 When running from a checkout (`morph-run`), point `qs` at the working
 tree instead: `qs -p ~/morph-shell ipc call launcher toggle`.
+
+## Lock screen
+
+`morph-shell ipc call lock lock` locks every screen over the wallpaper,
+with the time in the top left and a password field under the middle.
+Type and press Enter; Escape clears what you typed. A wrong password
+shakes the field, the right one turns it into a tick and the lock
+fades away.
+
+The shell only draws the lock. Deciding when to lock is left to an idle
+daemon, so point its lock command at the shell. With hypridle:
+
+```
+general {
+    lock_cmd = morph-shell ipc call lock lock
+}
+```
+
+`loginctl lock-session`, which the session panel's Lock button sends,
+then reaches the shell through hypridle too.
+
+The compositor keeps the session locked if the shell dies while it's
+up, so a crash never unlocks the desktop. On Hyprland, set
+`misc:allow_session_lock_restore = true` so the restarted shell can be
+locked again over it with the command above.
 
 ## Screenshots
 

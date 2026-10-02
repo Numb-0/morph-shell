@@ -49,6 +49,9 @@ in {
     {
       environment.systemPackages = [cfg.package];
       fonts.packages = cfg.package.passthru.fonts or [];
+
+      # The lock screen checks passwords against this service.
+      security.pam.services.morph-shell = {};
     }
 
     (lib.mkIf cfg.enableServices {
