@@ -101,7 +101,10 @@ ColumnLayout {
                 cursorShape: Qt.PointingHandCursor
             }
 
+            // Grabs the press outright, so the card's own tap underneath
+            // does not also take it and open the notification.
             TapHandler {
+                gesturePolicy: TapHandler.ReleaseWithinBounds
                 onTapped: root.closeRequested()
             }
 
@@ -222,6 +225,7 @@ ColumnLayout {
                 }
 
                 TapHandler {
+                    gesturePolicy: TapHandler.ReleaseWithinBounds
                     onTapped: root.notif.invoke(chip.modelData.identifier)
                 }
 
