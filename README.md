@@ -66,7 +66,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | `grim`, `wl-clipboard`, `libnotify`, `satty`, `coreutils` | Screenshots | Put on the wrapper's `PATH`. |
 | `dbus-send` | Power profile widget's startup check | Put on the wrapper's `PATH`. |
 | `cliphist`, `wl-clipboard` | Clipboard history | Put on the wrapper's `PATH`. The shell runs the `wl-paste --watch cliphist store` watchers itself, for text and images; ones already started from your compositor config do no harm, since cliphist doesn't store an entry twice. Without cliphist the history is off, and `:cliphist` isn't offered. |
-| `hyprctl` | Screenshot picker's pointer position | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
+| `hyprctl` | Screenshot picker's pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
 | `loginctl`, `systemctl` | Session panel's Lock, Restart and Shut down | Part of systemd; not put on the `PATH`. |
 | [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
 | StatusNotifierItem | System tray | Nothing to install: the shell is the tray host, and apps that support it show up there. Apps that only speak the old XEmbed tray don't. |

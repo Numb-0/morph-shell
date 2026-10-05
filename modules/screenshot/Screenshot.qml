@@ -38,7 +38,6 @@ Scope {
         pending = "";
         keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
         Hyprland.refreshToplevels();
-        Hyprland.refreshMonitors();
         active = true;
     }
 

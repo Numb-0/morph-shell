@@ -26,8 +26,6 @@ MouseArea {
     signal picked(real x, real y, real w, real h)
     signal cancelled
 
-    readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)
-
     // Past this a press becomes a drag. Less, and a click that wobbled
     // by a pixel would take a sliver instead of the window under it.
     readonly property int dragThreshold: 4
@@ -41,12 +39,6 @@ MouseArea {
     // Tiled windows never overlap, so their order among themselves does
     // not matter.
     readonly property var windows: {
-        const mon = monitor;
-        if (!mon)
-            return [];
-
-        const special = mon.lastIpcObject?.specialWorkspace;
-        const wsId = special?.name ? special.id : mon.activeWorkspace?.id;
         if (wsId === undefined)
             return [];
 
@@ -159,6 +151,30 @@ MouseArea {
     focus: true
     Keys.onEscapePressed: cancelled()
 
+    // The workspace this screen is showing, the special one when it is
+    // open over the rest, and the screen's scale. Read from hyprctl
+    // rather than from the monitor's activeWorkspace and lastIpcObject,
+    // which never fill in on some Hyprland versions and left every click
+    // taking the whole screen.
+    property var wsId
+    property real monitorScale: 1
+
+    Process {
+        running: true
+        command: ["hyprctl", "monitors", "-j"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const mon = JSON.parse(text).find(m => m.name === root.screen.name);
+                    if (!mon)
+                        return;
+                    root.wsId = mon.specialWorkspace?.name ? mon.specialWorkspace.id : mon.activeWorkspace?.id;
+                    root.monitorScale = mon.scale ?? 1;
+                } catch (e) {}
+            }
+        }
+    }
+
     // The pointer's position before it has moved, so the outline is
     // there from the first frame rather than waiting on a wiggle.
     Process {
@@ -251,7 +267,7 @@ MouseArea {
 
                 anchors.centerIn: parent
 
-                readonly property real factor: root.monitor?.scale ?? 1
+                readonly property real factor: root.monitorScale
 
                 text: `${Math.round(root.target.width * factor)} × ${Math.round(root.target.height * factor)}`
                 color: Appearance.palette.m3onPrimaryContainer
