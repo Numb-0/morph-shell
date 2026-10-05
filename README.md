@@ -280,8 +280,8 @@ The bar floats at the top of the screen and the dock at the bottom.
 Both hide until the pointer reaches their edge, unless pinned: the pin
 button on each, or `bar togglePinned` / `dock togglePinned` over IPC,
 holds it open and keeps room for it so windows don't go under it. The
-pinned state, like the media panel's last played track, is kept in
-Quickshell's state directory for the shell and survives restarts.
+pinned state is kept in Quickshell's state directory for the shell and
+survives restarts.
 
 The dock shows the pinned apps, a dot under the ones running, and
 bounces an icon while its app launches. Opening the launcher grows the
@@ -328,7 +328,7 @@ source). The ones you're most likely to want:
 | `bar.workspaces.shown` | `5` | Slots always drawn; the row grows past it to reach the highest workspace in use. |
 | `dock.pinned` | `["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]` | Apps in the dock, by desktop entry id (the `.desktop` file's name without the suffix). Near misses are looked up heuristically, and ids nothing answers to are skipped. |
 | `dock.maxResults` | `7` | Rows the launcher shows. |
-| `media.launchers` | `["spotify"]` | Players the media panel offers to start when nothing is playing, by desktop entry id. |
+| `media.launchers` | `["spotify"]` | Players the media panel lists to start when nothing is playing, by desktop entry id. Ones that aren't installed are left out. |
 | `osd.timeout` | `1500` | Milliseconds the volume OSD stays up after the level last moved. |
 | `notifs.maxPopups` | `4` | Popups shown at once; older ones wait in the centre. |
 | `font.family` | `"JetBrains Mono"` | Text font. |

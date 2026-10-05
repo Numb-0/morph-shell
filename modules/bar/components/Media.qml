@@ -61,9 +61,8 @@ Item {
             animate: true
             // Kept in the bar with nothing playing, so the widget
             // stays where you expect it rather than appearing and
-            // shifting the row about -- showing the last track, dimmed,
-            // when there is one to pick back up from the panel.
-            text: Players.active?.trackTitle || (Players.hasLast ? Players.last.title : qsTr("Nothing playing"))
+            // shifting the row about.
+            text: Players.active?.trackTitle || qsTr("Nothing playing")
             color: Players.available ? Appearance.palette.m3onSurface : Appearance.palette.m3onSurfaceVariant
             elide: Text.ElideRight
             width: root.titleWidth

@@ -2,7 +2,6 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import Quickshell.Services.Mpris
 
 Singleton {
@@ -181,107 +180,5 @@ Singleton {
         onTriggered: root.active?.positionChanged()
     }
 
-    onActiveChanged: {
-        active?.positionChanged();
-        remember();
-    }
-
-    // The last track anything played, kept on disk so the idle panel can
-    // offer it back -- after the player has quit, and after the shell has
-    // restarted. Only what the panel shows and what it takes to reopen
-    // the player; the position is the player's own business.
-    readonly property alias last: lastTrack
-    readonly property bool hasLast: lastTrack.title.length > 0 && lastTrack.desktopEntry.length > 0
-
-    function remember(): void {
-        // Only a player that can be started again, and only once it has
-        // said what it is playing: a track change arrives in pieces, and
-        // an empty title in between would wipe the card.
-        if (!active?.desktopEntry || !active.trackTitle)
-            return;
-
-        lastTrack.title = active.trackTitle;
-        lastTrack.artist = active.trackArtist ?? "";
-        lastTrack.artUrl = active.trackArtUrl ?? "";
-        lastTrack.desktopEntry = active.desktopEntry;
-        lastTrack.identity = active.identity ?? "";
-    }
-
-    Connections {
-        target: root.active
-
-        function onTrackTitleChanged(): void {
-            root.remember();
-        }
-
-        function onTrackArtistChanged(): void {
-            root.remember();
-        }
-
-        // Art tends to arrive a beat after the title.
-        function onTrackArtUrlChanged(): void {
-            root.remember();
-        }
-    }
-
-    FileView {
-        path: Quickshell.statePath("last-track.json")
-
-        // Written back whenever a field changes. Setting a field to the
-        // value it already holds is not a change, so a track that stays
-        // put does not touch the disk.
-        onAdapterUpdated: writeAdapter()
-
-        JsonAdapter {
-            id: lastTrack
-
-            property string title: ""
-            property string artist: ""
-            property string artUrl: ""
-            property string desktopEntry: ""
-            property string identity: ""
-        }
-    }
-
-    // Starts the last track's player again and, once it is up, asks it
-    // to play. Most players come back with their last track loaded, so
-    // this lands on the same song -- but they register on the bus before
-    // they have anything to play, hence the retrying rather than one
-    // call the moment the player appears.
-    property string resuming: ""
-
-    function resume(): void {
-        const entry = Apps.byId(lastTrack.desktopEntry);
-        if (!entry)
-            return;
-
-        resuming = lastTrack.desktopEntry;
-        resumeGuard.restart();
-        Apps.launch(entry);
-    }
-
-    Timer {
-        running: root.resuming.length > 0
-
-        interval: 500
-        repeat: true
-
-        onTriggered: {
-            const id = Apps.normalise(root.resuming);
-            const player = root.all.find(p => Apps.normalise(p.desktopEntry) === id);
-            if (player?.canPlay) {
-                player.play();
-                root.resuming = "";
-            }
-        }
-    }
-
-    // Gives up on a player that never comes back, or never gets as far
-    // as having something to play.
-    Timer {
-        id: resumeGuard
-
-        interval: 20000
-        onTriggered: root.resuming = ""
-    }
+    onActiveChanged: active?.positionChanged()
 }

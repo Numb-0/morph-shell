@@ -7,8 +7,8 @@ import qs.config
 import qs.services
 
 // The media panel: art, track, a wavy progress slider and transport.
-// With nothing playing it offers the last track back, and the players
-// it could be started in.
+// With nothing playing it lists the players something could be started
+// in.
 BlobPopup {
     id: root
 
@@ -191,162 +191,176 @@ BlobPopup {
             }
         }
 
-        // Nothing is: the last track, to pick back up, and the players
-        // to start something new in. A launched player turns this into
-        // the view above as soon as it registers, panel still open.
+        // Nothing is: the players to start something in. A launched
+        // player turns this into the view above as soon as it registers,
+        // panel still open.
         ColumnLayout {
+            id: idle
+
             visible: !Players.available
-            spacing: Appearance.spacing.medium
+            spacing: Appearance.spacing.small
 
             Layout.preferredWidth: 300
 
-            RowLayout {
-                visible: Players.hasLast
+            // The configured players that are actually installed.
+            //
+            // Reads Apps.all first so the binding depends on it, as the
+            // dock's pinned row does: byId notifies nothing, and before
+            // the entries are indexed every id resolves to null, which
+            // would leave the list empty for good.
+            readonly property var entries: {
+                Apps.all;
+                return Appearance.media.launchers.map(id => Apps.byId(id)).filter(e => e !== null);
+            }
 
+            // The one just tapped, until a player turns up or it is
+            // given up on, so a slow start does not read as a click that
+            // went nowhere.
+            property string launching: ""
+
+            Timer {
+                id: launchGuard
+
+                interval: 20000
+                onTriggered: idle.launching = ""
+            }
+
+            Connections {
+                target: Players
+
+                function onAvailableChanged(): void {
+                    idle.launching = "";
+                }
+            }
+
+            RowLayout {
                 Layout.fillWidth: true
+                Layout.bottomMargin: Appearance.spacing.extraSmall
                 spacing: Appearance.spacing.medium
 
                 Rectangle {
-                    Layout.preferredWidth: 64
-                    Layout.preferredHeight: 64
+                    implicitWidth: 40
+                    implicitHeight: 40
 
                     radius: Appearance.rounding.medium
                     color: Appearance.palette.m3surfaceContainerHighest
-                    clip: true
 
-                    // Stands in for art the player never sent, or that
-                    // has since gone -- browsers keep theirs in /tmp.
                     MaterialSymbol {
                         anchors.centerIn: parent
 
-                        visible: lastArt.status !== Image.Ready
-
-                        icon: "music_note"
-                        size: Appearance.font.icon.large
+                        icon: "music_off"
+                        size: Appearance.font.icon.normal
                         color: Appearance.palette.m3onSurfaceVariant
-                    }
-
-                    Image {
-                        id: lastArt
-
-                        anchors.fill: parent
-
-                        source: Players.last.artUrl
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        visible: status === Image.Ready
-
-                        // Dimmed: a record of what played, not something
-                        // playing now.
-                        opacity: 0.6
                     }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignVCenter
-                    spacing: Appearance.spacing.extraSmall
+                    spacing: 0
 
                     StyledText {
-                        text: qsTr("Last played")
-                        color: Appearance.palette.m3onSurfaceVariant
-                    }
-
-                    StyledText {
-                        Layout.fillWidth: true
-
-                        text: Players.last.title
+                        text: qsTr("Nothing playing")
                         font.pixelSize: Appearance.font.normal
-                        elide: Text.ElideRight
                     }
 
                     StyledText {
-                        Layout.fillWidth: true
+                        visible: idle.entries.length > 0
 
-                        text: [Players.last.artist, Players.last.identity].filter(t => t.length > 0).join(" \u00b7 ")
+                        text: qsTr("Start a player")
                         color: Appearance.palette.m3onSurfaceVariant
-                        elide: Text.ElideRight
-                        visible: text.length > 0
                     }
                 }
-
-                // Starts the player again and plays once it is back. An
-                // hourglass while that is under way, so a slow start does
-                // not read as a click that went nowhere.
-                Button {
-                    icon: Players.resuming.length > 0 ? "hourglass_empty" : "play_arrow"
-
-                    onActivated: Players.resume()
-                }
             }
 
-            StyledText {
-                visible: !Players.hasLast
+            Repeater {
+                model: idle.entries
 
-                text: qsTr("Nothing playing")
-                font.pixelSize: Appearance.font.normal
-                color: Appearance.palette.m3onSurfaceVariant
-            }
+                Item {
+                    id: player
 
-            Flow {
-                id: launchers
+                    required property DesktopEntry modelData
 
-                // The configured players that are actually installed.
-                readonly property var entries: Appearance.media.launchers.map(id => Apps.byId(id)).filter(e => e !== null)
+                    readonly property bool launching: idle.launching === modelData.id
 
-                visible: entries.length > 0
+                    Layout.fillWidth: true
+                    implicitHeight: 48
 
-                Layout.fillWidth: true
-                spacing: Appearance.spacing.small
+                    HoverHandler {
+                        id: playerHover
 
-                Repeater {
-                    model: launchers.entries
+                        cursorShape: Qt.PointingHandCursor
+                    }
 
+                    TapHandler {
+                        onTapped: {
+                            idle.launching = player.modelData.id;
+                            launchGuard.restart();
+                            Apps.launch(player.modelData);
+                        }
+                    }
+
+                    // The M3 state layer.
                     Rectangle {
-                        id: chip
+                        anchors.fill: parent
 
-                        required property DesktopEntry modelData
-
-                        implicitWidth: chipRow.implicitWidth + Appearance.padding.medium * 2
-                        implicitHeight: 36
-
-                        radius: height / 2
+                        radius: Appearance.rounding.large
                         color: Appearance.palette.m3surfaceContainerHigh
-                        opacity: chipHover.hovered ? 1 : 0.85
+                        opacity: playerHover.hovered || player.launching ? 1 : 0
 
                         Behavior on opacity {
                             Anim {
                                 type: Anim.FastEffects
                             }
                         }
+                    }
 
-                        HoverHandler {
-                            id: chipHover
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: Appearance.padding.small
+                        anchors.rightMargin: Appearance.padding.small
+                        spacing: Appearance.spacing.medium
 
-                            cursorShape: Qt.PointingHandCursor
+                        IconImage {
+                            implicitSize: 32
+                            source: Quickshell.iconPath(player.modelData.icon, "application-x-executable")
                         }
 
-                        TapHandler {
-                            onTapped: Apps.launch(chip.modelData)
-                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
 
-                        Row {
-                            id: chipRow
+                            StyledText {
+                                Layout.fillWidth: true
 
-                            anchors.centerIn: parent
-                            spacing: Appearance.spacing.small
-
-                            IconImage {
-                                anchors.verticalCenter: parent.verticalCenter
-
-                                implicitSize: Appearance.font.icon.normal
-                                source: Quickshell.iconPath(chip.modelData.icon, "application-x-executable")
+                                text: player.modelData.name
+                                font.pixelSize: Appearance.font.normal
+                                elide: Text.ElideRight
                             }
 
                             StyledText {
-                                anchors.verticalCenter: parent.verticalCenter
+                                Layout.fillWidth: true
 
-                                text: chip.modelData.name
+                                visible: text.length > 0
+                                text: player.modelData.genericName || player.modelData.comment || ""
+                                color: Appearance.palette.m3onSurfaceVariant
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        // An hourglass while the player starts, a play
+                        // glyph on the row under the pointer otherwise.
+                        MaterialSymbol {
+                            opacity: playerHover.hovered || player.launching ? 1 : 0
+
+                            icon: player.launching ? "hourglass_empty" : "play_arrow"
+                            size: Appearance.font.icon.normal
+                            color: Appearance.palette.m3primary
+                            fill: 1
+
+                            Behavior on opacity {
+                                Anim {
+                                    type: Anim.FastEffects
+                                }
                             }
                         }
                     }
