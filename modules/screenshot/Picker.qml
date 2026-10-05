@@ -141,11 +141,15 @@ MouseArea {
             return;
 
         // Taken from the target, not from the drawn selection, which may
-        // still be gliding towards it.
+        // still be gliding towards it. Copied out as numbers before the
+        // drag ends: a rect read from a property stays tied to it, and
+        // would turn back into the window under the pointer the moment
+        // dragging goes false.
         const r = dragging ? target : windowAt(event.x, event.y);
+        const x = r.x, y = r.y, w = r.width, h = r.height;
         dragging = false;
-        if (r.width >= 1 && r.height >= 1)
-            picked(r.x, r.y, r.width, r.height);
+        if (w >= 1 && h >= 1)
+            picked(x, y, w, h);
     }
 
     focus: true
