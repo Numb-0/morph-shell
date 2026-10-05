@@ -226,12 +226,17 @@ Scope {
                 }
 
                 // A click in the hit area but outside the shape puts the
-                // panel away. Sits under the shape, so the icons and the
-                // results get the tap first.
+                // panel away. Handlers on top do not keep a tap from
+                // reaching this one too, so it checks where the tap
+                // landed: one on a row or a button inside the shape is
+                // theirs alone.
                 TapHandler {
                     enabled: win.panelOpen
 
-                    onTapped: root.close("")
+                    onTapped: eventPoint => {
+                        if (!surface.contains(hitArea.mapToItem(surface, eventPoint.position)))
+                            root.close("");
+                    }
                 }
             }
 
