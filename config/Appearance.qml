@@ -425,6 +425,13 @@ Singleton {
         // Top padding, the search field, the gap under it, the rows and
         // the gaps between them, and a breath before the pinned icons.
         readonly property int launcherHeight: 16 + resultHeight + 8 + maxResults * resultHeight + (maxResults - 1) * 4 + 8
+
+        // The clipboard panel grows to the same shape, so the dock can
+        // turn from one into the other without changing size. An image
+        // takes up two rows and the gap between them, which keeps the
+        // panel ending on whole rows however text and images mix.
+        readonly property int imageResultHeight: resultHeight * 2 + 4
+        readonly property int thumbnailMaxWidth: 168
     }
 
     readonly property QtObject osd: QtObject {

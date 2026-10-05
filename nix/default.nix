@@ -16,6 +16,7 @@
   wl-clipboard,
   libnotify,
   satty,
+  cliphist,
   jetbrains-mono,
   material-symbols,
   extraRuntimeDeps ? [],
@@ -25,7 +26,8 @@
   # at startup to decide whether to show itself. grim, wl-copy,
   # notify-send and satty: the screenshot pipeline, which also wants
   # coreutils even when the shell runs as a service with a bare PATH.
-  runtimeDeps = [brightnessctl dbus coreutils grim wl-clipboard libnotify satty] ++ extraRuntimeDeps;
+  # cliphist: the clipboard history, fed by wl-paste.
+  runtimeDeps = [brightnessctl dbus coreutils grim wl-clipboard libnotify satty cliphist] ++ extraRuntimeDeps;
 
   # Layer the bundled fonts on top of the system fontconfig, so the shell
   # finds them whether or not they are installed, and every other font

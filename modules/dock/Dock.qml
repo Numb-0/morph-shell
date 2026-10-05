@@ -9,22 +9,46 @@ import qs.config
 import qs.modules.dock.components
 import qs.services
 
-// The dock, and the launcher it turns into.
+// The dock, and the panels it turns into: the launcher, and the
+// clipboard history it leads to through ":cliphist".
 //
-// One shape does both jobs: closed it is a pill of pinned icons at the
-// bottom edge, and opening the launcher grows that same pill upwards
-// into a panel, with the icons staying exactly where they were. Nothing
-// appears or disappears -- the dock changes form.
+// One shape does every job: closed it is a pill of pinned icons at the
+// bottom edge, and opening a panel grows that same pill upwards into
+// it, with the icons staying exactly where they were. Nothing appears
+// or disappears -- the dock changes form, and going from one panel
+// straight to the other only swaps what is inside.
 Scope {
     id: root
 
-    // One launcher for the session rather than one per screen: two open
-    // at once would each be holding the keyboard. Holds the name of the
-    // screen it is open on, or "" when it is closed.
-    property string launcherScreen: ""
+    // One panel for the session rather than one per screen: two open at
+    // once would each be holding the keyboard. Which one is open --
+    // "launcher" or "clipboard" -- and the name of the screen it is open
+    // on, or "" for both when the dock is closed.
+    property string panel: ""
+    property string panelScreen: ""
 
-    function toggleLauncher(screen: string): void {
-        launcherScreen = launcherScreen === screen ? "" : screen;
+    function open(name: string, screen: string): void {
+        panel = name;
+        panelScreen = screen;
+    }
+
+    // Only puts away the panel it names, so a stray `launcher close`
+    // from a keybind leaves the clipboard be.
+    function close(name: string): void {
+        if (name !== "" && name !== panel)
+            return;
+        panel = "";
+        panelScreen = "";
+    }
+
+    // The same panel on the same screen closes; anything else opens, so
+    // the clipboard's key pressed over the launcher turns one into the
+    // other.
+    function toggle(name: string, screen: string): void {
+        if (panel === name && panelScreen === screen)
+            close(name);
+        else
+            open(name, screen);
     }
 
     // Where a key opens it: the focused monitor on Hyprland, and the
@@ -42,15 +66,34 @@ Scope {
 
         // From a key, the launcher opens on the focused screen.
         function toggle(): void {
-            root.toggleLauncher(root.focusedScreen);
+            root.toggle("launcher", root.focusedScreen);
         }
 
         function open(): void {
-            root.launcherScreen = root.focusedScreen;
+            root.open("launcher", root.focusedScreen);
         }
 
         function close(): void {
-            root.launcherScreen = "";
+            root.close("launcher");
+        }
+    }
+
+    //   bind = SUPER, V, exec, qs -p ~/morph-shell ipc call clipboard toggle
+    IpcHandler {
+        target: "clipboard"
+
+        function toggle(): void {
+            if (Clipboard.available)
+                root.toggle("clipboard", root.focusedScreen);
+        }
+
+        function open(): void {
+            if (Clipboard.available)
+                root.open("clipboard", root.focusedScreen);
+        }
+
+        function close(): void {
+            root.close("clipboard");
         }
     }
 
@@ -65,7 +108,9 @@ Scope {
             readonly property int dockMargin: Appearance.dock.margin
             readonly property int dockHeight: Appearance.dock.height
 
-            readonly property bool launcherOpen: root.launcherScreen === modelData.name
+            readonly property bool panelOpen: root.panelScreen === modelData.name
+            readonly property bool launcherOpen: panelOpen && root.panel === "launcher"
+            readonly property bool clipboardOpen: panelOpen && root.panel === "clipboard"
 
             // How many pinned icons the pointer is on. A count rather
             // than a flag because the icons come out of a Repeater and
@@ -77,9 +122,9 @@ Scope {
             property int hoveredApps: 0
 
             // Everything hoverable that sits inside the hit area is OR'd
-            // in here. The launcher's own insides are not: while it is
+            // in here. The panels' own insides are not: while one is
             // open the dock is held out anyway.
-            readonly property bool pointerInside: revealHover.hovered || buttonHover.hovered || pin.hovered || hoveredApps > 0
+            readonly property bool pointerInside: revealHover.hovered || launcherButton.hovered || pin.hovered || hoveredApps > 0
 
             // Latched rather than bound straight to the pointer, as the
             // bar is, so a cursor crossing the screen edge on its way
@@ -87,7 +132,7 @@ Scope {
             property bool revealed: false
 
             // Pinned, the dock stays up whatever the pointer does.
-            readonly property bool shown: revealed || launcherOpen || DockState.pinned
+            readonly property bool shown: revealed || panelOpen || DockState.pinned
 
             property real reveal: shown ? 1 : 0
 
@@ -137,7 +182,7 @@ Scope {
                 right: true
             }
 
-            // The launcher wants the keyboard the moment it opens: it is
+            // A panel wants the keyboard the moment it opens: it is
             // opened by a key as often as by a click. On Hyprland the
             // focus grab hands it over, so the dock only has to be willing
             // to take it: taking it outright would itself clear the grab.
@@ -145,21 +190,21 @@ Scope {
             // it is taken outright. Guarded because the attached object
             // exists only on a layer-shell compositor.
             Component.onCompleted: if (this.WlrLayershell !== null)
-                this.WlrLayershell.keyboardFocus = Qt.binding(() => !win.launcherOpen ? WlrKeyboardFocus.None : root.onHyprland ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.Exclusive)
+                this.WlrLayershell.keyboardFocus = Qt.binding(() => !win.panelOpen ? WlrKeyboardFocus.None : root.onHyprland ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.Exclusive)
 
             // On Hyprland, a click anywhere outside the dock, on any
-            // monitor, puts the launcher away too.
+            // monitor, puts the panel away too.
             HyprlandFocusGrab {
                 windows: [win]
-                active: win.launcherOpen && root.onHyprland
+                active: win.panelOpen && root.onHyprland
 
-                onCleared: root.launcherScreen = ""
+                onCleared: root.close("")
             }
 
             // Input is limited to the hit area; everything else clicks
             // through. It is a sliver at the screen edge until the
             // pointer is in it, and the dock's whole extent after that --
-            // including, while the launcher is open, the panel.
+            // including, while a panel is open, the panel.
             mask: Region {
                 item: hitArea
             }
@@ -181,12 +226,12 @@ Scope {
                 }
 
                 // A click in the hit area but outside the shape puts the
-                // launcher away. Sits under the shape, so the icons and
-                // the results get the tap first.
+                // panel away. Sits under the shape, so the icons and the
+                // results get the tap first.
                 TapHandler {
-                    enabled: win.launcherOpen
+                    enabled: win.panelOpen
 
-                    onTapped: root.launcherScreen = ""
+                    onTapped: root.close("")
                 }
             }
 
@@ -202,7 +247,7 @@ Scope {
 
             // The shape. Parked below the screen edge when hidden, so it
             // slides up into its floating position rather than fading in
-            // place, and grown upward when the launcher is open -- the
+            // place, and grown upward when a panel is open -- the
             // icons keep their place at the bottom of it either way.
             BlobRect {
                 id: surface
@@ -214,8 +259,8 @@ Scope {
                 // nothing, its whole height below it.
                 anchors.bottomMargin: (win.dockMargin + height) * win.reveal - height
 
-                implicitWidth: win.launcherOpen ? Appearance.dock.launcherWidth : row.implicitWidth + Appearance.padding.large * 2
-                implicitHeight: win.dockHeight + (win.launcherOpen ? Appearance.dock.launcherHeight : 0)
+                implicitWidth: win.panelOpen ? Appearance.dock.launcherWidth : row.implicitWidth + Appearance.padding.large * 2
+                implicitHeight: win.dockHeight + (win.panelOpen ? Appearance.dock.launcherHeight : 0)
 
                 group: group
                 radius: Appearance.rounding.extraLarge
@@ -236,8 +281,10 @@ Scope {
                 }
             }
 
-            // Clipped to the shape, so the search field and the list
-            // cannot spill out of it while it is still growing.
+            // Clipped to the shape, so the search fields and the lists
+            // cannot spill out of it while it is still growing. Both
+            // panels sit in it, one on top of the other, and each fades
+            // in and out with its own `active`.
             Item {
                 x: surface.x
                 y: surface.y
@@ -246,7 +293,7 @@ Scope {
 
                 clip: true
 
-                opacity: win.launcherOpen ? 1 : 0
+                opacity: win.panelOpen ? 1 : 0
                 visible: opacity > 0
 
                 Behavior on opacity {
@@ -263,9 +310,29 @@ Scope {
                     // into it.
                     anchors.bottomMargin: Appearance.spacing.small
 
+                    enabled: win.launcherOpen
                     active: win.launcherOpen
 
-                    onDismissed: root.launcherScreen = ""
+                    onDismissed: root.close("launcher")
+
+                    // ":cliphist" and the like: the dock turns from one
+                    // panel into the other where it stands.
+                    onPanelRequested: panel => root.open(panel, win.modelData.name)
+                }
+
+                ClipboardPanel {
+                    anchors.fill: parent
+                    anchors.margins: Appearance.padding.large
+                    anchors.bottomMargin: Appearance.spacing.small
+
+                    // Only the open one takes the pointer, so the rows
+                    // of the other, fading out on top or underneath,
+                    // never catch a hover or a tap meant for it.
+                    enabled: win.clipboardOpen
+
+                    active: win.clipboardOpen
+
+                    onDismissed: root.close("clipboard")
                 }
             }
 
@@ -280,35 +347,13 @@ Scope {
                 spacing: Appearance.spacing.small
                 opacity: win.reveal
 
-                // Opens and closes the launcher -- the same thing the
-                // keybind does.
-                Item {
+                DockButton {
                     id: launcherButton
 
-                    implicitWidth: Appearance.dock.iconSize + Appearance.padding.small * 2
-                    implicitHeight: Appearance.dock.iconSize + Appearance.padding.small * 2
+                    icon: "apps"
+                    active: win.launcherOpen
 
-                    HoverHandler {
-                        id: buttonHover
-
-                        cursorShape: Qt.PointingHandCursor
-                    }
-
-                    TapHandler {
-                        onTapped: root.toggleLauncher(win.modelData.name)
-                    }
-
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-
-                        icon: "apps"
-                        size: Appearance.font.icon.large
-                        color: win.launcherOpen || buttonHover.hovered ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
-
-                        // Fills while the launcher is open, so the button
-                        // shows the state it put the dock in.
-                        fill: win.launcherOpen ? 1 : 0
-                    }
+                    onTapped: root.toggle("launcher", win.modelData.name)
                 }
 
                 // Divides the button from the applications it opens.

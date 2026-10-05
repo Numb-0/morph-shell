@@ -19,8 +19,8 @@ directly, through Quickshell's Hyprland integration, and only work there:
 | Workspaces widget | Shows each monitor's workspaces, and switches them on click and scroll. | Shows only empty slots, with the active one parked on the first, and clicks and scrolls do nothing. |
 | `bar toggle <panel>` over IPC | Opens the panel on the focused monitor. | Opens nothing: there is no focused monitor to pick. Panels still open from the bar itself. |
 | Closing bar panels on an outside click | A click anywhere outside them, on any monitor, closes them, through a Hyprland focus grab. | Only a click elsewhere on the same screen closes them. |
-| Closing the launcher on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. |
-| `launcher toggle`/`open` over IPC | Opens the launcher on the focused monitor. | Opens it on the first screen. |
+| Closing the launcher or the clipboard on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. |
+| `launcher`/`clipboard` `toggle`/`open` over IPC | Opens the panel on the focused monitor. | Opens it on the first screen. |
 | Screenshot region picker | Snaps to the window under the pointer, and outlines it from the first frame. | Only drags or the whole screen, and the outline waits for the pointer to move. |
 
 Switching workspaces uses Hyprland's Lua dispatchers, so it needs a
@@ -65,6 +65,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | `brightnessctl` | Brightness widget | Put on the wrapper's `PATH`. |
 | `grim`, `wl-clipboard`, `libnotify`, `satty`, `coreutils` | Screenshots | Put on the wrapper's `PATH`. |
 | `dbus-send` | Power profile widget's startup check | Put on the wrapper's `PATH`. |
+| `cliphist`, `wl-clipboard` | Clipboard history | Put on the wrapper's `PATH`. The shell runs the `wl-paste --watch cliphist store` watchers itself, for text and images; ones already started from your compositor config do no harm, since cliphist doesn't store an entry twice. Without cliphist the history is off, and `:cliphist` isn't offered. |
 | `hyprctl` | Screenshot picker's pointer position | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
 | `loginctl`, `systemctl` | Session panel's Lock, Restart and Shut down | Part of systemd; not put on the `PATH`. |
 | [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
@@ -251,6 +252,9 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
 | `launcher` | `open` | Open the app launcher on the focused screen. Off Hyprland it opens on the first screen. |
 | `launcher` | `close` | Close the app launcher. |
+| `clipboard` | `toggle` | Open the clipboard history on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
+| `clipboard` | `open` | Open the clipboard history on the focused screen. Off Hyprland it opens on the first screen. |
+| `clipboard` | `close` | Close the clipboard history. |
 | `lock` | `lock` | Lock the session (see [Lock screen](#lock-screen)). Does nothing if it's already locked. |
 | `lock` | `isLocked` | Print whether the session is locked. |
 | `notifs` | `toggleDnd` | Turn do not disturb on or off. Only critical notifications pop up while it's on; the rest still land in the centre. |
@@ -259,10 +263,12 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `screenshot` | `region` | Pick a region to screenshot (see [Screenshots](#screenshots)). |
 | `screenshot` | `cancel` | Close the region picker without taking anything. |
 
-For example, to open the launcher with Super+Space in Hyprland:
+For example, to open the launcher with Super+Space and the clipboard
+history with Super+V in Hyprland:
 
 ```
 bind = SUPER, Space, exec, morph-shell ipc call launcher toggle
+bind = SUPER, V, exec, morph-shell ipc call clipboard toggle
 ```
 
 When running from a checkout (`morph-run`), point `qs` at the working
@@ -280,6 +286,24 @@ Quickshell's state directory for the shell and survives restarts.
 The dock shows the pinned apps, a dot under the ones running, and
 bounces an icon while its app launches. Opening the launcher grows the
 dock into a fuzzy search over every desktop entry.
+
+A search in the launcher that starts with `:` runs one of the shell's
+own commands instead, and `:` alone lists them all:
+
+| Command | Does |
+| --- | --- |
+| `:cliphist` | Turns the launcher into the clipboard history (see below). Typing the name is enough; it opens without Enter. |
+| `:screenshot` | Picks a region to screenshot (see [Screenshots](#screenshots)). |
+| `:lock` | Locks the session. |
+| `:session` | Opens the bar's session panel: log out, restart or shut down. |
+| `:dnd` | Turns do not disturb on or off. |
+| `:clear` | Dismisses every notification. |
+
+The clipboard history, reached through `:cliphist` or the `clipboard`
+IPC target, holds text and images, newest first, with a search over
+them. Enter or a click copies an entry back to the clipboard, ready to
+paste. Shift+Delete or the cross on a row removes it, and the button in
+the search field clears the whole history after a second tap.
 
 The workspaces widget comes in three styles:
 

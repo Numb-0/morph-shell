@@ -19,6 +19,11 @@
     });
 
     devShells = forAllSystems (pkgs: let
+      # The tools the installed wrapper puts on the shell's PATH, so a
+      # run from the working tree finds the same ones -- cliphist,
+      # grim, brightnessctl -- whether or not they are installed.
+      runtimeDeps = self.packages.${pkgs.stdenv.hostPlatform.system}.morph-shell.passthru.runtimeDeps;
+
       # Configure on first run, then build. Extra arguments are passed
       # through to cmake --build (e.g. `morph-build --target morphblobs`).
       morph-build = pkgs.writeShellScriptBin "morph-build" ''
@@ -50,6 +55,7 @@
 
         export QML2_IMPORT_PATH="$root/build/qml''${QML2_IMPORT_PATH:+:$QML2_IMPORT_PATH}"
         export QML_IMPORT_PATH="$root/build/qml''${QML_IMPORT_PATH:+:$QML_IMPORT_PATH}"
+        export PATH="${pkgs.lib.makeBinPath runtimeDeps}:$PATH"
 
         exec ${pkgs.quickshell}/bin/qs -p "$root" "$@"
       '';

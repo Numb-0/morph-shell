@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pam
 import Quickshell.Wayland
+import qs.services
 
 // The session lock, standing in for hyprlock. The compositor hands every
 // screen to the lock's surfaces and keeps the session locked until the
@@ -162,6 +163,15 @@ Scope {
             sessionLock.locked = false;
             root.unlocking = false;
             root.leaving = false;
+        }
+    }
+
+    // From the launcher's commands.
+    Connections {
+        target: Commands
+
+        function onLockRequested(): void {
+            root.lock();
         }
     }
 

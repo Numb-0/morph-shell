@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+import qs.services
 
 // Region screenshots, standing in for slurp in a grim pipeline. The
 // shell only picks the region; grim takes the picture, straight into
@@ -89,6 +90,15 @@ Scope {
         onTriggered: {
             Quickshell.execDetached(["sh", "-c", root.script, "morph-shell-screenshot", root.pending]);
             root.close();
+        }
+    }
+
+    // From the launcher's commands.
+    Connections {
+        target: Commands
+
+        function onScreenshotRequested(): void {
+            root.open();
         }
     }
 
