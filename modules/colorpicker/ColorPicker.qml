@@ -36,8 +36,12 @@ Scope {
     function take(c: color): void {
         const hex = c.toString().toUpperCase();
         const rgb = `rgb(${Math.round(c.r * 255)}, ${Math.round(c.g * 255)}, ${Math.round(c.b * 255)})`;
+        // A grey has no hue, and Qt says -1 for it.
+        const hsl = `hsl(${Math.round(Math.max(0, c.hslHue) * 360)}, ${Math.round(c.hslSaturation * 100)}%, ${Math.round(c.hslLightness * 100)}%)`;
         Quickshell.execDetached(["wl-copy", hex]);
-        Quickshell.execDetached(["notify-send", "-a", "Color picker", "-t", String(notifyTimeout), `${hex} copied`, rgb]);
+        // The hint has the notification show the colour itself, as a
+        // swatch beside the text.
+        Quickshell.execDetached(["notify-send", "-a", "Color picker", "-t", String(notifyTimeout), "-h", `string:x-morph-color:${hex}`, `${hex} copied`, `${rgb}\n${hsl}`]);
         close();
     }
 

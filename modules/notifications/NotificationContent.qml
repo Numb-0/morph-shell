@@ -5,8 +5,8 @@ import qs.config
 import qs.services
 
 // What a notification says, laid out the same way in a popup and in the
-// centre: who sent it and when, the summary, the body, a picture if it
-// brought one, and its actions as a row of tonal chips.
+// centre: who sent it and when, the summary, the body, a picture or a
+// colour swatch if it brought one, and its actions as a row of tonal chips.
 ColumnLayout {
     id: root
 
@@ -168,11 +168,27 @@ ColumnLayout {
             }
         }
 
+        // A colour the sender asked to show, filling the well the picture
+        // would take. Ringed, so a colour close to the card's own still
+        // has an edge.
+        Rectangle {
+            Layout.alignment: Qt.AlignTop
+
+            visible: root.notif.swatch !== ""
+
+            implicitWidth: 48
+            implicitHeight: 48
+            radius: Appearance.rounding.medium
+            color: root.notif.swatch || "transparent"
+            border.width: 1
+            border.color: Appearance.palette.m3outlineVariant
+        }
+
         // A sender's picture -- an avatar, album art -- in a rounded well.
         Rectangle {
             Layout.alignment: Qt.AlignTop
 
-            visible: picture.status === Image.Ready
+            visible: root.notif.swatch === "" && picture.status === Image.Ready
 
             implicitWidth: 48
             implicitHeight: 48

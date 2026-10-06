@@ -100,6 +100,9 @@ Singleton {
         property string appName
         property string appIcon
         property string image
+        // A colour the sender wants shown as a swatch, from the
+        // x-morph-color hint, as the colour picker sends it.
+        property string swatch
         property int urgency: NotificationUrgency.Normal
         property var actions: []
         property int timeout: root.defaultTimeout
@@ -114,6 +117,8 @@ Singleton {
             appName = n.appName || qsTr("Unknown");
             appIcon = n.appIcon;
             image = n.image;
+            const hint = String(n.hints?.["x-morph-color"] ?? "");
+            swatch = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(hint) ? hint : "";
             urgency = n.urgency;
             // Only the labels: the action objects die with the
             // notification, and invoke() looks the live one up again.
