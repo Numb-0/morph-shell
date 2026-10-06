@@ -48,7 +48,7 @@ install(
 )
 
 # Painted helpers that are not blobs get their own module so the URI
-# stays meaningful.
+# stays meaningful. The colour picker's sampler and lens live here too.
 qt_add_library(morphcomponents SHARED)
 
 qt_add_qml_module(morphcomponents
@@ -57,6 +57,10 @@ qt_add_qml_module(morphcomponents
     SOURCES
         src/wavyline.cpp
         src/wavyline.hpp
+        src/pixelsampler.cpp
+        src/pixelsampler.hpp
+        src/pixellens.cpp
+        src/pixellens.hpp
 )
 
 target_include_directories(morphcomponents PRIVATE src)

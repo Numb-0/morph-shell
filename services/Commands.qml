@@ -16,10 +16,12 @@ Singleton {
 
     readonly property string prefix: ":"
 
-    // Lock and screenshot live in modules of their own rather than in a
-    // service, so they are asked through these instead of called.
+    // Lock, screenshot and the colour picker live in modules of their
+    // own rather than in a service, so they are asked through these
+    // instead of called.
     signal lockRequested
     signal screenshotRequested
+    signal colorPickerRequested
 
     // In the order they are listed under a bare colon: the panels first,
     // then the rest by how often they are likely to be wanted.
@@ -39,6 +41,13 @@ Singleton {
             description: qsTr("Screenshot a region"),
             icon: "screenshot_region",
             run: () => root.screenshotRequested(),
+            available: true
+        },
+        {
+            name: "colorpicker",
+            description: qsTr("Pick a colour from the screen"),
+            icon: "colorize",
+            run: () => root.colorPickerRequested(),
             available: true
         },
         {

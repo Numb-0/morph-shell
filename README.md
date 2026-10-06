@@ -22,6 +22,7 @@ directly, through Quickshell's Hyprland integration, and only work there:
 | Closing the launcher or the clipboard on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. |
 | `launcher`/`clipboard` `toggle`/`open` over IPC | Opens the panel on the focused monitor. | Opens it on the first screen. |
 | Screenshot region picker | Snaps to the window under the pointer, and outlines it from the first frame. | Only drags or the whole screen, and the outline waits for the pointer to move. |
+| Colour picker | The lens is under the pointer from the first frame. | The lens waits for the pointer to move. |
 
 Switching workspaces uses Hyprland's Lua dispatchers, so it needs a
 Hyprland with the Lua config (tested on 0.56).
@@ -63,10 +64,10 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | --- | --- | --- |
 | JetBrains Mono, Material Symbols Rounded | Text and icons | Bundled with the package; installing them yourself isn't needed. |
 | `brightnessctl` | Brightness widget | Put on the wrapper's `PATH`. |
-| `grim`, `wl-clipboard`, `libnotify`, `satty`, `coreutils` | Screenshots | Put on the wrapper's `PATH`. |
+| `grim`, `wl-clipboard`, `libnotify`, `satty`, `coreutils` | Screenshots; `wl-clipboard` and `libnotify` also for the colour picker | Put on the wrapper's `PATH`. |
 | `dbus-send` | Power profile widget's startup check | Put on the wrapper's `PATH`. |
 | `cliphist`, `wl-clipboard` | Clipboard history | Put on the wrapper's `PATH`. The shell runs the `wl-paste --watch cliphist store` watchers itself, for text and images; ones already started from your compositor config do no harm, since cliphist doesn't store an entry twice. Without cliphist the history is off, and `:cliphist` isn't offered. |
-| `hyprctl` | Screenshot picker's pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
+| `hyprctl` | Screenshot and colour pickers' pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
 | `loginctl`, `systemctl` | Session panel's Lock, Restart and Shut down | Part of systemd; not put on the `PATH`. |
 | [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
 | StatusNotifierItem | System tray | Nothing to install: the shell is the tray host, and apps that support it show up there. Apps that only speak the old XEmbed tray don't. |
@@ -262,6 +263,8 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `palette` | `reload` | Re-read `colors.json` and `wallpaper.json` (see [Colours](#colours) and [Wallpaper](#wallpaper)). |
 | `screenshot` | `region` | Pick a region to screenshot (see [Screenshots](#screenshots)). |
 | `screenshot` | `cancel` | Close the region picker without taking anything. |
+| `colorpicker` | `pick` | Pick a colour from the screen (see [Colour picker](#colour-picker)). |
+| `colorpicker` | `cancel` | Close the colour picker without taking anything. |
 
 For example, to open the launcher with Super+Space and the clipboard
 history with Super+V in Hyprland:
@@ -294,6 +297,7 @@ own commands instead, and `:` alone lists them all:
 | --- | --- |
 | `:cliphist` | Turns the launcher into the clipboard history (see below). Typing the name is enough; it opens without Enter. |
 | `:screenshot` | Picks a region to screenshot (see [Screenshots](#screenshots)). |
+| `:colorpicker` | Picks a colour from the screen (see [Colour picker](#colour-picker)). |
 | `:lock` | Locks the session. |
 | `:session` | Opens the bar's session panel: log out, restart or shut down. |
 | `:dnd` | Turns do not disturb on or off. |
@@ -379,6 +383,21 @@ works, but only by dragging or taking the whole screen.
 
 ```
 bind = , Print, exec, morph-shell ipc call screenshot region
+```
+
+## Colour picker
+
+`morph-shell ipc call colorpicker pick` freezes every screen and puts a
+lens beside the pointer that magnifies the pixels under it, with the
+colour of the middle one written below. A click copies that colour as
+hex (`#RRGGBB`) and a notification shows it along with its `rgb()`.
+Escape or a right click cancels. It stands in for `hyprpicker`.
+
+The colour is read from the screen's own pixels, at its native
+resolution, so it is exact on fractionally scaled screens too.
+
+```
+bind = SUPER SHIFT, C, exec, morph-shell ipc call colorpicker pick
 ```
 
 ## Development

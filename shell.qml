@@ -4,6 +4,7 @@
 import Quickshell
 import qs.modules.background
 import qs.modules.bar
+import qs.modules.colorpicker
 import qs.modules.dock
 import qs.modules.lock
 import qs.modules.notifications
@@ -18,6 +19,7 @@ ShellRoot {
     VolumeOsd {}
     NotificationPopups {}
     Screenshot {}
+    ColorPicker {}
     Polkit {}
     Lock {}
 }
