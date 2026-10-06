@@ -84,6 +84,8 @@ Item {
                 return constellation;
             case "fluid":
                 return fluid;
+            case "shapes":
+                return shapes;
             default:
                 return drop;
             }
@@ -102,6 +104,14 @@ Item {
         id: fluid
 
         Fluid {
+            ws: root
+        }
+    }
+
+    Component {
+        id: shapes
+
+        Shapes {
             ws: root
         }
     }

@@ -379,9 +379,11 @@ Singleton {
 
             // How the indicator draws itself: "drop" (a drop that leaps
             // from slot to slot and splashes down), "fluid" (a pool of
-            // liquid poured from slot to slot) or "constellation"
-            // (workspaces in use as linked stars, the active one a comet).
-            readonly property string style: "drop"
+            // liquid poured from slot to slot), "constellation"
+            // (workspaces in use as linked stars, the active one a comet)
+            // or "shapes" (the active one a Material shape that morphs
+            // into the next workspace's).
+            readonly property string style: "shapes"
         }
     }
 

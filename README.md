@@ -305,13 +305,14 @@ them. Enter or a click copies an entry back to the clipboard, ready to
 paste. Shift+Delete or the cross on a row removes it, and the button in
 the search field clears the whole history after a second tap.
 
-The workspaces widget comes in three styles:
+The workspaces widget comes in four styles:
 
 | Style | Look |
 | --- | --- |
-| `drop` (default) | A drop that leaps from slot to slot and splashes down. |
+| `drop` | A drop that leaps from slot to slot and splashes down. |
 | `fluid` | A pool of liquid poured from slot to slot. |
 | `constellation` | Workspaces in use as linked stars, the active one a comet. |
+| `shapes` (default) | The active workspace a Material 3 Expressive shape that sheds its lobes, rolls over and blooms into the next workspace's. |
 
 The bar also carries a system tray, whose menus open as panels like the
 rest.
@@ -324,7 +325,7 @@ source). The ones you're most likely to want:
 
 | Property | Default | Description |
 | --- | --- | --- |
-| `bar.workspaces.style` | `"drop"` | Workspaces style: `drop`, `fluid` or `constellation`. |
+| `bar.workspaces.style` | `"shapes"` | Workspaces style: `drop`, `fluid`, `constellation` or `shapes`. |
 | `bar.workspaces.shown` | `5` | Slots always drawn; the row grows past it to reach the highest workspace in use. |
 | `dock.pinned` | `["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]` | Apps in the dock, by desktop entry id (the `.desktop` file's name without the suffix). Near misses are looked up heuristically, and ids nothing answers to are skipped. |
 | `dock.maxResults` | `7` | Rows the launcher shows. |
