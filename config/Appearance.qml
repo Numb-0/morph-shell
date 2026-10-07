@@ -437,9 +437,10 @@ Singleton {
     }
 
     readonly property QtObject overview: QtObject {
-        // The grid of workspaces, read left to right and top down. Ten,
-        // to match Super+1 to Super+0; past the last cell the grid turns
-        // a page, so 11 to 20 show together, and so on.
+        // The workspaces in use, read left to right and top down, at
+        // most this many to a row. Cells are sized for a grid of
+        // columns by rows, so a few workspaces make a small grid rather
+        // than big cells; more than fit add rows.
         readonly property int rows: 2
         readonly property int columns: 5
 

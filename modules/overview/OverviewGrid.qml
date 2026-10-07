@@ -9,9 +9,10 @@ import qs.components
 import qs.config
 import qs.services
 
-// One screen's overview: the page of workspaces holding the one this
-// screen shows, as a grid of small copies of the screen, with every
-// window drawn where it sits in its workspace.
+// One screen's overview: the workspaces in use, as a grid of small
+// copies of the screen, with every window drawn where it sits in its
+// workspace, and one empty workspace past them to go to or drop a window
+// into.
 //
 // Each cell is this screen in miniature. A window is placed by where it
 // sits on its own monitor, as a share of that monitor, so one from a
@@ -22,24 +23,36 @@ MouseArea {
     required property ShellScreen screen
     required property bool shown
 
-    // Asked to close: something was picked, or the overview cancelled.
-    signal dismissed
+    // Asked to close, and then to do something once it has: switching
+    // has to wait until the overview lets go of the keyboard, since
+    // Hyprland hands it back to the window that had it and follows that
+    // window to its workspace.
+    signal dismissed(var after)
 
     readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)
-
-    readonly property int rows: Appearance.overview.rows
-    readonly property int columns: Appearance.overview.columns
-    readonly property int perPage: rows * columns
 
     // The workspace this screen shows. From hyprctl first, since the
     // monitor's own activeWorkspace does not always fill in.
     readonly property int activeId: monitorInfo(screen.name)?.activeWorkspace?.id ?? monitor?.activeWorkspace?.id ?? 1
 
-    // The page is fixed on opening, so keys and the pointer stay on the
-    // grid they started on even as the active workspace changes under
-    // them.
-    property int page: 0
-    readonly property int firstId: page * perPage + 1
+    // The workspaces in use, the one on screen among them even when it
+    // is empty, then the first free one.
+    readonly property var used: {
+        const out = [...WorkspacesState.occupied];
+        if (activeId > 0 && !out.includes(activeId))
+            out.push(activeId);
+        return out.sort((a, b) => a - b);
+    }
+    readonly property int newId: {
+        let id = 1;
+        while (used.includes(id))
+            id++;
+        return id;
+    }
+    readonly property var ids: [...used, newId]
+
+    readonly property int columns: Math.max(1, Math.min(ids.length, Appearance.overview.columns))
+    readonly property int rows: Math.ceil(ids.length / columns)
 
     // The workspace the keyboard or the pointer is on.
     property int selected: 1
@@ -53,10 +66,12 @@ MouseArea {
     readonly property real gap: Appearance.spacing.medium
     readonly property real inset: Appearance.padding.large
 
-    // A cell keeps this screen's shape, and is as big as both limits
-    // allow.
+    // A cell keeps this screen's shape, and is sized for a full grid, so
+    // a few workspaces make a small card rather than big cells.
+    readonly property int fitColumns: Appearance.overview.columns
+    readonly property int fitRows: Math.max(rows, Appearance.overview.rows)
     readonly property real aspect: screen.width / Math.max(1, screen.height)
-    readonly property real cellWidth: Math.min((width * Appearance.overview.maxWidth - inset * 2 - gap * (columns - 1)) / columns, (height * Appearance.overview.maxHeight - inset * 2 - gap * (rows - 1)) / rows * aspect)
+    readonly property real cellWidth: Math.min((width * Appearance.overview.maxWidth - inset * 2 - gap * (fitColumns - 1)) / fitColumns, (height * Appearance.overview.maxHeight - inset * 2 - gap * (fitRows - 1)) / fitRows * aspect)
     readonly property real cellHeight: cellWidth / aspect
 
     // Hyprland's monitors, for where each window's monitor sits and how
@@ -80,51 +95,46 @@ MouseArea {
     }
 
     function cellX(id: int): real {
-        return (id - firstId) % columns * (cellWidth + gap);
+        return Math.max(0, ids.indexOf(id)) % columns * (cellWidth + gap);
     }
 
     function cellY(id: int): real {
-        return Math.floor((id - firstId) / columns) * (cellHeight + gap);
+        return Math.floor(Math.max(0, ids.indexOf(id)) / columns) * (cellHeight + gap);
     }
 
     // The workspace whose cell is under a point on the board, or -1.
     function cellAt(x: real, y: real): int {
         const col = Math.floor(x / (cellWidth + gap));
         const row = Math.floor(y / (cellHeight + gap));
-        if (col < 0 || col >= columns || row < 0 || row >= rows)
+        if (col < 0 || col >= columns || row < 0)
             return -1;
         if (x - col * (cellWidth + gap) > cellWidth || y - row * (cellHeight + gap) > cellHeight)
             return -1;
-        return firstId + row * columns + col;
+        return ids[row * columns + col] ?? -1;
     }
 
     function goTo(id: int): void {
-        WorkspacesState.goTo(monitor, id);
-        dismissed();
+        const monitor = root.monitor;
+        dismissed(() => WorkspacesState.goTo(monitor, id));
     }
 
     function focusWindow(address: string): void {
-        Hyprland.dispatch(`hl.dsp.focus({ window = "address:${address}" })`);
-        dismissed();
+        dismissed(() => Hyprland.dispatch(`hl.dsp.focus({ window = "address:${address}" })`));
     }
 
     function moveWindow(address: string, id: int): void {
         Hyprland.dispatch(`hl.dsp.window.move({ workspace = "${id}", follow = false, window = "address:${address}" })`);
     }
 
-    // The windows on this page, as Hyprland's toplevels so each keeps its
-    // preview while it moves about. Tiled ones first so floating and
-    // fullscreen ones are drawn over them.
+    // The windows in the workspaces shown, as Hyprland's toplevels so
+    // each keeps its preview while it moves about. Tiled ones first so
+    // floating and fullscreen ones are drawn over them.
     readonly property var windows: Hyprland.toplevels.values.filter(t => {
         const ipc = t.lastIpcObject;
-        const ws = ipc?.workspace?.id ?? 0;
-        return ipc?.at && ipc?.size && ipc.mapped && !ipc.hidden && ws >= firstId && ws < firstId + perPage;
+        return ipc?.at && ipc?.size && ipc.mapped && !ipc.hidden && ids.includes(ipc.workspace?.id);
     }).sort((a, b) => (a.lastIpcObject.fullscreen !== 0) - (b.lastIpcObject.fullscreen !== 0) || a.lastIpcObject.floating - b.lastIpcObject.floating)
 
-    Component.onCompleted: {
-        page = Math.floor((Math.max(1, activeId) - 1) / perPage);
-        selected = activeId;
-    }
+    Component.onCompleted: selected = activeId
 
     // Kept up to date while open, so a window moved or closed from here
     // or elsewhere shows where it went. Events come in bursts; one
@@ -158,10 +168,8 @@ MouseArea {
                 try {
                     const first = root.monitors.length === 0;
                     root.monitors = JSON.parse(text);
-                    if (first) {
-                        root.page = Math.floor((Math.max(1, root.activeId) - 1) / root.perPage);
+                    if (first)
                         root.selected = root.activeId;
-                    }
                 } catch (e) {}
             }
         }
@@ -172,17 +180,17 @@ MouseArea {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     // A click anywhere off the grid closes it.
-    onClicked: dismissed()
+    onClicked: dismissed(null)
 
     focus: true
     Keys.onPressed: event => {
-        const col = (selected - firstId) % columns;
-        const row = Math.floor((selected - firstId) / columns);
+        const at = Math.max(0, ids.indexOf(selected));
+        const n = ids.length;
         let to = -1;
 
         switch (event.key) {
         case Qt.Key_Escape:
-            dismissed();
+            dismissed(null);
             break;
         case Qt.Key_Return:
         case Qt.Key_Enter:
@@ -191,33 +199,31 @@ MouseArea {
             break;
         case Qt.Key_Left:
         case Qt.Key_H:
-            to = firstId + row * columns + (col + columns - 1) % columns;
+            to = (at + n - 1) % n;
             break;
         case Qt.Key_Right:
         case Qt.Key_L:
-            to = firstId + row * columns + (col + 1) % columns;
+            to = (at + 1) % n;
             break;
         case Qt.Key_Up:
         case Qt.Key_K:
-            to = firstId + (row + rows - 1) % rows * columns + col;
+            to = at - columns >= 0 ? at - columns : at;
             break;
         case Qt.Key_Down:
         case Qt.Key_J:
-            to = firstId + (row + 1) % rows * columns + col;
+            to = Math.min(n - 1, at + columns);
             break;
         default:
-            // 1 to 9 and 0 for the tenth, as the keybinds count.
-            if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
-                const n = event.key === Qt.Key_0 ? 10 : event.key - Qt.Key_0;
-                if (n <= perPage)
-                    goTo(firstId + n - 1);
-            } else {
+            // 1 to 9 and 0 for 10, the workspace itself as the keybinds
+            // count, shown here or not.
+            if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9)
+                goTo(event.key === Qt.Key_0 ? 10 : event.key - Qt.Key_0);
+            else
                 return;
-            }
         }
 
         if (to >= 0)
-            selected = to;
+            selected = ids[to];
         event.accepted = true;
     }
 
@@ -281,12 +287,13 @@ MouseArea {
             height: root.rows * root.cellHeight + (root.rows - 1) * root.gap
 
             Repeater {
-                model: root.perPage
+                model: root.ids
 
                 Cell {
-                    required property int index
+                    required property int modelData
 
-                    wsId: root.firstId + index
+                    wsId: modelData
+                    fresh: modelData === root.newId
                     x: root.cellX(wsId)
                     y: root.cellY(wsId)
                     width: root.cellWidth
@@ -314,7 +321,7 @@ MouseArea {
 
                     readonly property var ipc: modelData.lastIpcObject
                     readonly property rect mon: root.bounds(ipc?.monitor ?? -1)
-                    readonly property int wsId: ipc?.workspace?.id ?? root.firstId
+                    readonly property int wsId: ipc?.workspace?.id ?? root.activeId
 
                     // Where it sits, as a share of its monitor, laid on
                     // its workspace's cell. Cut to the monitor, so a
@@ -390,7 +397,7 @@ MouseArea {
                 height: root.cellHeight + reach * 2
                 z: 3
 
-                visible: root.selected >= root.firstId && root.selected < root.firstId + root.perPage && root.dragging === ""
+                visible: root.ids.includes(root.selected) && root.dragging === ""
 
                 radius: Appearance.rounding.large + reach
                 color: "transparent"

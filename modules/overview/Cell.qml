@@ -5,7 +5,8 @@ import qs.config
 
 // One workspace in the overview: the screen in miniature, over the
 // wallpaper when there is one, with its number large and faint behind
-// the windows.
+// the windows. The free workspace past the ones in use shows a plus
+// instead.
 ClippingRectangle {
     id: root
 
@@ -15,6 +16,9 @@ ClippingRectangle {
     // drop into.
     property bool active: false
     property bool target: false
+
+    // The free one, to go to or to drop a window into.
+    property bool fresh: false
 
     signal entered
     signal picked
@@ -52,9 +56,32 @@ ClippingRectangle {
         }
     }
 
+    Behavior on x {
+        Anim {
+            type: Anim.FastSpatial
+        }
+    }
+
+    Behavior on y {
+        Anim {
+            type: Anim.FastSpatial
+        }
+    }
+
+    MaterialSymbol {
+        anchors.centerIn: parent
+
+        visible: root.fresh
+        icon: "add"
+        size: Math.round(root.height * 0.36)
+        color: Appearance.palette.m3onSurface
+        opacity: 0.3
+    }
+
     StyledText {
         anchors.centerIn: parent
 
+        visible: !root.fresh
         text: root.wsId
         font.pixelSize: Math.round(root.height * 0.42)
         font.weight: Font.DemiBold

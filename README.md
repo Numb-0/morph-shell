@@ -391,16 +391,18 @@ bind = , Print, exec, morph-shell ipc call screenshot region
 
 ## Workspace overview
 
-`morph-shell ipc call overview toggle` puts a grid of workspaces over
-every screen, with each window drawn live where it sits. It shows the
-page holding the workspace on screen: 1 to 10, then 11 to 20, and so on.
+`morph-shell ipc call overview toggle` puts a grid of the workspaces in
+use over every screen, with each window drawn live where it sits. The
+one on screen is always there, empty or not, and a last cell with a
+plus stands for the first free workspace.
 
 - Click a workspace to go there, or a window to focus it.
 - Middle-click a window to close it.
 - Drag a window onto another workspace to move it there, without
-  following it.
+  following it. Dropped on the plus, it gets a workspace of its own.
 - Arrow keys (or `hjkl`) move around the grid and Enter goes to the
-  workspace picked; `1` to `9` and `0` go straight to one.
+  workspace picked; `1` to `9` and `0` go straight to that workspace,
+  shown or not.
 - Escape, a right click, or a click off the grid closes it.
 
 The grid's shape and how much of the screen it takes are set under

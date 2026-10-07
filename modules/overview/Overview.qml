@@ -34,18 +34,37 @@ Scope {
         shown = true;
     }
 
-    function close(): void {
+    // What to do once closed, such as switching workspace. It waits for
+    // the keyboard to be let go: Hyprland hands it back to the window
+    // that had it and follows that window to its workspace, so a switch
+    // made while the overview holds the keyboard is undone as it closes.
+    property var after: null
+
+    function close(after: var): void {
         if (!shown)
             return;
+        root.after = after ?? null;
         shown = false;
+        handoff.restart();
         unload.restart();
     }
 
     function toggle(): void {
         if (shown)
-            close();
+            close(null);
         else
             open();
+    }
+
+    Timer {
+        id: handoff
+
+        interval: 50
+        onTriggered: {
+            const action = root.after;
+            root.after = null;
+            action?.();
+        }
     }
 
     Timer {
@@ -77,7 +96,7 @@ Scope {
         }
 
         function close(): void {
-            root.close();
+            root.close(null);
         }
     }
 
@@ -110,7 +129,7 @@ Scope {
                     screen: win.modelData
                     shown: root.shown
 
-                    onDismissed: root.close()
+                    onDismissed: after => root.close(after)
                 }
             }
         }
