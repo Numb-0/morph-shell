@@ -26,10 +26,11 @@ MouseArea {
     required property bool shown
     property bool leaving: false
 
-    // Up once the screen behind has been captured. Nothing of the
-    // overview is drawn before then, so the capture is of the screen
-    // alone.
-    readonly property bool ready: frame.hasContent
+    // Up once the screen behind has been captured and Hyprland has said
+    // which workspace this screen shows. Nothing of the overview is
+    // drawn before then, so the capture is of the screen alone and the
+    // selection starts on the workspace on screen, not on the first.
+    readonly property bool ready: frame.hasContent && monitors.length > 0
     readonly property bool up: shown && ready
 
     // Asked to close, and then to do something once it has: switching
@@ -65,6 +66,44 @@ MouseArea {
 
     // The workspace the keyboard or the pointer is on.
     property int selected: 1
+
+    // Whether the pointer has moved since opening. Until it has, the
+    // cell that opens or pops in under a still pointer does not take the
+    // selection from the workspace on screen.
+    property bool pointerMoved: false
+    property point pointerFrom: Qt.point(-1, -1)
+
+    function hoverSelect(id: int): void {
+        if (pointerMoved)
+            selected = id;
+    }
+
+    onShownChanged: {
+        if (shown) {
+            pointerMoved = false;
+            pointerFrom = Qt.point(-1, -1);
+            selected = activeId;
+        }
+    }
+
+    HoverHandler {
+        onPointChanged: {
+            if (root.pointerMoved || !point.position)
+                return;
+            const p = point.position;
+            if (root.pointerFrom.x < 0) {
+                root.pointerFrom = p;
+                return;
+            }
+            if (Math.abs(p.x - root.pointerFrom.x) + Math.abs(p.y - root.pointerFrom.y) < 6)
+                return;
+            root.pointerMoved = true;
+            const at = board.mapFromItem(root, p.x, p.y);
+            const id = root.cellAt(at.x, at.y);
+            if (id > 0)
+                root.selected = id;
+        }
+    }
 
     // While a window is dragged: its address, and the workspace it would
     // drop into.
@@ -236,8 +275,9 @@ MouseArea {
         event.accepted = true;
     }
 
-    // The cells pop in one after another, and their windows with them.
-    // One clock for the lot, so a cell and its windows, worked out apart,
+    // The cells pop in one after another, spreading out from the
+    // workspace on screen, and their windows with them. One clock for the
+    // lot, so a cell and its windows, worked out apart,
     // still move as one.
     readonly property int stagger: 45
     readonly property int popDuration: Appearance.anim.durations.defaultSpatial
@@ -250,9 +290,17 @@ MouseArea {
         duration: root.stagger * Math.max(0, root.ids.length - 1) + root.popDuration
     }
 
+    // How many steps across and down the cell at this place in the grid
+    // is from the workspace on screen, which comes in first.
+    function orderOf(index: int): int {
+        const from = Math.max(0, ids.indexOf(activeId));
+        return Math.abs(index % columns - from % columns) + Math.abs(Math.floor(index / columns) - Math.floor(from / columns));
+    }
+
     // How far in the cell at this place in the grid is, 0 to 1 with a
     // little overshoot before it settles.
-    function appearOf(order: int): real {
+    function appearOf(index: int): real {
+        const order = orderOf(Math.max(0, index));
         const total = stagger * Math.max(0, ids.length - 1) + popDuration;
         const t = Math.max(0, Math.min(1, (entry * total - Math.max(0, order) * stagger) / popDuration));
         const c = 1.6;
@@ -416,7 +464,7 @@ MouseArea {
                     target: wsId === root.dropTarget && root.dragging !== ""
                     appear: root.appearOf(index)
 
-                    onEntered: root.selected = wsId
+                    onEntered: root.hoverSelect(wsId)
                     onPicked: root.goTo(wsId)
                 }
             }
@@ -474,7 +522,7 @@ MouseArea {
                         }
                     }
 
-                    onEntered: root.selected = wsId
+                    onEntered: root.hoverSelect(wsId)
 
                     onDragMoved: (cx, cy) => {
                         root.dragging = ipc?.address ?? "";
@@ -563,6 +611,18 @@ MouseArea {
 
                 function follow(): void {
                     const g = goal;
+                    // Put straight in place until the grid has settled,
+                    // so it does not slide about while the overview opens
+                    // and lays itself out.
+                    if (root.entry < 1) {
+                        for (const anim of [leftAnim, rightAnim, topAnim, bottomAnim])
+                            anim.stop();
+                        edgeL = g.x;
+                        edgeT = g.y;
+                        edgeR = g.x + g.width;
+                        edgeB = g.y + g.height;
+                        return;
+                    }
                     const lead = Appearance.anim.durations.fastSpatial;
                     const trail = Math.round(lead * 1.7);
                     for (const [anim, to, ahead] of [[leftAnim, g.x, g.x < edgeL], [rightAnim, g.x + g.width, g.x + g.width > edgeR], [topAnim, g.y, g.y < edgeT], [bottomAnim, g.y + g.height, g.y + g.height > edgeB]]) {
@@ -582,7 +642,7 @@ MouseArea {
                 z: 4
 
                 visible: root.ids.includes(root.selected) && root.dragging === ""
-                opacity: Math.min(1, root.appearOf(0))
+                opacity: Math.min(1, root.appearOf(root.ids.indexOf(root.activeId)))
 
                 radius: Appearance.rounding.large + reach
                 color: "transparent"
