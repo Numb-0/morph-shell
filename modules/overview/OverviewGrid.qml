@@ -78,11 +78,36 @@ MouseArea {
             selected = id;
     }
 
+    // The window picked in the selected workspace, by the pointer or by
+    // Tab, as its address, or "" for none. Enter focuses it and Delete
+    // closes it.
+    property string picked: ""
+
+    // The windows of the selected workspace in reading order, for Tab to
+    // step through.
+    readonly property var pickable: windows.filter(t => t.lastIpcObject?.workspace?.id === selected).sort((a, b) => a.lastIpcObject.at[1] - b.lastIpcObject.at[1] || a.lastIpcObject.at[0] - b.lastIpcObject.at[0])
+
+    function pickStep(by: int): void {
+        const list = pickable;
+        if (list.length === 0)
+            return;
+        const at = list.findIndex(t => t.lastIpcObject?.address === picked);
+        const to = at < 0 ? (by > 0 ? 0 : list.length - 1) : (at + by + list.length) % list.length;
+        picked = list[to].lastIpcObject?.address ?? "";
+    }
+
+    // A window picked in a workspace left behind is let go.
+    onSelectedChanged: {
+        if (picked !== "" && !pickable.some(t => t.lastIpcObject?.address === picked))
+            picked = "";
+    }
+
     onShownChanged: {
         if (shown) {
             pointerMoved = false;
             pointerFrom = Qt.point(-1, -1);
             selected = activeId;
+            picked = "";
         }
     }
 
@@ -243,7 +268,19 @@ MouseArea {
         case Qt.Key_Return:
         case Qt.Key_Enter:
         case Qt.Key_Space:
-            goTo(selected);
+            if (picked !== "")
+                focusWindow(picked);
+            else
+                goTo(selected);
+            break;
+        case Qt.Key_Tab:
+            pickStep(1);
+            break;
+        case Qt.Key_Backtab:
+            pickStep(-1);
+            break;
+        case Qt.Key_Delete:
+            pickable.find(t => t.lastIpcObject?.address === picked)?.wayland?.close();
             break;
         case Qt.Key_Left:
         case Qt.Key_H:
@@ -270,8 +307,10 @@ MouseArea {
                 return;
         }
 
-        if (to >= 0)
+        if (to >= 0) {
             selected = ids[to];
+            picked = "";
+        }
         event.accepted = true;
     }
 
@@ -522,7 +561,17 @@ MouseArea {
                         }
                     }
 
-                    onEntered: root.hoverSelect(wsId)
+                    lit: (ipc?.address ?? "") === root.picked && root.picked !== ""
+
+                    onEntered: {
+                        root.hoverSelect(wsId);
+                        if (root.pointerMoved)
+                            root.picked = ipc?.address ?? "";
+                    }
+                    onExited: {
+                        if (root.picked === (ipc?.address ?? ""))
+                            root.picked = "";
+                    }
 
                     onDragMoved: (cx, cy) => {
                         root.dragging = ipc?.address ?? "";

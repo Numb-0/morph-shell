@@ -403,6 +403,9 @@ plus stands for the first free workspace.
 - Arrow keys (or `hjkl`) move around the grid and Enter goes to the
   workspace picked; `1` to `9` and `0` go straight to that workspace,
   shown or not.
+- Tab and Shift+Tab step through the windows of the workspace picked,
+  showing each one's title as the pointer does; Enter then focuses the
+  window and Delete closes it.
 - Escape, a right click, or a click off the grid closes it.
 
 Behind the grid the screen blurs as the overview opens and comes back

@@ -8,7 +8,8 @@ import qs.config
 import qs.services
 
 // A window in the overview, drawn live from the compositor, with its
-// app's icon over it. A click focuses it, a middle click closes it, and
+// app's icon over it, and its title while it is picked, by the pointer
+// or the keyboard. A click focuses it, a middle click closes it, and
 // it can be dragged into another workspace.
 ClippingRectangle {
     id: root
@@ -16,7 +17,9 @@ ClippingRectangle {
     required property HyprlandToplevel toplevel
 
     readonly property bool dragging: area.drag.active
-    readonly property bool hovered: area.containsMouse
+
+    // Picked, by the pointer or by Tab: its title shows.
+    property bool lit: false
 
     // 0 to 1 as its workspace pops in, and the point it grows from: the
     // middle of its cell, in its own coordinates, so it rides in with
@@ -25,6 +28,7 @@ ClippingRectangle {
     property point appearOrigin: Qt.point(width / 2, height / 2)
 
     signal entered
+    signal exited
     signal picked
     signal closeRequested
 
@@ -35,11 +39,11 @@ ClippingRectangle {
 
     color: Appearance.palette.m3surfaceContainerHigh
     border.width: 1
-    border.color: area.containsMouse ? Appearance.palette.m3primary : Appearance.palette.m3outlineVariant
+    border.color: Appearance.palette.m3outlineVariant
 
-    scale: dragging ? 1.06 : hovered ? 1.04 : 1
+    scale: dragging ? 1.06 : 1
     opacity: (dragging ? 0.9 : 1) * Math.min(1, appear)
-    z: dragging ? 2 : hovered ? 1.5 : 1
+    z: dragging ? 2 : lit ? 1.5 : 1
 
     transform: Scale {
         origin.x: root.appearOrigin.x
@@ -77,14 +81,14 @@ ClippingRectangle {
         asynchronous: true
     }
 
-    // The window's title, along the bottom while the pointer is on it.
+    // The window's title, along the bottom while it is picked.
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Appearance.padding.small
 
         visible: opacity > 0 && root.height > title.implicitHeight * 3
-        opacity: root.hovered && !root.dragging ? 1 : 0
+        opacity: root.lit && !root.dragging ? 1 : 0
 
         width: Math.min(root.width - Appearance.padding.small * 2, title.implicitWidth + Appearance.padding.medium * 2)
         height: title.implicitHeight + Appearance.padding.extraSmall * 2
@@ -126,6 +130,7 @@ ClippingRectangle {
         property bool moved: false
 
         onEntered: root.entered()
+        onExited: root.exited()
 
         onPressed: moved = false
 
