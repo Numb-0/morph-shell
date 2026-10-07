@@ -13,9 +13,7 @@ ClippingRectangle {
 
     required property int wsId
 
-    // The workspace this screen shows, and the one a dragged window would
-    // drop into.
-    property bool active: false
+    // The workspace a dragged window would drop into.
     property bool target: false
 
     // The free one, to go to or to drop a window into.
@@ -29,11 +27,12 @@ ClippingRectangle {
     signal entered
     signal picked
 
-    radius: Appearance.rounding.large
+    // As round as the windows in it, so it keeps the screen's shape.
+    radius: Appearance.rounding.small
     color: "transparent"
 
-    border.width: !fresh && (active || target) ? 2 : 0
-    border.color: target ? Appearance.palette.m3tertiary : Appearance.palette.m3secondary
+    border.width: !fresh && target ? 2 : 0
+    border.color: Appearance.palette.m3tertiary
 
     opacity: Math.min(1, appear)
     scale: 0.82 + 0.18 * appear

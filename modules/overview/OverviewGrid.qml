@@ -460,7 +460,6 @@ MouseArea {
                     width: root.cellWidth
                     height: root.cellHeight
 
-                    active: wsId === root.activeId
                     target: wsId === root.dropTarget && root.dragging !== ""
                     appear: root.appearOf(index)
 
@@ -593,14 +592,14 @@ MouseArea {
                 }
             }
 
-            // Where the keyboard and the pointer are, ringing the cell just
-            // outside its edge. Its edges move apart: the one leading the
+            // Where the keyboard and the pointer are, ringing the cell
+            // tight around its edge, in its shape. Its edges move apart: the one leading the
             // way gets there first and the trailing one catches up, so it
             // stretches across the gap rather than sliding.
             Rectangle {
                 id: ring
 
-                readonly property real reach: 4
+                readonly property real reach: 2
 
                 readonly property rect goal: Qt.rect(root.cellX(root.selected) - reach, root.cellY(root.selected) - reach, root.cellWidth + reach * 2, root.cellHeight + reach * 2)
 
@@ -644,7 +643,7 @@ MouseArea {
                 visible: root.ids.includes(root.selected) && root.dragging === ""
                 opacity: Math.min(1, root.appearOf(root.ids.indexOf(root.activeId)))
 
-                radius: Appearance.rounding.large + reach
+                radius: Appearance.rounding.small + reach
                 color: "transparent"
                 border.width: 2
                 border.color: Appearance.palette.m3primary
