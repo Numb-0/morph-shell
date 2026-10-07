@@ -8,10 +8,11 @@ import Quickshell.Wayland
 import qs.config
 import qs.services
 
-// Every workspace at once, as a grid over each screen with the windows
-// drawn live inside them. A click on a workspace goes there, a click on a
-// window focuses it, a middle click closes it, and dragging one into
-// another workspace moves it there. The keyboard walks the grid too.
+// Every workspace at once, as a grid over the focused screen with the
+// windows drawn live inside them. A click on a workspace goes there, a
+// click on a window focuses it, a middle click closes it, and dragging
+// one into another workspace moves it there. The keyboard walks the grid
+// too.
 Scope {
     id: root
 
@@ -20,8 +21,8 @@ Scope {
     property bool active: false
     property bool shown: false
 
-    // The screen the keyboard goes to, chosen once on opening, as the
-    // pickers do.
+    // The screen it opens on, the focused one, chosen once on opening,
+    // as the pickers do.
     property string keyScreen: ""
 
     function open(): void {
@@ -111,7 +112,7 @@ Scope {
         active: root.active
 
         Variants {
-            model: Quickshell.screens
+            model: Quickshell.screens.filter(s => s.name === root.keyScreen)
 
             PanelWindow {
                 id: win
@@ -124,7 +125,7 @@ Scope {
                 // Over everything, the bar included, and reserving nothing.
                 WlrLayershell.layer: WlrLayer.Overlay
                 WlrLayershell.namespace: "morph-shell-overview"
-                WlrLayershell.keyboardFocus: root.shown && modelData.name === root.keyScreen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+                WlrLayershell.keyboardFocus: root.shown ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
                 exclusionMode: ExclusionMode.Ignore
 
                 anchors.top: true

@@ -392,7 +392,7 @@ bind = , Print, exec, morph-shell ipc call screenshot region
 ## Workspace overview
 
 `morph-shell ipc call overview toggle` puts a grid of the workspaces in
-use over every screen, with each window drawn live where it sits. The
+use over the focused screen, with each window drawn live where it sits. The
 one on screen is always there, empty or not, and a last cell with a
 plus stands for the first free workspace.
 
