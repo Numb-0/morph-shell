@@ -9,6 +9,7 @@ import qs.modules.dock
 import qs.modules.lock
 import qs.modules.notifications
 import qs.modules.osd
+import qs.modules.overview
 import qs.modules.polkit
 import qs.modules.screenshot
 
@@ -20,6 +21,7 @@ ShellRoot {
     NotificationPopups {}
     Screenshot {}
     ColorPicker {}
+    Overview {}
     Polkit {}
     Lock {}
 }

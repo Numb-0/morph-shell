@@ -436,6 +436,20 @@ Singleton {
         readonly property int thumbnailMaxWidth: 168
     }
 
+    readonly property QtObject overview: QtObject {
+        // The grid of workspaces, read left to right and top down. Ten,
+        // to match Super+1 to Super+0; past the last cell the grid turns
+        // a page, so 11 to 20 show together, and so on.
+        readonly property int rows: 2
+        readonly property int columns: 5
+
+        // The most of the screen the grid may take, across and down. A
+        // cell keeps its screen's shape, so one of the two is usually
+        // the limit and the other has room to spare.
+        readonly property real maxWidth: 0.86
+        readonly property real maxHeight: 0.62
+    }
+
     readonly property QtObject osd: QtObject {
         // How long the volume OSD stays up after the level last moved.
         readonly property int timeout: 1500

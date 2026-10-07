@@ -22,6 +22,7 @@ directly, through Quickshell's Hyprland integration, and only work there:
 | Closing the launcher or the clipboard on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. |
 | `launcher`/`clipboard` `toggle`/`open` over IPC | Opens the panel on the focused monitor. | Opens it on the first screen. |
 | Screenshot region picker | Snaps to the window under the pointer, and outlines it from the first frame. | Only drags or the whole screen, and the outline waits for the pointer to move. |
+| Workspace overview | Shows each workspace with its windows live, and switches, focuses, closes and moves them. | Opens on an empty grid, and nothing in it does anything. |
 | Colour picker | The lens is under the pointer from the first frame. | The lens waits for the pointer to move. |
 
 Switching workspaces uses Hyprland's Lua dispatchers, so it needs a
@@ -263,6 +264,9 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `palette` | `reload` | Re-read `colors.json` and `wallpaper.json` (see [Colours](#colours) and [Wallpaper](#wallpaper)). |
 | `screenshot` | `region` | Pick a region to screenshot (see [Screenshots](#screenshots)). |
 | `screenshot` | `cancel` | Close the region picker without taking anything. |
+| `overview` | `toggle` | Open or close the workspace overview (see [Workspace overview](#workspace-overview)). |
+| `overview` | `open` | Open the workspace overview. |
+| `overview` | `close` | Close the workspace overview. |
 | `colorpicker` | `pick` | Pick a colour from the screen (see [Colour picker](#colour-picker)). |
 | `colorpicker` | `cancel` | Close the colour picker without taking anything. |
 
@@ -383,6 +387,28 @@ works, but only by dragging or taking the whole screen.
 
 ```
 bind = , Print, exec, morph-shell ipc call screenshot region
+```
+
+## Workspace overview
+
+`morph-shell ipc call overview toggle` puts a grid of workspaces over
+every screen, with each window drawn live where it sits. It shows the
+page holding the workspace on screen: 1 to 10, then 11 to 20, and so on.
+
+- Click a workspace to go there, or a window to focus it.
+- Middle-click a window to close it.
+- Drag a window onto another workspace to move it there, without
+  following it.
+- Arrow keys (or `hjkl`) move around the grid and Enter goes to the
+  workspace picked; `1` to `9` and `0` go straight to one.
+- Escape, a right click, or a click off the grid closes it.
+
+The grid's shape and how much of the screen it takes are set under
+`overview` in `config/Appearance.qml`. It needs Hyprland: elsewhere it
+opens empty.
+
+```
+bind = SUPER, Tab, exec, morph-shell ipc call overview toggle
 ```
 
 ## Colour picker

@@ -22,6 +22,7 @@ Singleton {
     signal lockRequested
     signal screenshotRequested
     signal colorPickerRequested
+    signal overviewRequested
 
     // In the order they are listed under a bare colon: the panels first,
     // then the rest by how often they are likely to be wanted.
@@ -35,6 +36,13 @@ Singleton {
             icon: "content_paste",
             panel: "clipboard",
             available: Clipboard.available
+        },
+        {
+            name: "overview",
+            description: qsTr("Every workspace and its windows"),
+            icon: "grid_view",
+            run: () => root.overviewRequested(),
+            available: true
         },
         {
             name: "screenshot",
