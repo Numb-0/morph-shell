@@ -1,12 +1,13 @@
 import QtQuick
+import QtQuick.Shapes
 import Quickshell.Widgets
 import qs.components
 import qs.config
 
 // One workspace in the overview: the screen in miniature, over the
-// wallpaper when there is one, with its number large and faint behind
-// the windows. The free workspace past the ones in use shows a plus
-// instead.
+// wallpaper when there is one. The free workspace past the ones in use
+// is only a dashed outline with a plus, as somewhere to go rather than
+// a screen.
 ClippingRectangle {
     id: root
 
@@ -20,41 +21,22 @@ ClippingRectangle {
     // The free one, to go to or to drop a window into.
     property bool fresh: false
 
+    // 0 to 1 as it pops in, overshooting a little on the way.
+    property real appear: 1
+
+    readonly property bool hovered: area.containsMouse
+
     signal entered
     signal picked
 
     radius: Appearance.rounding.large
-    color: Appearance.palette.m3surfaceContainerLow
+    color: fresh ? "transparent" : Appearance.palette.m3surfaceContainerLow
 
-    border.width: active || target ? 2 : 0
+    border.width: !fresh && (active || target) ? 2 : 0
     border.color: target ? Appearance.palette.m3tertiary : Appearance.palette.m3secondary
 
-    Image {
-        anchors.fill: parent
-
-        visible: status === Image.Ready
-        source: Appearance.wallpaper ? `file://${Appearance.wallpaper}` : ""
-        fillMode: Image.PreserveAspectCrop
-        sourceSize.width: width
-        sourceSize.height: height
-        asynchronous: true
-        cache: true
-        opacity: 0.55
-    }
-
-    // Lifts the cell a dragged window is over.
-    Rectangle {
-        anchors.fill: parent
-
-        color: Appearance.palette.m3tertiary
-        opacity: root.target ? 0.18 : area.containsMouse ? 0.08 : 0
-
-        Behavior on opacity {
-            Anim {
-                type: Anim.FastEffects
-            }
-        }
-    }
+    opacity: Math.min(1, appear)
+    scale: 0.82 + 0.18 * appear
 
     Behavior on x {
         Anim {
@@ -68,25 +50,93 @@ ClippingRectangle {
         }
     }
 
+    Image {
+        anchors.fill: parent
+
+        visible: !root.fresh && status === Image.Ready
+        source: !root.fresh && Appearance.wallpaper ? `file://${Appearance.wallpaper}` : ""
+        fillMode: Image.PreserveAspectCrop
+        sourceSize.width: width
+        sourceSize.height: height
+        asynchronous: true
+        cache: true
+        opacity: 0.55
+    }
+
+    // Lifts the cell a dragged window is over, or the pointer.
+    Rectangle {
+        anchors.fill: parent
+
+        radius: root.radius
+        color: root.fresh && !root.target ? Appearance.palette.m3primary : Appearance.palette.m3tertiary
+        opacity: root.target ? 0.2 : root.hovered ? 0.08 : 0
+
+        Behavior on opacity {
+            Anim {
+                type: Anim.FastEffects
+            }
+        }
+    }
+
+    // The free workspace's outline, dashed, and solid while a window is
+    // over it.
+    Shape {
+        anchors.fill: parent
+
+        visible: root.fresh
+        preferredRendererType: Shape.CurveRenderer
+
+        ShapePath {
+            strokeColor: root.target ? Appearance.palette.m3tertiary : root.hovered ? Appearance.palette.m3primary : Appearance.palette.m3outline
+            strokeWidth: 2
+            strokeStyle: root.target ? ShapePath.SolidLine : ShapePath.DashLine
+            dashPattern: [4, 3]
+            fillColor: "transparent"
+
+            Behavior on strokeColor {
+                CAnim {}
+            }
+
+            PathRectangle {
+                x: 1
+                y: 1
+                width: root.width - 2
+                height: root.height - 2
+                radius: root.radius - 1
+            }
+        }
+    }
+
     MaterialSymbol {
         anchors.centerIn: parent
 
         visible: root.fresh
         icon: "add"
-        size: Math.round(root.height * 0.36)
-        color: Appearance.palette.m3onSurface
-        opacity: 0.3
-    }
+        size: Math.round(root.height * 0.32)
+        color: root.target ? Appearance.palette.m3tertiary : root.hovered ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
+        opacity: root.hovered || root.target ? 0.9 : 0.5
 
-    StyledText {
-        anchors.centerIn: parent
+        // A quarter turn as the pointer comes over it.
+        rotation: root.hovered || root.target ? 90 : 0
+        scale: root.hovered || root.target ? 1.15 : 1
 
-        visible: !root.fresh
-        text: root.wsId
-        font.pixelSize: Math.round(root.height * 0.42)
-        font.weight: Font.DemiBold
-        color: root.active ? Appearance.palette.m3secondary : Appearance.palette.m3onSurface
-        opacity: root.active ? 0.5 : 0.22
+        Behavior on rotation {
+            Anim {
+                type: Anim.DefaultSpatial
+            }
+        }
+
+        Behavior on scale {
+            Anim {
+                type: Anim.FastSpatial
+            }
+        }
+
+        Behavior on opacity {
+            Anim {
+                type: Anim.FastEffects
+            }
+        }
     }
 
     MouseArea {

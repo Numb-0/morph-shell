@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -227,20 +228,79 @@ MouseArea {
         event.accepted = true;
     }
 
-    // The dim over everything.
-    Rectangle {
-        anchors.fill: parent
+    // The cells pop in one after another, and their windows with them.
+    // One clock for the lot, so a cell and its windows, worked out apart,
+    // still move as one.
+    readonly property int stagger: 45
+    readonly property int popDuration: Appearance.anim.durations.defaultSpatial
+    property real entry: 0
 
-        color: {
-            const c = Appearance.palette.m3scrim;
-            return Qt.rgba(c.r, c.g, c.b, 0.5);
-        }
+    NumberAnimation on entry {
+        from: 0
+        to: 1
+        duration: root.stagger * Math.max(0, root.ids.length - 1) + root.popDuration
+    }
+
+    // How far in the cell at this place in the grid is, 0 to 1 with a
+    // little overshoot before it settles.
+    function appearOf(order: int): real {
+        const total = stagger * Math.max(0, ids.length - 1) + popDuration;
+        const t = Math.max(0, Math.min(1, (entry * total - Math.max(0, order) * stagger) / popDuration));
+        const c = 1.6;
+        return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2);
+    }
+
+    // Behind the grid: the wallpaper, blurred and settling in from a
+    // little too close, under a dim. Without a wallpaper, only the dim.
+    Item {
+        anchors.fill: parent
 
         opacity: root.shown ? 1 : 0
 
         Behavior on opacity {
             Anim {
                 type: Anim.DefaultEffects
+            }
+        }
+
+        Image {
+            id: wallpaper
+
+            anchors.fill: parent
+
+            visible: false
+            source: Appearance.wallpaper ? `file://${Appearance.wallpaper}` : ""
+            fillMode: Image.PreserveAspectCrop
+            sourceSize.width: root.width / 2
+            sourceSize.height: root.height / 2
+            asynchronous: true
+        }
+
+        MultiEffect {
+            anchors.fill: parent
+
+            visible: wallpaper.status === Image.Ready
+            source: wallpaper
+            blurEnabled: true
+            blur: 1
+            blurMax: 48
+            saturation: 0.15
+
+            scale: root.shown ? 1 : 1.08
+
+            Behavior on scale {
+                Anim {
+                    type: Anim.SlowSpatial
+                }
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+
+            color: {
+                const c = Appearance.palette.m3scrim;
+                return Qt.rgba(c.r, c.g, c.b, wallpaper.status === Image.Ready ? 0.35 : 0.5);
             }
         }
     }
@@ -256,9 +316,23 @@ MouseArea {
 
         radius: Appearance.rounding.extraLarge
         color: Appearance.palette.m3surfaceContainer
+        border.width: 1
+        border.color: Qt.alpha(Appearance.palette.m3outlineVariant, 0.6)
 
         opacity: root.shown ? 1 : 0
         scale: root.shown ? 1 : 0.92
+
+        Behavior on width {
+            Anim {
+                type: Anim.FastSpatial
+            }
+        }
+
+        Behavior on height {
+            Anim {
+                type: Anim.FastSpatial
+            }
+        }
 
         Behavior on opacity {
             Anim {
@@ -291,6 +365,7 @@ MouseArea {
 
                 Cell {
                     required property int modelData
+                    required property int index
 
                     wsId: modelData
                     fresh: modelData === root.newId
@@ -301,6 +376,7 @@ MouseArea {
 
                     active: wsId === root.activeId
                     target: wsId === root.dropTarget && root.dragging !== ""
+                    appear: root.appearOf(index)
 
                     onEntered: root.selected = wsId
                     onPicked: root.goTo(wsId)
@@ -338,9 +414,11 @@ MouseArea {
                     y: homeY
                     width: Math.max(1, (toX - fromX) * root.cellWidth)
                     height: Math.max(1, (toY - fromY) * root.cellHeight)
-                    z: dragging ? 2 : 1
 
                     radius: Math.min(Appearance.rounding.small, width / 4, height / 4)
+
+                    appear: root.appearOf(root.ids.indexOf(wsId))
+                    appearOrigin: Qt.point(root.cellX(wsId) + root.cellWidth / 2 - x, root.cellY(wsId) + root.cellHeight / 2 - y)
 
                     Behavior on x {
                         enabled: !preview.dragging
@@ -385,35 +463,124 @@ MouseArea {
                 }
             }
 
-            // Where the keyboard and the pointer are, gliding from cell to
-            // cell. Just outside the cell, so it rings it rather than
-            // covering its edge.
+            // Each workspace's number on its shape, in the cell's corner and
+            // over its windows.
+            Repeater {
+                model: root.used
+
+                Badge {
+                    id: badge
+
+                    required property int modelData
+                    required property int index
+
+                    readonly property real appear: root.appearOf(index)
+
+                    wsId: modelData
+                    active: wsId === root.activeId
+                    selected: wsId === root.selected
+                    running: root.shown
+
+                    x: root.cellX(wsId) + Appearance.padding.small
+                    y: root.cellY(wsId) + Appearance.padding.small
+                    z: 3
+
+                    opacity: Math.min(1, appear)
+                    transform: Scale {
+                        origin.x: 0
+                        origin.y: 0
+                        xScale: Math.max(0, badge.appear)
+                        yScale: xScale
+                    }
+
+                    Behavior on x {
+                        Anim {
+                            type: Anim.FastSpatial
+                        }
+                    }
+
+                    Behavior on y {
+                        Anim {
+                            type: Anim.FastSpatial
+                        }
+                    }
+                }
+            }
+
+            // Where the keyboard and the pointer are, ringing the cell just
+            // outside its edge. Its edges move apart: the one leading the
+            // way gets there first and the trailing one catches up, so it
+            // stretches across the gap rather than sliding.
             Rectangle {
+                id: ring
+
                 readonly property real reach: 4
 
-                x: root.cellX(root.selected) - reach
-                y: root.cellY(root.selected) - reach
-                width: root.cellWidth + reach * 2
-                height: root.cellHeight + reach * 2
-                z: 3
+                readonly property rect goal: Qt.rect(root.cellX(root.selected) - reach, root.cellY(root.selected) - reach, root.cellWidth + reach * 2, root.cellHeight + reach * 2)
+
+                property real edgeL: goal.x
+                property real edgeT: goal.y
+                property real edgeR: goal.x + goal.width
+                property real edgeB: goal.y + goal.height
+
+                function follow(): void {
+                    const g = goal;
+                    const lead = Appearance.anim.durations.fastSpatial;
+                    const trail = Math.round(lead * 1.7);
+                    for (const [anim, to, ahead] of [[leftAnim, g.x, g.x < edgeL], [rightAnim, g.x + g.width, g.x + g.width > edgeR], [topAnim, g.y, g.y < edgeT], [bottomAnim, g.y + g.height, g.y + g.height > edgeB]]) {
+                        anim.stop();
+                        anim.to = to;
+                        anim.duration = ahead ? lead : trail;
+                        anim.start();
+                    }
+                }
+
+                onGoalChanged: follow()
+
+                x: edgeL
+                y: edgeT
+                width: edgeR - edgeL
+                height: edgeB - edgeT
+                z: 4
 
                 visible: root.ids.includes(root.selected) && root.dragging === ""
+                opacity: Math.min(1, root.appearOf(0))
 
                 radius: Appearance.rounding.large + reach
                 color: "transparent"
                 border.width: 2
                 border.color: Appearance.palette.m3primary
 
-                Behavior on x {
-                    Anim {
-                        type: Anim.FastSpatial
-                    }
+                Anim {
+                    id: leftAnim
+
+                    target: ring
+                    property: "edgeL"
+                    type: Anim.FastSpatial
                 }
 
-                Behavior on y {
-                    Anim {
-                        type: Anim.FastSpatial
-                    }
+                Anim {
+                    id: rightAnim
+
+                    target: ring
+                    property: "edgeR"
+                    type: Anim.FastSpatial
+                }
+
+                Anim {
+                    id: topAnim
+
+                    target: ring
+                    property: "edgeT"
+                    type: Anim.FastSpatial
+                }
+
+                Anim {
+                    id: bottomAnim
+
+                    target: ring
+                    property: "edgeB"
+                    type: Anim.FastSpatial
                 }
             }
         }
