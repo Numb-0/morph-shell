@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Effects
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -250,57 +249,22 @@ MouseArea {
         return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2);
     }
 
-    // Behind the grid: the wallpaper, blurred and settling in from a
-    // little too close, under a dim. Without a wallpaper, only the dim.
-    Item {
+    // Behind the grid: a dim over the screen, which still shows through
+    // it. Hyprland can blur what is under it with a layer rule on the
+    // morph-shell-overview namespace; without one it is only darkened.
+    Rectangle {
         anchors.fill: parent
+
+        color: {
+            const c = Appearance.palette.m3scrim;
+            return Qt.rgba(c.r, c.g, c.b, 0.4);
+        }
 
         opacity: root.shown ? 1 : 0
 
         Behavior on opacity {
             Anim {
                 type: Anim.DefaultEffects
-            }
-        }
-
-        Image {
-            id: wallpaper
-
-            anchors.fill: parent
-
-            visible: false
-            source: Appearance.wallpaper ? `file://${Appearance.wallpaper}` : ""
-            fillMode: Image.PreserveAspectCrop
-            sourceSize.width: root.width / 2
-            sourceSize.height: root.height / 2
-            asynchronous: true
-        }
-
-        MultiEffect {
-            anchors.fill: parent
-
-            visible: wallpaper.status === Image.Ready
-            source: wallpaper
-            blurEnabled: true
-            blur: 1
-            blurMax: 48
-            saturation: 0.15
-
-            scale: root.shown ? 1 : 1.08
-
-            Behavior on scale {
-                Anim {
-                    type: Anim.SlowSpatial
-                }
-            }
-        }
-
-        Rectangle {
-            anchors.fill: parent
-
-            color: {
-                const c = Appearance.palette.m3scrim;
-                return Qt.rgba(c.r, c.g, c.b, wallpaper.status === Image.Ready ? 0.35 : 0.5);
             }
         }
     }

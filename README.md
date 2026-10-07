@@ -405,6 +405,13 @@ plus stands for the first free workspace.
   shown or not.
 - Escape, a right click, or a click off the grid closes it.
 
+Behind the grid the screen is dimmed. To blur it as well, give the
+overview's layer a blur rule in Hyprland:
+
+```lua
+hl.layer_rule({ match = { namespace = "^morph-shell-overview$" }, blur = true })
+```
+
 The grid's shape and how much of the screen it takes are set under
 `overview` in `config/Appearance.qml`. It needs Hyprland: elsewhere it
 opens empty.
