@@ -1,9 +1,11 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.components
 import qs.config
@@ -22,6 +24,13 @@ MouseArea {
 
     required property ShellScreen screen
     required property bool shown
+    property bool leaving: false
+
+    // Up once the screen behind has been captured. Nothing of the
+    // overview is drawn before then, so the capture is of the screen
+    // alone.
+    readonly property bool ready: frame.hasContent
+    readonly property bool up: shown && ready
 
     // Asked to close, and then to do something once it has: switching
     // has to wait until the overview lets go of the keyboard, since
@@ -235,6 +244,7 @@ MouseArea {
     property real entry: 0
 
     NumberAnimation on entry {
+        running: root.ready
         from: 0
         to: 1
         duration: root.stagger * Math.max(0, root.ids.length - 1) + root.popDuration
@@ -249,22 +259,85 @@ MouseArea {
         return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2);
     }
 
-    // Behind the grid: a dim over the screen, which still shows through
-    // it. Hyprland can blur what is under it with a layer rule on the
-    // morph-shell-overview namespace; without one it is only darkened.
+    // Behind the grid: the screen as it was on opening, blurred and
+    // dimmed. The blur rises as the overview opens and falls as it
+    // closes, so leaving it brings the screen back into focus -- or,
+    // when going to another workspace, fades away to show that one.
+    // 0 to 1, how far the screen behind has blurred. It stays blurred
+    // when going elsewhere, and only fades.
+    property real blurred: up || (leaving && ready) ? 1 : 0
+
+    Behavior on blurred {
+        Anim {
+            type: Anim.SlowEffects
+        }
+    }
+
+    Item {
+        anchors.fill: parent
+
+        visible: root.ready
+        opacity: root.leaving && !root.shown ? 0 : 1
+
+        Behavior on opacity {
+            Anim {
+                type: Anim.SlowEffects
+            }
+        }
+
+        // Blurred at a quarter of the size: the blur reaches four times
+        // as far for the same work, which is what it takes to wash out
+        // text.
+        ShaderEffectSource {
+            id: small
+
+            anchors.fill: parent
+
+            sourceItem: frame
+            textureSize: Qt.size(Math.round(width / 4), Math.round(height / 4))
+            smooth: true
+            visible: false
+        }
+
+        MultiEffect {
+            anchors.fill: parent
+
+            source: small
+            autoPaddingEnabled: false
+
+            blurEnabled: true
+            blurMax: 64
+            blur: root.blurred
+            saturation: -0.2 * root.blurred
+        }
+
+        // The capture at full size, over the small one while the blur
+        // is slight, so the screen is sharp at either end rather than
+        // softened by the quarter size.
+        ScreencopyView {
+            id: frame
+
+            anchors.fill: parent
+
+            captureSource: root.screen
+            live: false
+            opacity: 1 - Math.min(1, root.blurred * 3)
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
 
         color: {
             const c = Appearance.palette.m3scrim;
-            return Qt.rgba(c.r, c.g, c.b, 0.4);
+            return Qt.rgba(c.r, c.g, c.b, 0.3);
         }
 
-        opacity: root.shown ? 1 : 0
+        opacity: root.up ? 1 : 0
 
         Behavior on opacity {
             Anim {
-                type: Anim.DefaultEffects
+                type: Anim.SlowEffects
             }
         }
     }
@@ -283,8 +356,9 @@ MouseArea {
         border.width: 1
         border.color: Qt.alpha(Appearance.palette.m3outlineVariant, 0.6)
 
-        opacity: root.shown ? 1 : 0
-        scale: root.shown ? 1 : 0.92
+        visible: root.ready
+        opacity: root.up ? 1 : 0
+        scale: root.up ? 1 : 0.92
 
         Behavior on width {
             Anim {

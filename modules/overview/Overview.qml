@@ -27,6 +27,7 @@ Scope {
     function open(): void {
         if (shown)
             return;
+        leaving = false;
         unload.stop();
         keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
         Hyprland.refreshToplevels();
@@ -40,10 +41,16 @@ Scope {
     // made while the overview holds the keyboard is undone as it closes.
     property var after: null
 
+    // Whether this close goes somewhere else. The frozen, blurred screen
+    // behind the grid then fades away to show where it went, rather than
+    // coming back into focus as the screen that was left.
+    property bool leaving: false
+
     function close(after: var): void {
         if (!shown)
             return;
         root.after = after ?? null;
+        leaving = !!after;
         shown = false;
         handoff.restart();
         unload.restart();
@@ -70,7 +77,7 @@ Scope {
     Timer {
         id: unload
 
-        interval: Appearance.anim.durations.defaultEffects
+        interval: Appearance.anim.durations.slowEffects
         onTriggered: root.active = false
     }
 
@@ -128,6 +135,7 @@ Scope {
                 OverviewGrid {
                     screen: win.modelData
                     shown: root.shown
+                    leaving: root.leaving
 
                     onDismissed: after => root.close(after)
                 }

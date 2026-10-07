@@ -405,12 +405,11 @@ plus stands for the first free workspace.
   shown or not.
 - Escape, a right click, or a click off the grid closes it.
 
-Behind the grid the screen is dimmed. To blur it as well, give the
-overview's layer a blur rule in Hyprland:
-
-```lua
-hl.layer_rule({ match = { namespace = "^morph-shell-overview$" }, blur = true })
-```
+Behind the grid the screen blurs as the overview opens and comes back
+into focus as it closes; going to another workspace fades the blurred
+screen into the new one instead. The shell blurs a still of the screen
+itself, so no blur rule is needed in Hyprland, and one would only pop in
+underneath.
 
 The grid's shape and how much of the screen it takes are set under
 `overview` in `config/Appearance.qml`. It needs Hyprland: elsewhere it
