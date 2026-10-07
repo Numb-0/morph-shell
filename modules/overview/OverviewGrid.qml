@@ -460,6 +460,7 @@ MouseArea {
                     width: root.cellWidth
                     height: root.cellHeight
 
+                    selected: wsId === root.selected
                     target: wsId === root.dropTarget && root.dragging !== ""
                     appear: root.appearOf(index)
 
@@ -562,7 +563,6 @@ MouseArea {
                     readonly property real appear: root.appearOf(index)
 
                     wsId: modelData
-                    active: wsId === root.activeId
                     selected: wsId === root.selected
                     running: root.shown
 
@@ -592,92 +592,49 @@ MouseArea {
                 }
             }
 
-            // Where the keyboard and the pointer are, ringing the cell
-            // tight around its edge, in its shape. Its edges move apart: the one leading the
-            // way gets there first and the trailing one catches up, so it
-            // stretches across the gap rather than sliding.
-            Rectangle {
-                id: ring
+            // The edge of the selected cell, and of the one a dragged
+            // window would drop into. Over the windows, which reach the
+            // cell's edge and would hide its own border. The free cell
+            // has its dashed outline instead.
+            Repeater {
+                model: root.used
 
-                readonly property real reach: 2
+                Rectangle {
+                    required property int modelData
+                    required property int index
 
-                readonly property rect goal: Qt.rect(root.cellX(root.selected) - reach, root.cellY(root.selected) - reach, root.cellWidth + reach * 2, root.cellHeight + reach * 2)
+                    readonly property bool target: modelData === root.dropTarget && root.dragging !== ""
+                    readonly property real appear: root.appearOf(index)
 
-                property real edgeL: goal.x
-                property real edgeT: goal.y
-                property real edgeR: goal.x + goal.width
-                property real edgeB: goal.y + goal.height
+                    x: root.cellX(modelData)
+                    y: root.cellY(modelData)
+                    width: root.cellWidth
+                    height: root.cellHeight
+                    z: 2.5
 
-                function follow(): void {
-                    const g = goal;
-                    // Put straight in place until the grid has settled,
-                    // so it does not slide about while the overview opens
-                    // and lays itself out.
-                    if (root.entry < 1) {
-                        for (const anim of [leftAnim, rightAnim, topAnim, bottomAnim])
-                            anim.stop();
-                        edgeL = g.x;
-                        edgeT = g.y;
-                        edgeR = g.x + g.width;
-                        edgeB = g.y + g.height;
-                        return;
+                    radius: Appearance.rounding.small
+                    color: "transparent"
+                    border.width: 2
+                    border.color: target ? Appearance.palette.m3tertiary : modelData === root.selected && root.dragging === "" ? Appearance.palette.m3primary : "transparent"
+
+                    opacity: Math.min(1, appear)
+                    scale: 0.82 + 0.18 * appear
+
+                    Behavior on border.color {
+                        CAnim {}
                     }
-                    const lead = Appearance.anim.durations.fastSpatial;
-                    const trail = Math.round(lead * 1.7);
-                    for (const [anim, to, ahead] of [[leftAnim, g.x, g.x < edgeL], [rightAnim, g.x + g.width, g.x + g.width > edgeR], [topAnim, g.y, g.y < edgeT], [bottomAnim, g.y + g.height, g.y + g.height > edgeB]]) {
-                        anim.stop();
-                        anim.to = to;
-                        anim.duration = ahead ? lead : trail;
-                        anim.start();
+
+                    Behavior on x {
+                        Anim {
+                            type: Anim.FastSpatial
+                        }
                     }
-                }
 
-                onGoalChanged: follow()
-
-                x: edgeL
-                y: edgeT
-                width: edgeR - edgeL
-                height: edgeB - edgeT
-                z: 4
-
-                visible: root.ids.includes(root.selected) && root.dragging === ""
-                opacity: Math.min(1, root.appearOf(root.ids.indexOf(root.activeId)))
-
-                radius: Appearance.rounding.small + reach
-                color: "transparent"
-                border.width: 2
-                border.color: Appearance.palette.m3primary
-
-                Anim {
-                    id: leftAnim
-
-                    target: ring
-                    property: "edgeL"
-                    type: Anim.FastSpatial
-                }
-
-                Anim {
-                    id: rightAnim
-
-                    target: ring
-                    property: "edgeR"
-                    type: Anim.FastSpatial
-                }
-
-                Anim {
-                    id: topAnim
-
-                    target: ring
-                    property: "edgeT"
-                    type: Anim.FastSpatial
-                }
-
-                Anim {
-                    id: bottomAnim
-
-                    target: ring
-                    property: "edgeB"
-                    type: Anim.FastSpatial
+                    Behavior on y {
+                        Anim {
+                            type: Anim.FastSpatial
+                        }
+                    }
                 }
             }
         }

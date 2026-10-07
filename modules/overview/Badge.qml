@@ -5,14 +5,13 @@ import qs.config
 
 // A workspace's number on its shape: the Material shape the bar's
 // shapes style gives the same workspace, so the two read as one. The
-// active workspace's is filled with the accent and turns slowly; the
-// rest sit still and quiet.
+// selected workspace's is lit: filled with the accent, a little larger,
+// and turning slowly; the rest sit still and quiet.
 Item {
     id: root
 
     required property int wsId
 
-    property bool active: false
     property bool selected: false
 
     // Whether anyone can see it, so the turning stops with the overview.
@@ -47,12 +46,11 @@ Item {
         }
     }
 
-    NumberAnimation on spin {
-        running: root.active && root.running
-        loops: Animation.Infinite
-        from: 0
-        to: 360
-        duration: 9000
+    // A turn every nine seconds, carrying on from wherever it stopped, so
+    // lighting up again does not snap it back.
+    FrameAnimation {
+        running: root.selected && root.running
+        onTriggered: root.spin = (root.spin + frameTime * 40) % 360
     }
 
     Shape {
@@ -79,7 +77,7 @@ Item {
         rotation: root.spin
 
         ShapePath {
-            fillColor: root.active ? Appearance.palette.m3primary : Appearance.palette.m3secondaryContainer
+            fillColor: root.selected ? Appearance.palette.m3primary : Appearance.palette.m3secondaryContainer
             strokeWidth: -1
 
             Behavior on fillColor {
@@ -98,6 +96,10 @@ Item {
         text: root.wsId
         font.pixelSize: Math.round(root.radius * 0.95)
         font.weight: Font.Bold
-        color: root.active ? Appearance.palette.m3onPrimary : Appearance.palette.m3onSecondaryContainer
+        color: root.selected ? Appearance.palette.m3onPrimary : Appearance.palette.m3onSecondaryContainer
+
+        Behavior on color {
+            CAnim {}
+        }
     }
 }

@@ -13,7 +13,9 @@ ClippingRectangle {
 
     required property int wsId
 
-    // The workspace a dragged window would drop into.
+    // The workspace the keyboard or the pointer is on, and the one a
+    // dragged window would drop into.
+    property bool selected: false
     property bool target: false
 
     // The free one, to go to or to drop a window into.
@@ -22,17 +24,12 @@ ClippingRectangle {
     // 0 to 1 as it pops in, overshooting a little on the way.
     property real appear: 1
 
-    readonly property bool hovered: area.containsMouse
-
     signal entered
     signal picked
 
     // As round as the windows in it, so it keeps the screen's shape.
     radius: Appearance.rounding.small
     color: "transparent"
-
-    border.width: !fresh && target ? 2 : 0
-    border.color: Appearance.palette.m3tertiary
 
     opacity: Math.min(1, appear)
     scale: 0.82 + 0.18 * appear
@@ -49,13 +46,13 @@ ClippingRectangle {
         }
     }
 
-    // Lifts the cell a dragged window is over, or the pointer.
+    // Lifts the cell a dragged window is over, or the selected one.
     Rectangle {
         anchors.fill: parent
 
         radius: root.radius
         color: root.fresh && !root.target ? Appearance.palette.m3primary : Appearance.palette.m3tertiary
-        opacity: root.target ? 0.2 : root.hovered ? 0.08 : 0
+        opacity: root.target ? 0.2 : root.selected ? 0.08 : 0
 
         Behavior on opacity {
             Anim {
@@ -73,7 +70,7 @@ ClippingRectangle {
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
-            strokeColor: root.target ? Appearance.palette.m3tertiary : root.hovered ? Appearance.palette.m3primary : Appearance.palette.m3outline
+            strokeColor: root.target ? Appearance.palette.m3tertiary : root.selected ? Appearance.palette.m3primary : Appearance.palette.m3outline
             strokeWidth: 2
             strokeStyle: root.target ? ShapePath.SolidLine : ShapePath.DashLine
             dashPattern: [4, 3]
@@ -99,12 +96,12 @@ ClippingRectangle {
         visible: root.fresh
         icon: "add"
         size: Math.round(root.height * 0.32)
-        color: root.target ? Appearance.palette.m3tertiary : root.hovered ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
-        opacity: root.hovered || root.target ? 0.9 : 0.5
+        color: root.target ? Appearance.palette.m3tertiary : root.selected ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
+        opacity: root.selected || root.target ? 0.9 : 0.5
 
         // A quarter turn as the pointer comes over it.
-        rotation: root.hovered || root.target ? 90 : 0
-        scale: root.hovered || root.target ? 1.15 : 1
+        rotation: root.selected || root.target ? 90 : 0
+        scale: root.selected || root.target ? 1.15 : 1
 
         Behavior on rotation {
             Anim {
