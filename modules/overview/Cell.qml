@@ -4,10 +4,10 @@ import Quickshell.Widgets
 import qs.components
 import qs.config
 
-// One workspace in the overview: the screen in miniature, over the
-// wallpaper when there is one. The free workspace past the ones in use
-// is only a dashed outline with a plus, as somewhere to go rather than
-// a screen.
+// One workspace in the overview: the screen in miniature, with nothing
+// behind its windows, so only they show. The free workspace past the
+// ones in use is only a dashed outline with a plus, as somewhere to go
+// rather than a screen.
 ClippingRectangle {
     id: root
 
@@ -30,7 +30,7 @@ ClippingRectangle {
     signal picked
 
     radius: Appearance.rounding.large
-    color: fresh ? "transparent" : Appearance.palette.m3surfaceContainerLow
+    color: "transparent"
 
     border.width: !fresh && (active || target) ? 2 : 0
     border.color: target ? Appearance.palette.m3tertiary : Appearance.palette.m3secondary
@@ -48,19 +48,6 @@ ClippingRectangle {
         Anim {
             type: Anim.FastSpatial
         }
-    }
-
-    Image {
-        anchors.fill: parent
-
-        visible: !root.fresh && status === Image.Ready
-        source: !root.fresh && Appearance.wallpaper ? `file://${Appearance.wallpaper}` : ""
-        fillMode: Image.PreserveAspectCrop
-        sourceSize.width: width
-        sourceSize.height: height
-        asynchronous: true
-        cache: true
-        opacity: 0.55
     }
 
     // Lifts the cell a dragged window is over, or the pointer.
