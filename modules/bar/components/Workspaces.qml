@@ -68,10 +68,10 @@ Item {
         }
     }
 
-    WheelHandler {
-        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-        onWheel: event => WorkspacesState.step(root.monitor, event.angleDelta.y > 0 ? -1 : 1)
-    }
+    // WheelHandler {
+    //     acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+    //     onWheel: event => WorkspacesState.step(root.monitor, event.angleDelta.y > 0 ? -1 : 1)
+    // }
 
     Loader {
         id: style
