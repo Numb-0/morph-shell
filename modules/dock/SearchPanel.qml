@@ -114,6 +114,14 @@ Item {
     // The focus waits a beat: the dock enables the panel off the same
     // change that makes it active, and a disabled item cannot take the
     // keyboard, so asking straight away could land before it is enabled.
+    // A new search starts from the top of its own results rather than
+    // from wherever the last one had got to. A beat later, once the
+    // model has taken the new results: it diffs them into the old rows,
+    // and the list's selection follows its row through every insert
+    // and move -- a top result that lands at the bottom of the new
+    // results would carry the selection down with it.
+    onResultsChanged: Qt.callLater(() => list.currentIndex = 0)
+
     onActiveChanged: {
         if (active) {
             reset();
@@ -170,10 +178,6 @@ Item {
                 selectByMouse: true
                 selectionColor: Appearance.palette.m3primary
                 selectedTextColor: Appearance.palette.m3onPrimary
-
-                // A new search starts from the top of its own results
-                // rather than from wherever the last one had got to.
-                onTextChanged: list.currentIndex = 0
 
                 // The list never takes focus -- the field keeps it and
                 // drives the selection -- so typing continues to work
