@@ -32,6 +32,35 @@ Singleton {
     readonly property bool low: !charging && !full && percentage <= 0.2
     readonly property bool critical: !charging && !full && percentage <= 0.1
 
+    // A notification as the charge passes each of these on battery.
+    // Each fires once per discharge, so a reading wobbling across the
+    // line does not repeat it, and only the lowest one crossed is sent:
+    // waking from suspend at 8% warns about 10%, not 20% then 10%.
+    readonly property list<int> warnings: [10, 20]
+
+    // The lowest threshold already warned about. Plugging in resets it.
+    property int warnedAt: 101
+
+    readonly property int level: Math.round(percentage * 100)
+
+    onLevelChanged: checkLevel()
+    onChargingChanged: checkLevel()
+    onAvailableChanged: checkLevel()
+
+    function checkLevel(): void {
+        if (!available || charging || full || !UPower.onBattery) {
+            warnedAt = 101;
+            return;
+        }
+
+        const threshold = warnings.find(t => level <= t && t < warnedAt);
+        if (threshold === undefined)
+            return;
+
+        warnedAt = threshold;
+        Quickshell.execDetached(["notify-send", "-a", "Battery", "-u", threshold <= 10 ? "critical" : "normal", "-i", "battery-caution", qsTr("Battery low"), qsTr("%1% remaining").arg(level)]);
+    }
+
     readonly property bool healthSupported: device?.healthSupported ?? false
 
     // Normalised to 0..1 to match `percentage`. UPower reports health on
