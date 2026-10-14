@@ -10,9 +10,9 @@ Item {
 
     required property int index
 
-    // A command, though for a frame while the launcher swaps rows over
-    // it can still be the application the row before held -- hence the
-    // fallbacks below.
+    // A command. The fallbacks below are only belt and braces: the
+    // launcher empties the list before swapping rows over, so a row
+    // should never be handed an application.
     required property var modelData
 
     // As an application row's: the pointer selects, a tap runs.

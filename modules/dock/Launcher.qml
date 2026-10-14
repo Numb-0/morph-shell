@@ -48,6 +48,11 @@ SearchPanel {
 
     delegate: commandMode ? commandResult : appResult
 
+    // Typing the colon swaps the list over to the commands, and the
+    // field's glyph with it, rather than sorting one into the other.
+    kind: commandMode ? "commands" : "apps"
+    icon: commandMode ? "terminal" : "search"
+
     onAccepted: result => commandMode ? runCommand(result) : run(result)
 
     // Only a panel is opened on the name alone. Anything that acts waits
