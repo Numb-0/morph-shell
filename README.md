@@ -290,9 +290,14 @@ holds it open and keeps room for it so windows don't go under it. The
 pinned state is kept in Quickshell's state directory for the shell and
 survives restarts.
 
-The dock shows the pinned apps, a dot under the ones running, and
-bounces an icon while its app launches. Opening the launcher grows the
-dock into a fuzzy search over every desktop entry.
+The dock shows the pinned apps, a dot under each for every window it
+has open (the focused one stretched into a pill), and
+bounces an icon while its app launches. Clicking an app with one
+window focuses it; with two or more, the dock grows into a chooser with
+a live preview of each window: click one (or arrow to it and press
+Enter) to go there, middle-click one (or Delete) to close it, and click
+the icon again or press Escape to put it away. Opening the launcher
+grows the dock into a fuzzy search over every desktop entry.
 
 A search in the launcher that starts with `:` runs one of the shell's
 own commands instead, and `:` alone lists them all:

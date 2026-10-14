@@ -9,8 +9,9 @@ import qs.config
 import qs.modules.dock.components
 import qs.services
 
-// The dock, and the panels it turns into: the launcher, and the
-// clipboard history it leads to through ":cliphist".
+// The dock, and the panels it turns into: the launcher, the clipboard
+// history it leads to through ":cliphist", and the chooser between the
+// windows of a pinned app that has more than one open.
 //
 // One shape does every job: closed it is a pill of pinned icons at the
 // bottom edge, and opening a panel grows that same pill upwards into
@@ -26,6 +27,21 @@ Scope {
     // on, or "" for both when the dock is closed.
     property string panel: ""
     property string panelScreen: ""
+
+    // The app whose windows the chooser lays out. Left set when it
+    // closes, so its cards have something to fade out with.
+    property var chooserEntry: null
+
+    // A click on an app's icon opens its windows, and a second click on
+    // the same icon puts them away again; another app's swaps them over.
+    function choose(entry: var, screen: string): void {
+        if (panel === "windows" && panelScreen === screen && chooserEntry === entry) {
+            close("windows");
+            return;
+        }
+        chooserEntry = entry;
+        open("windows", screen);
+    }
 
     function open(name: string, screen: string): void {
         panel = name;
@@ -111,6 +127,11 @@ Scope {
             readonly property bool panelOpen: root.panelScreen === modelData.name
             readonly property bool launcherOpen: panelOpen && root.panel === "launcher"
             readonly property bool clipboardOpen: panelOpen && root.panel === "clipboard"
+            readonly property bool windowsOpen: panelOpen && root.panel === "windows"
+
+            // The chooser grows the dock only as far as its cards need,
+            // where the search panels share one fixed height.
+            readonly property int panelHeight: windowsOpen ? chooser.implicitHeight + Appearance.padding.large : Appearance.dock.launcherHeight
 
             // How many pinned icons the pointer is on. A count rather
             // than a flag because the icons come out of a Repeater and
@@ -265,7 +286,7 @@ Scope {
                 anchors.bottomMargin: (win.dockMargin + height) * win.reveal - height
 
                 implicitWidth: win.panelOpen ? Appearance.dock.launcherWidth : row.implicitWidth + Appearance.padding.large * 2
-                implicitHeight: win.dockHeight + (win.panelOpen ? Appearance.dock.launcherHeight : 0)
+                implicitHeight: win.dockHeight + (win.panelOpen ? win.panelHeight : 0)
 
                 group: group
                 radius: Appearance.rounding.extraLarge
@@ -339,6 +360,21 @@ Scope {
 
                     onDismissed: root.close("clipboard")
                 }
+
+                WindowChooser {
+                    id: chooser
+
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.margins: Appearance.padding.large
+
+                    enabled: win.windowsOpen
+                    active: win.windowsOpen
+                    entry: root.chooserEntry
+
+                    onDismissed: root.close("windows")
+                }
             }
 
             // The pinned row, centred in the bottom band of the shape
@@ -391,6 +427,13 @@ Scope {
                         required property var modelData
 
                         entry: modelData
+                        chosen: win.windowsOpen && root.chooserEntry === modelData
+
+                        onChooseRequested: root.choose(modelData, win.modelData.name)
+
+                        // Going straight to an app with one window puts
+                        // away the chooser that was showing another's.
+                        onActivated: root.close("windows")
 
                         onHoveredChanged: win.hoveredApps += hovered ? 1 : -1
                     }

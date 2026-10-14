@@ -434,6 +434,19 @@ Singleton {
         // panel ending on whole rows however text and images mix.
         readonly property int imageResultHeight: resultHeight * 2 + 4
         readonly property int thumbnailMaxWidth: 168
+
+        // One dot under a pinned icon for each of its windows, up to
+        // this many: past it the count stops being read at a glance.
+        readonly property int maxDots: 4
+
+        // The window chooser: a card per window, a live picture of it
+        // over its title, so many to a row and so many rows before it
+        // scrolls. A picture is 16:9 of the card's width, which is what
+        // two columns leave of the panel.
+        readonly property int chooserColumns: 2
+        readonly property int chooserRows: 2
+        readonly property int previewHeight: 135
+        readonly property int cardTitleHeight: 32
     }
 
     readonly property QtObject overview: QtObject {
