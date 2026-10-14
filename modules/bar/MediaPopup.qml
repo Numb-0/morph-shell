@@ -1,14 +1,12 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
-import Quickshell.Widgets
 import qs.components
 import qs.config
 import qs.services
 
 // The media panel: art, track, a wavy progress slider and transport.
-// With nothing playing it lists the players something could be started
-// in.
+// With nothing playing it keeps the same shape, the placeholder art at
+// rest beside a line saying so.
 BlobPopup {
     id: root
 
@@ -17,10 +15,6 @@ BlobPopup {
 
     Component.onDestruction: if (open)
         Players.watchPosition(false)
-
-    // Both views share one width, so the panel does not jump sideways
-    // when a player comes or goes.
-    readonly property int contentWidth: 320
 
     // One transport control: a pill stretched across its share of the
     // row. The primary one is filled and takes a wider share, as the
@@ -93,16 +87,54 @@ BlobPopup {
         }
     }
 
+    // One bar of the placeholder's equaliser. It bobs on its own period,
+    // so a few side by side never move in step, and only as far as
+    // energy lets it: at rest it is a short pill.
+    component EqBar: Rectangle {
+        id: bar
+
+        required property int period
+        property real energy: 0
+        property real level: 0.5
+
+        anchors.bottom: parent?.bottom
+
+        width: 8
+        height: 10 + level * energy * 36
+        radius: width / 2
+        color: Appearance.palette.m3onPrimaryContainer
+
+        // Only while it is seen and has somewhere to go; hidden or
+        // paused, nothing should keep the animation driver ticking.
+        SequentialAnimation on level {
+            running: bar.visible && bar.energy > 0
+            loops: Animation.Infinite
+
+            NumberAnimation {
+                to: 1
+                duration: bar.period
+                easing.type: Easing.InOutSine
+            }
+
+            NumberAnimation {
+                to: 0.15
+                duration: bar.period
+                easing.type: Easing.InOutSine
+            }
+        }
+    }
+
     ColumnLayout {
         anchors.centerIn: parent
         spacing: 0
 
-        // A player is up: what it is playing and the controls for it.
+        // What is playing and the controls for it. With no player the
+        // controls and slider hide themselves, as they do for a player
+        // that offers none of them.
         ColumnLayout {
-            visible: Players.available
             spacing: Appearance.spacing.medium
 
-            Layout.preferredWidth: root.contentWidth
+            Layout.preferredWidth: 320
 
             // The art, and beside it the track over the transport, so
             // the controls take no row of their own.
@@ -119,14 +151,70 @@ BlobPopup {
                     color: Appearance.palette.m3surfaceContainerHighest
                     clip: true
 
-                    // Under the art, for players that publish none.
-                    MaterialSymbol {
-                        anchors.centerIn: parent
+                    // Under the art, for players that publish none: a
+                    // wash of the scheme's containers with an equaliser
+                    // that dances while the music plays and lies down
+                    // when it stops.
+                    Rectangle {
+                        id: placeholder
+
+                        anchors.fill: parent
 
                         visible: !art.visible
-                        icon: "music_note"
-                        size: Appearance.font.icon.large
-                        color: Appearance.palette.m3onSurfaceVariant
+                        radius: parent.radius
+
+                        // Eased rather than switched, so pausing lets the
+                        // bars settle instead of dropping.
+                        property real energy: Players.playing ? 1 : 0
+
+                        Behavior on energy {
+                            Anim {
+                                type: Anim.SlowEffects
+                            }
+                        }
+
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+
+                            GradientStop {
+                                position: 0
+                                color: Appearance.palette.m3primaryContainer
+                            }
+
+                            GradientStop {
+                                position: 1
+                                color: Appearance.palette.m3tertiaryContainer
+                            }
+                        }
+
+                        Row {
+                            anchors.centerIn: parent
+
+                            // Held at the tallest a bar gets, so the row
+                            // does not recentre as they grow and shrink.
+                            height: 46
+                            spacing: 6
+
+                            EqBar {
+                                period: 620
+                                energy: placeholder.energy
+                            }
+
+                            EqBar {
+                                period: 470
+                                energy: placeholder.energy
+                            }
+
+                            EqBar {
+                                period: 760
+                                energy: placeholder.energy
+                            }
+
+                            EqBar {
+                                period: 540
+                                energy: placeholder.energy
+                            }
+                        }
                     }
 
                     Image {
@@ -152,7 +240,7 @@ BlobPopup {
                         Layout.fillWidth: true
 
                         animate: true
-                        text: Players.active?.trackTitle || qsTr("Unknown title")
+                        text: Players.available ? (Players.active.trackTitle || qsTr("Unknown title")) : qsTr("Nothing playing")
                         font.pixelSize: Appearance.font.normal
                         wrapMode: Text.Wrap
                         maximumLineCount: 2
@@ -260,183 +348,6 @@ BlobPopup {
 
                     text: Players.formatTime(Players.length)
                     color: Appearance.palette.m3onSurfaceVariant
-                }
-            }
-        }
-
-        // Nothing is: the players to start something in. A launched
-        // player turns this into the view above as soon as it registers,
-        // panel still open.
-        ColumnLayout {
-            id: idle
-
-            visible: !Players.available
-            spacing: Appearance.spacing.small
-
-            Layout.preferredWidth: root.contentWidth
-
-            // The configured players that are actually installed.
-            //
-            // Reads Apps.all first so the binding depends on it, as the
-            // dock's pinned row does: byId notifies nothing, and before
-            // the entries are indexed every id resolves to null, which
-            // would leave the list empty for good.
-            readonly property var entries: {
-                Apps.all;
-                return Appearance.media.launchers.map(id => Apps.byId(id)).filter(e => e !== null);
-            }
-
-            // The one just tapped, until a player turns up or it is
-            // given up on, so a slow start does not read as a click that
-            // went nowhere.
-            property string launching: ""
-
-            Timer {
-                id: launchGuard
-
-                interval: 20000
-                onTriggered: idle.launching = ""
-            }
-
-            Connections {
-                target: Players
-
-                function onAvailableChanged(): void {
-                    idle.launching = "";
-                }
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.bottomMargin: Appearance.spacing.extraSmall
-                spacing: Appearance.spacing.medium
-
-                Rectangle {
-                    implicitWidth: 40
-                    implicitHeight: 40
-
-                    radius: Appearance.rounding.medium
-                    color: Appearance.palette.m3surfaceContainerHighest
-
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-
-                        icon: "music_off"
-                        size: Appearance.font.icon.normal
-                        color: Appearance.palette.m3onSurfaceVariant
-                    }
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
-
-                    StyledText {
-                        text: qsTr("Nothing playing")
-                        font.pixelSize: Appearance.font.normal
-                    }
-
-                    StyledText {
-                        visible: idle.entries.length > 0
-
-                        text: qsTr("Start a player")
-                        color: Appearance.palette.m3onSurfaceVariant
-                    }
-                }
-            }
-
-            Repeater {
-                model: idle.entries
-
-                Item {
-                    id: player
-
-                    required property DesktopEntry modelData
-
-                    readonly property bool launching: idle.launching === modelData.id
-
-                    Layout.fillWidth: true
-                    implicitHeight: 48
-
-                    HoverHandler {
-                        id: playerHover
-
-                        cursorShape: Qt.PointingHandCursor
-                    }
-
-                    TapHandler {
-                        onTapped: {
-                            idle.launching = player.modelData.id;
-                            launchGuard.restart();
-                            Apps.launch(player.modelData);
-                        }
-                    }
-
-                    // The M3 state layer.
-                    Rectangle {
-                        anchors.fill: parent
-
-                        radius: Appearance.rounding.large
-                        color: Appearance.palette.m3surfaceContainerHigh
-                        opacity: playerHover.hovered || player.launching ? 1 : 0
-
-                        Behavior on opacity {
-                            Anim {
-                                type: Anim.FastEffects
-                            }
-                        }
-                    }
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: Appearance.padding.small
-                        anchors.rightMargin: Appearance.padding.small
-                        spacing: Appearance.spacing.medium
-
-                        IconImage {
-                            implicitSize: 32
-                            source: Quickshell.iconPath(player.modelData.icon, "application-x-executable")
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-
-                            StyledText {
-                                Layout.fillWidth: true
-
-                                text: player.modelData.name
-                                font.pixelSize: Appearance.font.normal
-                                elide: Text.ElideRight
-                            }
-
-                            StyledText {
-                                Layout.fillWidth: true
-
-                                visible: text.length > 0
-                                text: player.modelData.genericName || player.modelData.comment || ""
-                                color: Appearance.palette.m3onSurfaceVariant
-                                elide: Text.ElideRight
-                            }
-                        }
-
-                        // An hourglass while the player starts, a play
-                        // glyph on the row under the pointer otherwise.
-                        MaterialSymbol {
-                            opacity: playerHover.hovered || player.launching ? 1 : 0
-
-                            icon: player.launching ? "hourglass_empty" : "play_arrow"
-                            size: Appearance.font.icon.normal
-                            color: Appearance.palette.m3primary
-                            fill: 1
-
-                            Behavior on opacity {
-                                Anim {
-                                    type: Anim.FastEffects
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }

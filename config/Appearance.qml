@@ -486,12 +486,6 @@ Singleton {
         readonly property int panelHeight: 460
     }
 
-    readonly property QtObject media: QtObject {
-        // The players the media panel offers to start when nothing is
-        // playing, by desktop entry id, as for the dock's pinned apps.
-        readonly property var launchers: ["spotify"]
-    }
-
     // Token scale, matching caelestia's: 4, 8, 12, 16, 20, 28, 32, 48.
     readonly property QtObject rounding: QtObject {
         readonly property int extraSmall: 4

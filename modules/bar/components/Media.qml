@@ -3,8 +3,8 @@ import qs.components
 import qs.config
 import qs.services
 
-// Bar widget: play state and the current track, opening the media panel
-// on click exactly as the clock does.
+// Bar widget: play state and the current track. The glyph plays and
+// pauses; anywhere else opens the media panel, exactly as the clock does.
 Item {
     id: root
 
@@ -27,10 +27,19 @@ Item {
         cursorShape: Qt.PointingHandCursor
     }
 
+    // One handler for the whole widget, sorting the tap by where it
+    // landed, rather than one nested in another that would both fire.
     TapHandler {
-        onTapped: {
+        onTapped: eventPoint => {
             glyph.press();
-            root.clicked();
+            const p = glyph.mapFromItem(root, eventPoint.position);
+            const onGlyph = p.x >= -Appearance.spacing.small && p.x <= glyph.width + Appearance.spacing.small / 2;
+            // With nothing to toggle the glyph opens the panel like the
+            // rest.
+            if (onGlyph && Players.canTogglePlaying)
+                Players.active.togglePlaying();
+            else
+                root.clicked();
         }
     }
 

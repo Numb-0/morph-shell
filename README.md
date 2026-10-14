@@ -337,7 +337,6 @@ source). The ones you're most likely to want:
 | `bar.workspaces.shown` | `5` | Slots always drawn; the row grows past it to reach the highest workspace in use. |
 | `dock.pinned` | `["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]` | Apps in the dock, by desktop entry id (the `.desktop` file's name without the suffix). Near misses are looked up heuristically, and ids nothing answers to are skipped. |
 | `dock.maxResults` | `7` | Rows the launcher shows. |
-| `media.launchers` | `["spotify"]` | Players the media panel lists to start when nothing is playing, by desktop entry id. Ones that aren't installed are left out. |
 | `osd.timeout` | `1500` | Milliseconds the volume OSD stays up after the level last moved. |
 | `notifs.maxPopups` | `4` | Popups shown at once; older ones wait in the centre. |
 | `font.family` | `"JetBrains Mono"` | Text font. |
