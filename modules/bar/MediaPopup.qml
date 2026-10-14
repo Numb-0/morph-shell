@@ -18,24 +18,26 @@ BlobPopup {
     Component.onDestruction: if (open)
         Players.watchPosition(false)
 
-    // A tap target around one transport glyph.
+    // Both views share one width, so the panel does not jump sideways
+    // when a player comes or goes.
+    readonly property int contentWidth: 320
+
+    // One transport control: a pill stretched across its share of the
+    // row. The primary one is filled and takes a wider share, as the
+    // action the panel is mostly opened for; the others are tonal.
     component Button: Item {
         id: btn
 
         required property string icon
+        property bool primary: false
 
         signal activated
 
-        implicitWidth: 40
-        implicitHeight: 40
+        implicitWidth: 48
+        implicitHeight: 48
 
-        opacity: hover.hovered ? 1 : 0.85
-
-        Behavior on opacity {
-            Anim {
-                type: Anim.FastEffects
-            }
-        }
+        Layout.fillWidth: true
+        Layout.horizontalStretchFactor: primary ? 2 : 1
 
         HoverHandler {
             id: hover
@@ -44,14 +46,46 @@ BlobPopup {
         }
 
         TapHandler {
-            onTapped: btn.activated()
+            onTapped: {
+                glyph.press();
+                btn.activated();
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+
+            radius: height / 2
+            color: btn.primary ? Appearance.palette.m3primary : Appearance.palette.m3surfaceContainerHigh
+
+            Behavior on color {
+                CAnim {}
+            }
+
+            // The M3 state layer.
+            Rectangle {
+                anchors.fill: parent
+
+                radius: parent.radius
+                color: btn.primary ? Appearance.palette.m3onPrimary : Appearance.palette.m3onSurface
+                opacity: hover.hovered ? 0.08 : 0
+
+                Behavior on opacity {
+                    Anim {
+                        type: Anim.FastEffects
+                    }
+                }
+            }
         }
 
         MaterialSymbol {
+            id: glyph
+
             anchors.centerIn: parent
 
             icon: btn.icon
-            size: Appearance.font.icon.normal
+            size: btn.primary ? Appearance.font.icon.large : Appearance.font.icon.normal
+            color: btn.primary ? Appearance.palette.m3onPrimary : Appearance.palette.m3onSurface
 
             // Solid, as the drawn icons were -- transport controls read
             // as buttons rather than as outlines.
@@ -68,19 +102,36 @@ BlobPopup {
             visible: Players.available
             spacing: Appearance.spacing.medium
 
+            Layout.preferredWidth: root.contentWidth
+
+            // The art, and beside it the track over the transport, so
+            // the controls take no row of their own.
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Appearance.spacing.medium
 
                 Rectangle {
-                    Layout.preferredWidth: 64
-                    Layout.preferredHeight: 64
+                    Layout.preferredWidth: 104
+                    Layout.preferredHeight: 104
+                    Layout.alignment: Qt.AlignTop
 
-                    radius: Appearance.rounding.medium
+                    radius: Appearance.rounding.large
                     color: Appearance.palette.m3surfaceContainerHighest
                     clip: true
 
+                    // Under the art, for players that publish none.
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+
+                        visible: !art.visible
+                        icon: "music_note"
+                        size: Appearance.font.icon.large
+                        color: Appearance.palette.m3onSurfaceVariant
+                    }
+
                     Image {
+                        id: art
+
                         anchors.fill: parent
 
                         source: Players.active?.trackArtUrl ?? ""
@@ -91,102 +142,124 @@ BlobPopup {
                 }
 
                 ColumnLayout {
-                    Layout.alignment: Qt.AlignVCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     spacing: Appearance.spacing.extraSmall
 
+                    // Up to two lines: titles run long, and the width
+                    // beside the art is there to hold them.
                     StyledText {
-                        Layout.maximumWidth: 220
+                        Layout.fillWidth: true
 
                         animate: true
-                        text: Players.active?.trackTitle ?? qsTr("Nothing playing")
+                        text: Players.active?.trackTitle || qsTr("Unknown title")
                         font.pixelSize: Appearance.font.normal
+                        wrapMode: Text.Wrap
+                        maximumLineCount: 2
                         elide: Text.ElideRight
                     }
 
                     StyledText {
-                        Layout.maximumWidth: 220
+                        Layout.fillWidth: true
 
                         animate: true
-                        text: Players.active?.trackArtist ?? ""
+                        text: [Players.active?.trackArtist, Players.active?.trackAlbum].filter(s => s).join(" · ")
                         color: Appearance.palette.m3onSurfaceVariant
                         elide: Text.ElideRight
                         visible: text.length > 0
                     }
+
+                    // Pushes the transport down to the art's bottom edge.
+                    Item {
+                        Layout.fillHeight: true
+                    }
+
+                    // Across the whole width beside the art.
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Appearance.spacing.small
+
+                        Button {
+                            icon: "skip_previous"
+                            visible: Players.canGoPrevious
+
+                            onActivated: Players.active.previous()
+                        }
+
+                        Button {
+                            icon: Players.playing ? "pause" : "play_arrow"
+                            primary: true
+                            visible: Players.canTogglePlaying
+
+                            onActivated: Players.active.togglePlaying()
+                        }
+
+                        Button {
+                            icon: "skip_next"
+                            visible: Players.canGoNext
+
+                            onActivated: Players.active.next()
+                        }
+                    }
                 }
             }
 
-            WavySlider {
-                id: slider
-
+            // The times either side of the slider rather than on a row
+            // under it. Both are held to the width of the longer one, so
+            // the slider does not change length as the position ticks.
+            RowLayout {
                 // Nothing to scrub without a duration, so it goes away
                 // rather than sitting there inert.
                 visible: Players.lengthKnown
 
                 Layout.fillWidth: true
-                Layout.preferredWidth: 300
+                spacing: Appearance.spacing.small
 
-                enabled: Players.seekable
+                TextMetrics {
+                    id: timeMetrics
 
-                // Flat while paused, travelling while playing.
-                wavy: Players.playing
-
-                // Committed on release rather than on every move, so dragging
-                // does not spam the player with seeks.
-                onPressedChanged: if (!pressed)
-                    Players.seek(value)
-
-                // Follows the player only while the handle is not being
-                // dragged; Players holds the dropped position until the
-                // player reports it back.
-                Binding on value {
-                    when: !slider.pressed
-                    value: Players.progress
+                    font.family: Appearance.font.family
+                    font.pixelSize: Appearance.font.small
+                    text: Players.formatTime(Players.length)
                 }
-            }
-
-            RowLayout {
-                visible: Players.lengthKnown
-
-                Layout.fillWidth: true
 
                 StyledText {
+                    Layout.preferredWidth: timeMetrics.advanceWidth
+
                     text: Players.formatTime(Players.position)
                     color: Appearance.palette.m3onSurfaceVariant
+                    horizontalAlignment: Text.AlignRight
                 }
 
-                Item {
+                WavySlider {
+                    id: slider
+
                     Layout.fillWidth: true
+
+                    enabled: Players.seekable
+
+                    // Flat while paused, travelling while playing.
+                    wavy: Players.playing
+
+                    // Committed on release rather than on every move, so
+                    // dragging does not spam the player with seeks.
+                    onPressedChanged: if (!pressed)
+                        Players.seek(value)
+
+                    // Follows the player only while the handle is not
+                    // being dragged; Players holds the dropped position
+                    // until the player reports it back.
+                    Binding on value {
+                        when: !slider.pressed
+                        value: Players.progress
+                    }
                 }
 
                 StyledText {
+                    Layout.preferredWidth: timeMetrics.advanceWidth
+
                     text: Players.formatTime(Players.length)
                     color: Appearance.palette.m3onSurfaceVariant
-                }
-            }
-
-            RowLayout {
-                Layout.alignment: Qt.AlignHCenter
-                spacing: Appearance.spacing.large
-
-                Button {
-                    icon: "skip_previous"
-                    visible: Players.canGoPrevious
-
-                    onActivated: Players.active.previous()
-                }
-
-                Button {
-                    icon: Players.playing ? "pause" : "play_arrow"
-                    visible: Players.canTogglePlaying
-
-                    onActivated: Players.active.togglePlaying()
-                }
-
-                Button {
-                    icon: "skip_next"
-                    visible: Players.canGoNext
-
-                    onActivated: Players.active.next()
                 }
             }
         }
@@ -200,7 +273,7 @@ BlobPopup {
             visible: !Players.available
             spacing: Appearance.spacing.small
 
-            Layout.preferredWidth: 300
+            Layout.preferredWidth: root.contentWidth
 
             // The configured players that are actually installed.
             //
