@@ -15,6 +15,13 @@ Singleton {
     readonly property real volume: sink?.audio?.volume ?? 0
     readonly property bool muted: sink?.audio?.muted ?? false
 
+    // The default input, for the OSD to say when it is muted. Only its
+    // mute: the shell has nowhere that sets a microphone's level.
+    readonly property PwNode source: Pipewire.defaultAudioSource
+
+    readonly property bool micAvailable: source?.ready ?? false
+    readonly property bool micMuted: source?.audio?.muted ?? false
+
     // What the device calls itself. The node's own name is a pipewire
     // id -- alsa_output.pci-0000_00_1f.3.analog-stereo and the like --
     // so the description comes first, with the nickname behind it for
@@ -106,9 +113,14 @@ Singleton {
             sink.audio.muted = !sink.audio.muted;
     }
 
+    function toggleMicMute(): void {
+        if (source?.audio)
+            source.audio.muted = !source.audio.muted;
+    }
+
     // Pipewire only keeps a node's properties current while something is
     // tracking it. Without this the volume reads zero and never moves.
     PwObjectTracker {
-        objects: root.sink ? [root.sink] : []
+        objects: [root.sink, root.source].filter(node => node)
     }
 }

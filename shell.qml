@@ -18,7 +18,7 @@ ShellRoot {
     Background {}
     Bar {}
     Dock {}
-    VolumeOsd {}
+    Osd {}
     NotificationPopups {}
     Screenshot {}
     ColorPicker {}

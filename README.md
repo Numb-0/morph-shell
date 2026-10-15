@@ -269,6 +269,7 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `overview` | `close` | Close the workspace overview. |
 | `colorpicker` | `pick` | Pick a colour from the screen (see [Colour picker](#colour-picker)). |
 | `colorpicker` | `cancel` | Close the colour picker without taking anything. |
+| `osd` | `hide` | Put the OSD away now rather than when it times out (see [OSD](#osd)). |
 | `session` | `toggle` | Open or close the full-screen session menu (see [Session menu](#session-menu)). |
 | `session` | `open` | Open the session menu on the focused screen. Off Hyprland it opens on the first screen. |
 | `session` | `close` | Close the session menu. |
@@ -333,6 +334,26 @@ The workspaces widget comes in four styles:
 The bar also carries a system tray, whose menus open as panels like the
 rest.
 
+## OSD
+
+Whatever just changed shows for a moment over the dock, on every screen:
+
+| Reading | Shows when |
+| --- | --- |
+| Volume | The output's level or mute changes, from anywhere. |
+| Brightness | The backlight changes, from anywhere. |
+| Microphone | The default input is muted or unmuted. |
+| Caps Lock | Caps Lock goes on or off, read from the keyboards' LEDs. |
+| Keyboard layout | The layout switches (Hyprland only). |
+| Power profile | The power profile changes. |
+
+It is one blob: it rises out of the bottom edge as a drop and spreads
+into a pill, rolls over from one reading to the next while stretching
+to fit it, hops on every change, and throws a droplet off its top when
+a toggle goes on (or takes one back in when it goes off). Nothing needs
+binding for it: media keys, `wpctl`, `brightnessctl` and the bar's own
+panels all set it off.
+
 ## Configuration
 
 There is no config file yet: the knobs live in `config/Appearance.qml`,
@@ -345,7 +366,7 @@ source). The ones you're most likely to want:
 | `bar.workspaces.shown` | `5` | Slots always drawn; the row grows past it to reach the highest workspace in use. |
 | `dock.pinned` | `["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]` | Apps in the dock, by desktop entry id (the `.desktop` file's name without the suffix). Near misses are looked up heuristically, and ids nothing answers to are skipped. |
 | `dock.maxResults` | `7` | Rows the launcher shows. |
-| `osd.timeout` | `1500` | Milliseconds the volume OSD stays up after the level last moved. |
+| `osd.timeout` | `1500` | Milliseconds the OSD stays up after what it shows last changed. |
 | `notifs.maxPopups` | `4` | Popups shown at once; older ones wait in the centre. |
 | `font.family` | `"JetBrains Mono"` | Text font. |
 
