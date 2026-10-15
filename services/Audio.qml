@@ -21,6 +21,58 @@ Singleton {
     // the sinks that publish no description.
     readonly property string description: sink?.description || sink?.nickname || ""
 
+    // Every application playing sound, as the mixer lists them. Output
+    // streams only: a recorder or the peak meters' own capture streams
+    // are not something you would turn down.
+    readonly property var streams: Pipewire.nodes.values.filter(n => n.type === PwNodeType.AudioOutStream && n.audio)
+
+    // What a stream is called. Pipewire's own name for one is whatever
+    // the client typed into its connect call -- "playback", "audio
+    // stream #3" -- so the application's name comes first.
+    function streamName(node: PwNode): string {
+        const props = node?.properties ?? {};
+        return props["application.name"] || node?.description || node?.nickname || node?.name || qsTr("Unknown");
+    }
+
+    // The icon the stream asks for, else the one its desktop entry has,
+    // found from the binary it is running as. Empty when neither turns
+    // anything up, and the mixer draws a glyph instead.
+    function streamIcon(node: PwNode): string {
+        const props = node?.properties ?? {};
+        const named = props["application.icon-name"];
+        if (named) {
+            const path = Quickshell.iconPath(named, true);
+            if (path)
+                return path;
+        }
+
+        for (const id of [props["application.process.binary"], props["application.id"], props["application.name"]]) {
+            const entry = id ? Apps.byId(Apps.normalise(id)) : null;
+            if (entry?.icon)
+                return Quickshell.iconPath(entry.icon, true);
+        }
+
+        return "";
+    }
+
+    // As changeVolume does for the output: turning a muted stream up
+    // unmutes it.
+    function setStreamVolume(node: PwNode, value: real): void {
+        if (!node?.audio)
+            return;
+
+        const v = Math.max(0, Math.min(1, value));
+        if (v > node.audio.volume && node.audio.muted)
+            node.audio.muted = false;
+
+        node.audio.volume = v;
+    }
+
+    function toggleStreamMute(node: PwNode): void {
+        if (node?.audio)
+            node.audio.muted = !node.audio.muted;
+    }
+
     readonly property string icon: {
         if (muted || volume <= 0)
             return "volume_off";

@@ -73,7 +73,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
 | StatusNotifierItem | System tray | Nothing to install: the shell is the tray host, and apps that support it show up there. Apps that only speak the old XEmbed tray don't. |
 | UPower | Battery widget | System service: the NixOS module turns it on. |
-| PipeWire | Volume widget | System service: the NixOS module turns it on. |
+| PipeWire | Volume widget and per-application mixer | System service: the NixOS module turns it on. |
 | MPRIS | Media widget | Nothing to install; players expose it themselves. |
 | NetworkManager | Network widget | System service: enable it yourself (`networking.networkmanager.enable`). The shell talks to it over D-Bus, so `nmcli` isn't needed. |
 | BlueZ | Bluetooth widget | System service: enable it yourself (`hardware.bluetooth.enable`). The shell talks to it over D-Bus, so `bluetoothctl` isn't needed. The widget hides itself when there is no adapter. Devices that pair without a PIN (headphones, most mice) pair from the panel; one that asks for a passkey needs an agent such as `blueman-applet` running. |
