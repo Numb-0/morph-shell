@@ -229,6 +229,11 @@ Item {
 
             icon: root.action.icon
             size: 40
+
+            // Scaled with the container as it is chosen, swells and
+            // gathers; native glyphs would be stretched as a bitmap and
+            // blur, where Qt's own rendering stays sharp at any scale.
+            renderType: Text.QtRendering
             color: root.contentColor
             fill: root.selected || root.armed ? 1 : 0
         }
