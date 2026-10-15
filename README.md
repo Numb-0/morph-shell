@@ -459,9 +459,12 @@ without picking. `wf-recorder` does the recording, to
 `~/Videos/Recordings/<date>_<time>.mp4` (under `$XDG_VIDEOS_DIR` when
 that is set).
 
-While it runs, a red dot breathes beside the clock with how long it
-has gone. Point at it and the dot turns into a stop square; click it,
-run `:record` again or `recorder stop` to finish. A notification then
+The bar carries a record button beside the clock: a ring that fills
+red under the pointer. Click it to pick a region to record, or
+right-click to record with sound. While a recording runs the ring
+closes into a red dot that breathes beside how long it has gone; point
+at it and the dot turns into a stop square. Click it, run `:record`
+again or `recorder stop` to finish. A notification then
 offers to open the file or the folder it is in, and one says why if
 `wf-recorder` fails.
 

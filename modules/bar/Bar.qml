@@ -90,7 +90,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || recording.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -448,10 +448,15 @@ Variants {
             onClicked: win.toggle("clock")
         }
 
-        // Beside the clock, so the clock stays centred, and only there
-        // while a recording runs.
+        // Beside the clock, so the clock stays centred. Opens out to the
+        // time while a recording runs.
         Recording {
+            id: recording
+
             anchors.left: clock.right
+
+            // Nothing to record with without wf-recorder.
+            visible: Recorder.available
 
             y: surface.y + (surface.height - height) / 2
 

@@ -3,23 +3,25 @@ import qs.components
 import qs.config
 import qs.services
 
-// Bar widget: a recording under way, as a red dot breathing beside how
-// long it has run. Pointing at it turns the dot into the stop square it
-// would be on a recorder, and a click stops the recording.
+// Bar widget: the screen recorder's button. Idle it is a ring, as on a
+// recorder, that fills red under the pointer: a click picks a region to
+// record, a right click one to record with sound.
 //
-// Not there at all while nothing is recording: it opens out of nothing
-// beside the clock as a recording starts, and folds back as it stops.
+// Recording, the ring closes into a red dot breathing beside how long it
+// has run, the widget opening out to the time. Pointing at it turns the
+// dot into the stop square, and a click stops the recording.
 Item {
     id: root
 
     readonly property bool hovered: hover.hovered
+    readonly property bool recording: Recorder.recording
 
+    readonly property real idleWidth: markBox.implicitWidth + Appearance.bar.itemPadding * 2
     readonly property real fullWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
 
-    implicitWidth: Recorder.recording ? fullWidth : 0
+    implicitWidth: recording ? fullWidth : idleWidth
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
-    visible: implicitWidth > 0
     clip: true
 
     Behavior on implicitWidth {
@@ -35,11 +37,20 @@ Item {
     }
 
     TapHandler {
-        onTapped: Recorder.stop()
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+        onTapped: (point, button) => {
+            if (root.recording)
+                Recorder.stop();
+            else
+                Commands.recordRequested(button === Qt.RightButton);
+        }
     }
 
-    // Laid out from the left, so the row is uncovered from the clock's
-    // side outward as the widget opens.
+    // Laid out from the left, so the time is uncovered from the button's
+    // side outward as the widget opens. Always laid out in full: the
+    // widget's own width is what hides the time while idle, so it slides
+    // away under the clip rather than vanishing first.
     Row {
         id: row
 
@@ -48,9 +59,11 @@ Item {
 
         spacing: Appearance.spacing.small
 
-        // The dot, or under the pointer the stop square: one shape whose
-        // corners and size move between the two.
+        // The ring, the dot, or under the pointer the stop square: one
+        // shape whose fill, corners and size move between the three.
         Item {
+            id: markBox
+
             anchors.verticalCenter: parent.verticalCenter
 
             implicitWidth: Appearance.font.icon.normal
@@ -59,15 +72,28 @@ Item {
             Rectangle {
                 id: mark
 
-                property real size: root.hovered ? parent.width * 0.62 : parent.width * 0.5
+                // Idle the ring takes the glyph's whole box, filling in
+                // under the pointer; recording it closes into the dot, and
+                // under the pointer squares off into stop.
+                property real size: !root.recording ? parent.width * 0.7 : root.hovered ? parent.width * 0.62 : parent.width * 0.5
 
                 anchors.centerIn: parent
 
                 width: size
                 height: size
-                radius: root.hovered ? size * 0.22 : size / 2
+                radius: root.recording && root.hovered ? size * 0.22 : size / 2
 
-                color: Appearance.palette.m3error
+                color: root.recording || root.hovered ? Appearance.palette.m3error : "transparent"
+                border.width: root.recording ? 0 : 2
+                border.color: root.hovered ? Appearance.palette.m3error : Appearance.palette.m3primary
+
+                Behavior on color {
+                    CAnim {}
+                }
+
+                Behavior on border.color {
+                    CAnim {}
+                }
 
                 Behavior on size {
                     Anim {
