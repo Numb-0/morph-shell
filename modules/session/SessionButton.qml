@@ -230,10 +230,12 @@ Item {
             icon: root.action.icon
             size: 40
 
-            // Scaled with the container as it is chosen, swells and
-            // gathers; native glyphs would be stretched as a bitmap and
-            // blur, where Qt's own rendering stays sharp at any scale.
-            renderType: Text.QtRendering
+            // Kept out of the container's growth on being chosen, which
+            // would stretch the native glyph as a bitmap and blur it.
+            // Qt's own rendering would scale cleanly, but draws the
+            // filled glyphs' overlapping contours with seams. The swell
+            // and gather still carry it, being over in a moment.
+            scale: (1 + 0.12 * root.swell) * (1 - 0.6 * root.gather) / container.scale
             color: root.contentColor
             fill: root.selected || root.armed ? 1 : 0
         }
