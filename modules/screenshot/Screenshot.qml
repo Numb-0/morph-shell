@@ -12,6 +12,9 @@ import qs.services
 // the clipboard and a file, and the notification that says so offers
 // satty to mark it up.
 //
+// Recordings start here too, from the same picker: the region goes to
+// the Recorder instead of to grim.
+//
 // grim rather than a grab of the shell's own view of the screen: it
 // encodes only the region, where a grab has to read back and encode the
 // whole screen to crop it afterwards.
@@ -19,6 +22,11 @@ Scope {
     id: root
 
     property bool active: false
+
+    // What the region is for: a still, or a recording -- with or without
+    // the output's sound.
+    property bool recording: false
+    property bool recordAudio: false
 
     // The picked region, as grim's -g takes it. Set while the overlay
     // has stopped drawing and is waiting to be gone from the screen.
@@ -35,10 +43,19 @@ Scope {
     function open(): void {
         if (active)
             return;
+        recording = false;
         pending = "";
         keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
         Hyprland.refreshToplevels();
         active = true;
+    }
+
+    function openForRecording(audio: bool): void {
+        if (active || Recorder.recording)
+            return;
+        open();
+        recording = true;
+        recordAudio = audio;
     }
 
     function close(): void {
@@ -87,7 +104,10 @@ Scope {
 
         interval: 60
         onTriggered: {
-            Quickshell.execDetached(["sh", "-c", root.script, "morph-shell-screenshot", root.pending]);
+            if (root.recording)
+                Recorder.start(root.pending, root.recordAudio);
+            else
+                Quickshell.execDetached(["sh", "-c", root.script, "morph-shell-screenshot", root.pending]);
             root.close();
         }
     }
@@ -98,6 +118,10 @@ Scope {
 
         function onScreenshotRequested(): void {
             root.open();
+        }
+
+        function onRecordRequested(audio: bool): void {
+            root.openForRecording(audio);
         }
     }
 
@@ -143,6 +167,8 @@ Scope {
                 Picker {
                     screen: win.modelData
                     hidden: root.pending !== ""
+                    recording: root.recording
+                    recordAudio: root.recordAudio
 
                     onPicked: (x, y, w, h) => root.capture(win.modelData.x + x, win.modelData.y + y, w, h)
                     onCancelled: root.close()

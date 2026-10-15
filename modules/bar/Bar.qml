@@ -448,6 +448,16 @@ Variants {
             onClicked: win.toggle("clock")
         }
 
+        // Beside the clock, so the clock stays centred, and only there
+        // while a recording runs.
+        Recording {
+            anchors.left: clock.right
+
+            y: surface.y + (surface.height - height) / 2
+
+            opacity: win.reveal
+        }
+
         Media {
             id: media
 

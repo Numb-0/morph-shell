@@ -66,6 +66,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | JetBrains Mono, Material Symbols Rounded | Text and icons | Bundled with the package; installing them yourself isn't needed. |
 | `brightnessctl` | Brightness widget | Put on the wrapper's `PATH`. |
 | `grim`, `wl-clipboard`, `libnotify`, `satty`, `coreutils` | Screenshots; `wl-clipboard` and `libnotify` also for the colour picker | Put on the wrapper's `PATH`. |
+| `wf-recorder`, `xdg-utils` | Screen recordings, and opening one from its notification | Put on the wrapper's `PATH`. |
 | `dbus-send` | Power profile widget's startup check | Put on the wrapper's `PATH`. |
 | `cliphist`, `wl-clipboard` | Clipboard history | Put on the wrapper's `PATH`. The shell runs the `wl-paste --watch cliphist store` watchers itself, for text and images; ones already started from your compositor config do no harm, since cliphist doesn't store an entry twice. Without cliphist the history is off, and `:cliphist` isn't offered. |
 | `hyprctl` | Screenshot and colour pickers' pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
@@ -264,6 +265,11 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `palette` | `reload` | Re-read `colors.json` and `wallpaper.json` (see [Colours](#colours) and [Wallpaper](#wallpaper)). |
 | `screenshot` | `region` | Pick a region to screenshot (see [Screenshots](#screenshots)). |
 | `screenshot` | `cancel` | Close the region picker without taking anything. |
+| `recorder` | `toggle` | Pick a region to record, or stop the recording under way (see [Screen recordings](#screen-recordings)). |
+| `recorder` | `region` / `regionWithAudio` | Pick a region to record, without or with the output's sound. |
+| `recorder` | `screen` / `screenWithAudio` | Record the whole focused screen, without or with the output's sound. |
+| `recorder` | `stop` | Stop the recording and save it. |
+| `recorder` | `isRecording` | Print whether a recording is under way. |
 | `overview` | `toggle` | Open or close the workspace overview (see [Workspace overview](#workspace-overview)). |
 | `overview` | `open` | Open the workspace overview. |
 | `overview` | `close` | Close the workspace overview. |
@@ -310,6 +316,8 @@ own commands instead, and `:` alone lists them all:
 | --- | --- |
 | `:cliphist` | Turns the launcher into the clipboard history (see below). Typing the name is enough; it opens without Enter. |
 | `:screenshot` | Picks a region to screenshot (see [Screenshots](#screenshots)). |
+| `:record` | Picks a region to record, or stops the recording under way (see [Screen recordings](#screen-recordings)). |
+| `:recordaudio` | Picks a region to record with the output's sound. |
 | `:colorpicker` | Picks a colour from the screen (see [Colour picker](#colour-picker)). |
 | `:lock` | Locks the session. |
 | `:session` | Opens the full-screen session menu (see [Session menu](#session-menu)). |
@@ -439,6 +447,26 @@ works, but only by dragging or taking the whole screen.
 
 ```
 bind = , Print, exec, morph-shell ipc call screenshot region
+```
+
+## Screen recordings
+
+`morph-shell ipc call recorder region` (or `:record`) opens the same
+picker in red, and recording starts on the region picked;
+`regionWithAudio` (or `:recordaudio`) takes what is playing too, from
+the default output. `recorder screen` records the whole focused screen
+without picking. `wf-recorder` does the recording, to
+`~/Videos/Recordings/<date>_<time>.mp4` (under `$XDG_VIDEOS_DIR` when
+that is set).
+
+While it runs, a red dot breathes beside the clock with how long it
+has gone. Point at it and the dot turns into a stop square; click it,
+run `:record` again or `recorder stop` to finish. A notification then
+offers to open the file or the folder it is in, and one says why if
+`wf-recorder` fails.
+
+```
+bind = SHIFT, Print, exec, morph-shell ipc call recorder toggle
 ```
 
 ## Workspace overview

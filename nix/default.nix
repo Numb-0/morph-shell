@@ -17,6 +17,8 @@
   libnotify,
   satty,
   cliphist,
+  wf-recorder,
+  xdg-utils,
   jetbrains-mono,
   material-symbols,
   extraRuntimeDeps ? [],
@@ -27,8 +29,9 @@
   # notify-send and satty: the screenshot pipeline, which also wants
   # coreutils even when the shell runs as a service with a bare PATH.
   # notify-send also carries the low battery warnings. cliphist: the
-  # clipboard history, fed by wl-paste.
-  runtimeDeps = [brightnessctl dbus coreutils grim wl-clipboard libnotify satty cliphist] ++ extraRuntimeDeps;
+  # clipboard history, fed by wl-paste. wf-recorder: screen recordings,
+  # and xdg-open for the notification that opens one.
+  runtimeDeps = [brightnessctl dbus coreutils grim wl-clipboard libnotify satty cliphist wf-recorder xdg-utils] ++ extraRuntimeDeps;
 
   # Layer the bundled fonts on top of the system fontconfig, so the shell
   # finds them whether or not they are installed, and every other font

@@ -21,6 +21,10 @@ Singleton {
     // instead of called.
     signal lockRequested
     signal screenshotRequested
+
+    // A recording starts with the same picker, so it goes through the
+    // screenshot module too; `audio` takes the output's sound with it.
+    signal recordRequested(bool audio)
     signal colorPickerRequested
     signal overviewRequested
     signal sessionRequested
@@ -28,8 +32,8 @@ Singleton {
     // In the order they are listed under a bare colon: the panels first,
     // then the rest by how often they are likely to be wanted.
     //
-    // Rebuilt when do not disturb flips, so its row says what it would
-    // do rather than what it did last time.
+    // Rebuilt when do not disturb flips or a recording starts or stops,
+    // so a row says what it would do rather than what it did last time.
     readonly property var all: [
         {
             name: "cliphist",
@@ -51,6 +55,20 @@ Singleton {
             icon: "screenshot_region",
             run: () => root.screenshotRequested(),
             available: true
+        },
+        {
+            name: "record",
+            description: Recorder.recording ? qsTr("Stop recording") : qsTr("Record a region of the screen"),
+            icon: Recorder.recording ? "stop_circle" : "screen_record",
+            run: () => Recorder.recording ? Recorder.stop() : root.recordRequested(false),
+            available: Recorder.available
+        },
+        {
+            name: "recordaudio",
+            description: qsTr("Record a region of the screen, with sound"),
+            icon: "videocam",
+            run: () => root.recordRequested(true),
+            available: Recorder.available && !Recorder.recording
         },
         {
             name: "colorpicker",

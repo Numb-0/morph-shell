@@ -23,6 +23,11 @@ MouseArea {
     // follows sees the screen and not the dim.
     property bool hidden: false
 
+    // Picking for a recording: the outline and the size are in the
+    // error colours, as a record button is red, and the size says so.
+    property bool recording: false
+    property bool recordAudio: false
+
     signal picked(real x, real y, real w, real h)
     signal cancelled
 
@@ -244,7 +249,7 @@ MouseArea {
 
             color: "transparent"
             border.width: thickness
-            border.color: Appearance.palette.m3primary
+            border.color: root.recording ? Appearance.palette.m3error : Appearance.palette.m3primary
         }
 
         // The size the image will come out at, in real pixels. Sits
@@ -264,17 +269,32 @@ MouseArea {
             implicitHeight: label.implicitHeight + Appearance.padding.extraSmall * 2
 
             radius: height / 2
-            color: Appearance.palette.m3primaryContainer
+            color: root.recording ? Appearance.palette.m3errorContainer : Appearance.palette.m3primaryContainer
 
-            StyledText {
+            Row {
                 id: label
 
                 anchors.centerIn: parent
+                spacing: Appearance.spacing.small
 
                 readonly property real factor: root.monitorScale
+                readonly property color ink: root.recording ? Appearance.palette.m3onErrorContainer : Appearance.palette.m3onPrimaryContainer
 
-                text: `${Math.round(root.target.width * factor)} × ${Math.round(root.target.height * factor)}`
-                color: Appearance.palette.m3onPrimaryContainer
+                MaterialSymbol {
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    visible: root.recording
+                    icon: root.recordAudio ? "videocam" : "screen_record"
+                    size: Appearance.font.icon.small
+                    color: label.ink
+                }
+
+                StyledText {
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    text: `${Math.round(root.target.width * label.factor)} × ${Math.round(root.target.height * label.factor)}`
+                    color: label.ink
+                }
             }
         }
     }
