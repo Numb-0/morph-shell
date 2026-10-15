@@ -3,15 +3,11 @@ import qs.components
 import qs.config
 
 // Bar widget: the power glyph at the very end of the bar, opening the
-// session panel -- lock, restart, shut down -- on click.
+// full-screen session menu on click.
 Item {
     id: root
 
     signal clicked
-
-    // Lit while its panel is open, so the glyph reads as the thing the
-    // panel grew out of.
-    property bool active: false
 
     readonly property bool hovered: hover.hovered
 
@@ -38,6 +34,6 @@ Item {
 
         icon: "power_settings_new"
         size: Appearance.font.icon.normal
-        color: root.active || root.hovered ? Appearance.palette.m3error : Appearance.palette.m3onSurface
+        color: root.hovered ? Appearance.palette.m3error : Appearance.palette.m3onSurface
     }
 }

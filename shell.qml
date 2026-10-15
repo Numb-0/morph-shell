@@ -12,6 +12,7 @@ import qs.modules.osd
 import qs.modules.overview
 import qs.modules.polkit
 import qs.modules.screenshot
+import qs.modules.session
 
 ShellRoot {
     Background {}
@@ -23,5 +24,6 @@ ShellRoot {
     ColorPicker {}
     Overview {}
     Polkit {}
+    SessionMenu {}
     Lock {}
 }

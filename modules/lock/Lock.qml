@@ -14,7 +14,7 @@ import qs.services
 //
 // Nothing here listens to logind. Point the idle daemon's lock_cmd at
 // `morph-shell ipc call lock lock`, and `loginctl lock-session` (from the
-// session panel, or hypridle's own timeout) comes through that way.
+// session menu, or hypridle's own timeout) comes through that way.
 //
 // The password is typed into one buffer shared by every screen, so it
 // does not matter which one the keyboard lands on. PAM only starts on

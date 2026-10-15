@@ -69,7 +69,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | `dbus-send` | Power profile widget's startup check | Put on the wrapper's `PATH`. |
 | `cliphist`, `wl-clipboard` | Clipboard history | Put on the wrapper's `PATH`. The shell runs the `wl-paste --watch cliphist store` watchers itself, for text and images; ones already started from your compositor config do no harm, since cliphist doesn't store an entry twice. Without cliphist the history is off, and `:cliphist` isn't offered. |
 | `hyprctl` | Screenshot and colour pickers' pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
-| `loginctl`, `systemctl` | Session panel's Lock, Restart and Shut down | Part of systemd; not put on the `PATH`. |
+| `loginctl`, `systemctl` | Session menu: Lock, Suspend, Restart and Shut down, and Log out off Hyprland | Part of systemd; not put on the `PATH`. |
 | [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
 | StatusNotifierItem | System tray | Nothing to install: the shell is the tray host, and apps that support it show up there. Apps that only speak the old XEmbed tray don't. |
 | UPower | Battery widget | System service: the NixOS module turns it on. |
@@ -248,7 +248,7 @@ morph-shell ipc show   # list every target and function the running shell expose
 
 | Target | Function | Description |
 | --- | --- | --- |
-| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications`, `session` or `theme`. |
+| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications` or `theme`. |
 | `bar` | `togglePinned` | Pin or unpin the bar (see [Bar and dock](#bar-and-dock)). |
 | `dock` | `togglePinned` | Pin or unpin the dock (see [Bar and dock](#bar-and-dock)). |
 | `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
@@ -269,6 +269,9 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `overview` | `close` | Close the workspace overview. |
 | `colorpicker` | `pick` | Pick a colour from the screen (see [Colour picker](#colour-picker)). |
 | `colorpicker` | `cancel` | Close the colour picker without taking anything. |
+| `session` | `toggle` | Open or close the full-screen session menu (see [Session menu](#session-menu)). |
+| `session` | `open` | Open the session menu on the focused screen. Off Hyprland it opens on the first screen. |
+| `session` | `close` | Close the session menu. |
 
 For example, to open the launcher with Super+Space and the clipboard
 history with Super+V in Hyprland:
@@ -308,7 +311,7 @@ own commands instead, and `:` alone lists them all:
 | `:screenshot` | Picks a region to screenshot (see [Screenshots](#screenshots)). |
 | `:colorpicker` | Picks a colour from the screen (see [Colour picker](#colour-picker)). |
 | `:lock` | Locks the session. |
-| `:session` | Opens the bar's session panel: log out, restart or shut down. |
+| `:session` | Opens the full-screen session menu (see [Session menu](#session-menu)). |
 | `:dnd` | Turns do not disturb on or off. |
 | `:clear` | Dismisses every notification. |
 
@@ -363,13 +366,37 @@ general {
 }
 ```
 
-`loginctl lock-session`, which the session panel's Lock button sends,
+`loginctl lock-session`, which the session menu's Lock button sends,
 then reaches the shell through hypridle too.
 
 The compositor keeps the session locked if the shell dies while it's
 up, so a crash never unlocks the desktop. On Hyprland, set
 `misc:allow_session_lock_restore = true` so the restarted shell can be
 locked again over it with the command above.
+
+## Session menu
+
+The session menu is full screen, with Lock, Log out, Suspend, Restart
+and Shut down. It comes up over the wallpaper and dims it the way the
+lock screen does, with the clock in the same place. Open it from the
+bar's power glyph, with `:session` in the launcher, or with a bind:
+
+```
+bind = SUPER SHIFT, E, exec, morph-shell ipc call session toggle
+```
+
+The arrow keys (or Tab) choose a button and Enter takes it. Escape, or a
+click off the buttons, closes the menu. Log out, Restart and Shut down
+need a second press: the first arms the button, and it gives up after
+three seconds if you don't confirm. Escape disarms an armed button
+before it closes the menu.
+
+The command runs once the menu has faded out. Lock goes through
+`loginctl lock-session`. Log out uses `hyprctl dispatch exit` on
+Hyprland. Elsewhere it ends the session with
+`loginctl terminate-session`, or, when the shell has no session id (as
+a systemd user service), ends all of your sessions with
+`loginctl terminate-user`.
 
 ## Screenshots
 

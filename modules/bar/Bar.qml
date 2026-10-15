@@ -27,7 +27,6 @@ Variants {
         readonly property bool brightnessOpen: openPanel === "brightness"
         readonly property bool networkOpen: openPanel === "network"
         readonly property bool bluetoothOpen: openPanel === "bluetooth"
-        readonly property bool sessionOpen: openPanel === "session"
         readonly property bool notificationsOpen: openPanel === "notifications"
         readonly property bool themeOpen: openPanel === "theme"
         readonly property bool trayOpen: openPanel === "tray"
@@ -91,7 +90,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered || sessionPopup.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -201,10 +200,6 @@ Variants {
 
             Region {
                 item: bluetoothPopup.maskItem
-            }
-
-            Region {
-                item: sessionPopup.maskItem
             }
 
             Region {
@@ -361,17 +356,6 @@ Variants {
             open: win.batteryOpen && Power.available
         }
 
-        SessionPopup {
-            id: sessionPopup
-
-            group: group
-            anchor: session
-            anchorBottom: surface.y + surface.height
-            open: win.sessionOpen
-
-            onFinished: win.openPanel = ""
-        }
-
         ThemePopup {
             id: themePopup
 
@@ -519,10 +503,14 @@ Variants {
 
             y: surface.y + (surface.height - height) / 2
 
-            active: win.sessionOpen
             opacity: win.reveal
 
-            onClicked: win.toggle("session")
+            // The menu covers the screen, so the bar gets out of its way
+            // rather than sitting revealed under it.
+            onClicked: {
+                win.dismiss();
+                Commands.sessionRequested();
+            }
         }
 
         Battery {

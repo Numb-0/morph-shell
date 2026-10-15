@@ -23,6 +23,7 @@ Singleton {
     signal screenshotRequested
     signal colorPickerRequested
     signal overviewRequested
+    signal sessionRequested
 
     // In the order they are listed under a bare colon: the panels first,
     // then the rest by how often they are likely to be wanted.
@@ -67,9 +68,9 @@ Singleton {
         },
         {
             name: "session",
-            description: qsTr("Log out, restart or shut down"),
+            description: qsTr("Lock, log out, suspend, restart or shut down"),
             icon: "power_settings_new",
-            run: () => BarState.panelToggled("session"),
+            run: () => root.sessionRequested(),
             available: true
         },
         {

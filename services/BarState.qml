@@ -34,7 +34,7 @@ Singleton {
     }
 
     //   qs -p ~/morph-shell ipc call bar togglePinned
-    //   qs -p ~/morph-shell ipc call bar toggle session
+    //   qs -p ~/morph-shell ipc call bar toggle clock
     IpcHandler {
         target: "bar"
 
