@@ -10,8 +10,8 @@ import qs.config
 // screen's OSD tells the same thing at the same moment.
 //
 // Two kinds of reading go through it. Levels -- "volume" and
-// "brightness" -- show as a slider. Toggles -- "mic", "caps", "layout"
-// and "profile" -- show as a glyph and a word, with `active` saying
+// "brightness" -- show as a slider. Toggles -- "mic", "caps", "awake",
+// "layout" and "profile" -- show as a glyph and a word, with `active` saying
 // which way the toggle went.
 Singleton {
     id: root
@@ -113,9 +113,19 @@ Singleton {
     Connections {
         target: Backlight
 
+        // Not the idle dim and its undoing: that is the session going
+        // quiet, not anyone turning the brightness.
         function onBrightnessChanged(): void {
-            if (Backlight.available)
+            if (Backlight.available && !Idle.adjusting)
                 root.show("brightness", false);
+        }
+    }
+
+    Connections {
+        target: Idle
+
+        function onAwakeChanged(): void {
+            root.show("awake", Idle.awake);
         }
     }
 

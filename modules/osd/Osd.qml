@@ -8,8 +8,8 @@ import qs.config
 import qs.services
 
 // A glance at whatever just changed -- the volume or the brightness as a
-// level, the microphone, Caps Lock, the keyboard layout or the power
-// profile as a glyph and a word -- floating over the bottom of the
+// level, the microphone, Caps Lock, staying awake, the keyboard layout
+// or the power profile as a glyph and a word -- floating over the bottom of the
 // screen and going away again once it has been left alone.
 //
 // It is one blob, and it moves like one. It comes up out of the bottom
@@ -230,7 +230,7 @@ Variants {
 
             // The reading on show, for the pill to size itself to.
             readonly property Item current: {
-                for (const reading of [volume, brightness, mic, caps, layout, profile])
+                for (const reading of [volume, brightness, mic, caps, awake, layout, profile])
                     if (reading.kind === OsdState.kind)
                         return reading;
                 return null;
@@ -278,6 +278,15 @@ Variants {
                 icon: "keyboard_capslock"
                 text: OsdState.capsLock ? qsTr("Caps Lock on") : qsTr("Caps Lock off")
                 lit: OsdState.capsLock
+            }
+
+            Toggle {
+                id: awake
+
+                kind: "awake"
+                icon: "coffee"
+                text: Idle.awake ? qsTr("Staying awake") : qsTr("Idling as usual")
+                lit: Idle.awake
             }
 
             Toggle {

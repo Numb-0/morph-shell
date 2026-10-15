@@ -24,6 +24,7 @@ directly, through Quickshell's Hyprland integration, and only work there:
 | Screenshot region picker | Snaps to the window under the pointer, and outlines it from the first frame. | Only drags or the whole screen, and the outline waits for the pointer to move. |
 | Workspace overview | Shows each workspace with its windows live, and switches, focuses, closes and moves them. | Opens on an empty grid, and nothing in it does anything. |
 | Colour picker | The lens is under the pointer from the first frame. | The lens waits for the pointer to move. |
+| Idle | Dims, locks and turns the screens off. | Dims and locks, but leaves the screens on. |
 
 Switching workspaces uses Hyprland's Lua dispatchers, so it needs a
 Hyprland with the Lua config (tested on 0.56).
@@ -71,6 +72,8 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | `cliphist`, `wl-clipboard` | Clipboard history | Put on the wrapper's `PATH`. The shell runs the `wl-paste --watch cliphist store` watchers itself, for text and images; ones already started from your compositor config do no harm, since cliphist doesn't store an entry twice. Without cliphist the history is off, and `:cliphist` isn't offered. |
 | `hyprctl` | Screenshot and colour pickers' pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
 | `loginctl`, `systemctl` | Session menu: Lock, Suspend, Restart and Shut down, and Log out off Hyprland | Part of systemd; not put on the `PATH`. |
+| `gdbus` | The lock hearing logind's lock requests and the warning before sleep | Put on the wrapper's `PATH`. |
+| `systemd-inhibit` | Holding sleep back until the lock is up | Part of systemd; not put on the `PATH`. |
 | [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
 | StatusNotifierItem | System tray | Nothing to install: the shell is the tray host, and apps that support it show up there. Apps that only speak the old XEmbed tray don't. |
 | UPower | Battery widget | System service: the NixOS module turns it on. |
@@ -81,7 +84,8 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | power-profiles-daemon | Power profile widget | System service: the NixOS module turns it on, unless TLP is enabled (the two conflict). The shell talks to it over D-Bus, so `powerprofilesctl` isn't needed. The widget hides itself when the daemon isn't running. |
 | Notification daemon | Notification centre and popups | Built in: the shell is the notification daemon itself. Don't run another one (mako, dunst, swaync) alongside it, or whichever starts first takes the D-Bus name and the other gets nothing. |
 | polkit agent | Password prompts for `pkexec` and other privileged actions | Built in: the shell is the session's polkit agent. polkitd itself is a system service (`security.polkit.enable`, on by default on NixOS). Don't run another agent (hyprpolkitagent, polkit-gnome) alongside it: only one can register per session, and whichever starts first wins. |
-| Screen locker | Locking the session | Built in: the shell is the locker, through the session-lock protocol, so hyprlock isn't needed. The NixOS module adds the `morph-shell` PAM service it checks passwords against; without it, the lock falls back to `login`'s. An idle daemon still decides when to lock (see [Lock screen](#lock-screen)). |
+| Screen locker | Locking the session | Built in: the shell is the locker, through the session-lock protocol, so hyprlock isn't needed. The NixOS module adds the `morph-shell` PAM service it checks passwords against; without it, the lock falls back to `login`'s. The shell also locks on its own when idle and before sleep (see [Idle](#idle)). |
+| Idle daemon | Dimming, locking and turning the screens off when idle | Built in: hypridle isn't needed. Don't run it alongside, or both lock and blank the screens (see [Idle](#idle)). |
 
 `morph-shell` also checks for UPower, PipeWire, NetworkManager and
 power-profiles-daemon at startup and prints a warning if any of them is
@@ -260,6 +264,9 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `clipboard` | `close` | Close the clipboard history. |
 | `lock` | `lock` | Lock the session (see [Lock screen](#lock-screen)). Does nothing if it's already locked. |
 | `lock` | `isLocked` | Print whether the session is locked. |
+| `idle` | `toggleAwake` | Keep the session from dimming, locking and turning the screens off when idle, or let it again (see [Idle](#idle)). |
+| `idle` | `setAwake <bool>` | Turn staying awake on or off. |
+| `idle` | `isAwake` | Print whether staying awake is on. |
 | `notifs` | `toggleDnd` | Turn do not disturb on or off. Only critical notifications pop up while it's on; the rest still land in the centre. |
 | `notifs` | `clear` | Dismiss every notification. |
 | `palette` | `reload` | Re-read `colors.json` and `wallpaper.json` (see [Colours](#colours) and [Wallpaper](#wallpaper)). |
@@ -352,6 +359,7 @@ Whatever just changed shows for a moment over the dock, on every screen:
 | Brightness | The backlight changes, from anywhere. |
 | Microphone | The default input is muted or unmuted. |
 | Caps Lock | Caps Lock goes on or off, read from the keyboards' LEDs. |
+| Stay awake | Staying awake is turned on or off (see [Idle](#idle)). |
 | Keyboard layout | The layout switches (Hyprland only). |
 | Power profile | The power profile changes. |
 
@@ -374,6 +382,11 @@ source). The ones you're most likely to want:
 | `bar.workspaces.shown` | `5` | Slots always drawn; the row grows past it to reach the highest workspace in use. |
 | `dock.pinned` | `["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]` | Apps in the dock, by desktop entry id (the `.desktop` file's name without the suffix). Near misses are looked up heuristically, and ids nothing answers to are skipped. |
 | `dock.maxResults` | `7` | Rows the launcher shows. |
+| `idle.dim` | `270` | Seconds idle before the backlight dims; `0` never dims. |
+| `idle.dimTo` | `0.3` | What the dim takes the backlight to, as a share of where it was. |
+| `idle.lock` | `300` | Seconds idle before the session locks; `0` never locks when idle. |
+| `idle.lockBeforeSleep` | `true` | Lock as the machine goes to sleep. |
+| `idle.screenOff` | `420` | Seconds idle before the screens turn off (Hyprland only); `0` leaves them on. |
 | `osd.timeout` | `1500` | Milliseconds the OSD stays up after what it shows last changed. |
 | `notifs.maxPopups` | `4` | Popups shown at once; older ones wait in the centre. |
 | `font.family` | `"JetBrains Mono"` | Text font. |
@@ -386,22 +399,42 @@ Type and press Enter; Escape clears what you typed. A wrong password
 shakes the field, the right one turns it into a tick and the lock
 fades away.
 
-The shell only draws the lock. Deciding when to lock is left to an idle
-daemon, so point its lock command at the shell. With hypridle:
-
-```
-general {
-    lock_cmd = morph-shell ipc call lock lock
-}
-```
-
-`loginctl lock-session`, which the session menu's Lock button sends,
-then reaches the shell through hypridle too.
+The shell locks by itself after a while idle and as the machine goes
+to sleep (see [Idle](#idle)), and on `loginctl lock-session`, which the
+session menu's Lock button sends.
 
 The compositor keeps the session locked if the shell dies while it's
 up, so a crash never unlocks the desktop. On Hyprland, set
 `misc:allow_session_lock_restore = true` so the restarted shell can be
 locked again over it with the command above.
+
+## Idle
+
+The shell is its own idle daemon, so hypridle isn't needed: turn it off
+if it's running, or the two lock and blank the screens twice over. Left
+alone, the session
+
+1. dims the backlight to 30% after 4½ minutes, a warning that the lock
+   is coming,
+2. locks after 5 minutes,
+3. turns the screens off after 7 minutes (Hyprland only).
+
+Any input undoes the dim and turns the screens back on. The times are
+in [Configuration](#configuration), and each step can be turned off.
+
+A window that asks to keep the screen on, such as a video playing in a
+browser, holds every step off. That's the Wayland idle-inhibit protocol
+only: the D-Bus `org.freedesktop.ScreenSaver` inhibitors some X11 apps
+take aren't heard.
+
+To hold them off yourself, click the cup in the bar, type `:awake` in
+the launcher, or bind `morph-shell ipc call idle toggleAwake`. The cup
+fills while it's on and the OSD says so either way.
+
+Before the machine sleeps, from the session menu, a lid or
+`systemctl suspend`, the shell locks and holds the sleep back until the
+lock is drawn, so the desktop never shows for a frame on waking. It
+turns the screens back on as it wakes.
 
 ## Session menu
 

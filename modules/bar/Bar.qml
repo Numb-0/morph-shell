@@ -90,7 +90,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || recording.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || recording.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || awake.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -490,10 +490,20 @@ Variants {
             opacity: win.reveal
         }
 
+        Awake {
+            id: awake
+
+            anchors.left: profile.visible ? profile.right : media.right
+
+            y: surface.y + (surface.height - height) / 2
+
+            opacity: win.reveal
+        }
+
         Theme {
             id: theme
 
-            anchors.left: profile.visible ? profile.right : media.right
+            anchors.left: awake.right
 
             y: surface.y + (surface.height - height) / 2
 

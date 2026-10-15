@@ -32,8 +32,9 @@ Singleton {
     // In the order they are listed under a bare colon: the panels first,
     // then the rest by how often they are likely to be wanted.
     //
-    // Rebuilt when do not disturb flips or a recording starts or stops,
-    // so a row says what it would do rather than what it did last time.
+    // Rebuilt when do not disturb or staying awake flips, or a recording
+    // starts or stops, so a row says what it would do rather than what it
+    // did last time.
     readonly property var all: [
         {
             name: "cliphist",
@@ -96,6 +97,13 @@ Singleton {
             description: Notifs.dnd ? qsTr("Turn do not disturb off") : qsTr("Turn do not disturb on"),
             icon: Notifs.dnd ? "notifications_active" : "do_not_disturb_on",
             run: () => Notifs.toggleDnd(),
+            available: true
+        },
+        {
+            name: "awake",
+            description: Idle.awake ? qsTr("Let the screen dim, lock and turn off again") : qsTr("Keep the screen from dimming, locking and turning off"),
+            icon: "coffee",
+            run: () => Idle.toggleAwake(),
             available: true
         },
         {

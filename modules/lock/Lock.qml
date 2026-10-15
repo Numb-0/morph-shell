@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pam
 import Quickshell.Wayland
+import qs.config
 import qs.services
 
 // The session lock, standing in for hyprlock. The compositor hands every
@@ -12,9 +13,10 @@ import qs.services
 // shell says otherwise -- even if the shell dies first, so a crash never
 // leaves the desktop open.
 //
-// Nothing here listens to logind. Point the idle daemon's lock_cmd at
-// `morph-shell ipc call lock lock`, and `loginctl lock-session` (from the
-// session menu, or hypridle's own timeout) comes through that way.
+// It locks on its own after the idle timeout (see Idle), on logind's
+// lock requests -- `loginctl lock-session`, the session menu's Lock --
+// and before the machine sleeps, holding the sleep back until the lock
+// is up so the desktop never shows for a frame on waking.
 //
 // The password is typed into one buffer shared by every screen, so it
 // does not matter which one the keyboard lands on. PAM only starts on
@@ -173,6 +175,103 @@ Scope {
         function onLockRequested(): void {
             root.lock();
         }
+    }
+
+    Connections {
+        target: Idle
+
+        function onLockRequested(): void {
+            root.lock();
+        }
+    }
+
+    // The user's own sessions, for telling their lock requests from
+    // another user's. Until they are known, every request counts.
+    property list<string> sessions: []
+
+    Process {
+        running: true
+
+        command: ["gdbus", "call", "--system", "--dest", "org.freedesktop.login1", "--object-path", "/org/freedesktop/login1/user/self", "--method", "org.freedesktop.DBus.Properties.Get", "org.freedesktop.login1.User", "Sessions"]
+
+        // (<[('2', objectpath '/org/freedesktop/login1/session/_32'), ('1', '/org/freedesktop/login1/session/_31')]>,)
+        //
+        // Only the first path is marked as one, so they are told apart by
+        // where they point instead.
+        stdout: StdioCollector {
+            onStreamFinished: root.sessions = (text.match(/'\/org\/freedesktop\/login1\/session\/[^']+'/g) ?? []).map(path => path.slice(1, -1))
+        }
+    }
+
+    // logind's signals, one per line:
+    //
+    //   /org/freedesktop/login1/session/_32: org.freedesktop.login1.Session.Lock ()
+    //   /org/freedesktop/login1: org.freedesktop.login1.Manager.PrepareForSleep (true,)
+    //
+    // Subscribed to rather than eavesdropped on, so it needs no rights on
+    // the system bus.
+    Process {
+        id: logind
+
+        running: true
+
+        command: ["gdbus", "monitor", "--system", "--dest", "org.freedesktop.login1"]
+
+        stdout: SplitParser {
+            onRead: line => {
+                const match = line.match(/^(\S+): org\.freedesktop\.login1\.(\S+) \((.*)\)$/);
+                if (!match)
+                    return;
+
+                const [, path, member, args] = match;
+                if (member === "Session.Lock" && (root.sessions.length === 0 || root.sessions.includes(path)))
+                    root.lock();
+                else if (member === "Manager.PrepareForSleep")
+                    root.sleeping = args.startsWith("true");
+            }
+        }
+
+        // The bus restarting takes the monitor with it.
+        onExited: logindRetry.start()
+    }
+
+    Timer {
+        id: logindRetry
+
+        interval: 5000
+        onTriggered: logind.running = true
+    }
+
+    // Between logind saying the machine is going to sleep and it waking.
+    property bool sleeping: false
+
+    onSleepingChanged: {
+        if (sleeping) {
+            if (Appearance.idle.lockBeforeSleep)
+                root.lock();
+        } else {
+            lockDrawn = false;
+            Idle.wake();
+        }
+    }
+
+    // Holds sleep back while the lock comes up -- logind waits for this
+    // to let go, or a few seconds at most. Let go once the compositor
+    // says every screen is covered, with a moment more for the frame to
+    // reach the panel, and taken again on waking for the next time.
+    property bool lockDrawn: false
+
+    Timer {
+        running: root.sleeping && sessionLock.secure
+        interval: 150
+
+        onTriggered: root.lockDrawn = true
+    }
+
+    Process {
+        running: Appearance.idle.lockBeforeSleep && !(root.sleeping && root.lockDrawn)
+
+        command: ["systemd-inhibit", "--what=sleep", "--mode=delay", "--who=morph-shell", "--why=Locking the screen first", "sleep", "infinity"]
     }
 
     IpcHandler {
