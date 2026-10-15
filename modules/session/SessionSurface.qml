@@ -29,18 +29,27 @@ Item {
             content.forceActiveFocus();
     }
 
+    // Sized from the screen rather than from this item, which only gets
+    // its size once the window has been laid out: every size it passes
+    // through on the way decodes the picture again, and with three
+    // screens that was seven decodes holding up the opening. Decoded off
+    // the main thread, so even the one does not stall the fade, and kept
+    // in the cache, so opening again does not decode it at all. It fades
+    // up once it is ready rather than popping in halfway.
     Image {
+        id: wallpaper
+
         anchors.fill: parent
 
         source: Appearance.wallpaper ? `file://${Appearance.wallpaper}` : ""
         fillMode: Image.PreserveAspectCrop
-        asynchronous: false
-        cache: false
+        asynchronous: true
+        cache: true
 
-        sourceSize.width: root.width * (root.screen.devicePixelRatio || 1)
-        sourceSize.height: root.height * (root.screen.devicePixelRatio || 1)
+        sourceSize.width: root.screen.width * (root.screen.devicePixelRatio || 1)
+        sourceSize.height: root.screen.height * (root.screen.devicePixelRatio || 1)
 
-        opacity: root.shown ? 1 : 0
+        opacity: root.shown && status === Image.Ready ? 1 : 0
 
         Behavior on opacity {
             Anim {
