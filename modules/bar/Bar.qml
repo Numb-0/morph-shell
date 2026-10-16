@@ -478,7 +478,7 @@ Variants {
             id: media
 
             anchors.left: workspaces.right
-            anchors.leftMargin: Appearance.spacing.normal
+            anchors.leftMargin: Appearance.spacing.small
 
             y: surface.y + (surface.height - height) / 2
 
