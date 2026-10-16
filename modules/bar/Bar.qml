@@ -395,6 +395,17 @@ Variants {
             onFinished: win.openPanel = ""
         }
 
+        // Hangs under the clock, so it reads as the bar's own and sits
+        // clear of the panels either side.
+        PrivacyPill {
+            group: group
+            anchor: clock
+            anchorBottom: surface.y + surface.height
+
+            expanded: win.shown
+            suppressed: win.openPanel !== ""
+        }
+
         BlobRect {
             id: surface
 

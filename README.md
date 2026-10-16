@@ -72,6 +72,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | `cliphist`, `wl-clipboard` | Clipboard history | Put on the wrapper's `PATH`. The shell runs the `wl-paste --watch cliphist store` watchers itself, for text and images; ones already started from your compositor config do no harm, since cliphist doesn't store an entry twice. Without cliphist the history is off, and `:cliphist` isn't offered. |
 | `hyprctl` | Screenshot and colour pickers' pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
 | `loginctl`, `systemctl` | Session menu: Lock, Suspend, Restart and Shut down, and Log out off Hyprland | Part of systemd; not put on the `PATH`. |
+| `find` | Privacy indicator: which processes have a camera open | Put on the wrapper's `PATH`. |
 | `gdbus` | The lock hearing logind's lock requests and the warning before sleep | Put on the wrapper's `PATH`. |
 | `systemd-inhibit` | Holding sleep back until the lock is up | Part of systemd; not put on the `PATH`. |
 | [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
@@ -348,6 +349,23 @@ The workspaces widget comes in four styles:
 
 The bar also carries a system tray, whose menus open as panels like the
 rest.
+
+## Privacy indicator
+
+While an application has the microphone, the camera or the screen, a
+small pill hangs from the bar under the clock, with a glyph for each:
+the microphone in amber (greyed out with a line through it while it's
+muted), the camera in green, a screen share in red. It's part of the
+bar's blob, so it buds off its bottom edge, and while the bar is hidden
+it hangs from the top of the screen as a drop, so it's always in view.
+With the bar out it opens up to name the applications. It steps aside
+while a bar panel is open.
+
+| Glyph | Lights up when |
+| --- | --- |
+| Microphone | A capture stream is fed from a real input in PipeWire. Recording an output's sound (the screen recorder with sound, the mixer's meters) doesn't count. |
+| Camera | A process has a `/dev/video*` device open, checked every two seconds, or a PipeWire stream is fed from a camera. |
+| Screen share | A PipeWire video stream is fed from something other than a camera: on Hyprland, a portal screen cast to a browser, Discord or OBS. The shell's own screen recorder has its dot beside the clock instead. |
 
 ## OSD
 
