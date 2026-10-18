@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Services.Mpris
 import qs.components
 import qs.config
 import qs.services
@@ -18,19 +19,23 @@ BlobPopup {
 
     // One transport control: a pill stretched across its share of the
     // row. The primary one is filled and takes a wider share, as the
-    // action the panel is mostly opened for; the others are tonal.
+    // action the panel is mostly opened for; the others are tonal. A
+    // toggle is narrower and takes no share at all: bare while off,
+    // filled with the secondary container while on.
     component Button: Item {
         id: btn
 
         required property string icon
         property bool primary: false
+        property bool toggle: false
+        property bool checked: false
 
         signal activated
 
-        implicitWidth: 48
+        implicitWidth: toggle ? 36 : 48
         implicitHeight: 48
 
-        Layout.fillWidth: true
+        Layout.fillWidth: !toggle
         Layout.horizontalStretchFactor: primary ? 2 : 1
 
         HoverHandler {
@@ -46,11 +51,14 @@ BlobPopup {
             }
         }
 
+        // A toggle's is a circle in the middle of the row's height.
         Rectangle {
-            anchors.fill: parent
+            anchors.centerIn: parent
 
+            width: parent.width
+            height: btn.toggle ? width : parent.height
             radius: height / 2
-            color: btn.primary ? Appearance.palette.m3primary : Appearance.palette.m3surfaceContainerHigh
+            color: btn.primary ? Appearance.palette.m3primary : btn.toggle ? Qt.alpha(Appearance.palette.m3secondaryContainer, btn.checked ? 1 : 0) : Appearance.palette.m3surfaceContainerHigh
 
             Behavior on color {
                 CAnim {}
@@ -61,7 +69,7 @@ BlobPopup {
                 anchors.fill: parent
 
                 radius: parent.radius
-                color: btn.primary ? Appearance.palette.m3onPrimary : Appearance.palette.m3onSurface
+                color: btn.primary ? Appearance.palette.m3onPrimary : btn.checked ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
                 opacity: hover.hovered ? 0.08 : 0
 
                 Behavior on opacity {
@@ -79,7 +87,7 @@ BlobPopup {
 
             icon: btn.icon
             size: btn.primary ? Appearance.font.icon.large : Appearance.font.icon.normal
-            color: btn.primary ? Appearance.palette.m3onPrimary : Appearance.palette.m3onSurface
+            color: btn.primary ? Appearance.palette.m3onPrimary : btn.toggle ? (btn.checked ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurfaceVariant) : Appearance.palette.m3onSurface
 
             // Solid, as the drawn icons were -- transport controls read
             // as buttons rather than as outlines.
@@ -134,7 +142,7 @@ BlobPopup {
         ColumnLayout {
             spacing: Appearance.spacing.medium
 
-            Layout.preferredWidth: 320
+            Layout.preferredWidth: 360
 
             // The art, and beside it the track over the transport, so
             // the controls take no row of their own.
@@ -268,6 +276,15 @@ BlobPopup {
                         spacing: Appearance.spacing.small
 
                         Button {
+                            icon: "shuffle"
+                            toggle: true
+                            checked: Players.shuffle
+                            visible: Players.canShuffle
+
+                            onActivated: Players.toggleShuffle()
+                        }
+
+                        Button {
                             icon: "skip_previous"
                             visible: Players.canGoPrevious
 
@@ -287,6 +304,15 @@ BlobPopup {
                             visible: Players.canGoNext
 
                             onActivated: Players.active.next()
+                        }
+
+                        Button {
+                            icon: Players.loopState === MprisLoopState.Track ? "repeat_one" : "repeat"
+                            toggle: true
+                            checked: Players.loopState !== MprisLoopState.None
+                            visible: Players.canLoop
+
+                            onActivated: Players.cycleLoop()
                         }
                     }
                 }

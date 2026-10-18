@@ -37,6 +37,35 @@ Singleton {
     readonly property bool canGoNext: active?.canGoNext ?? false
     readonly property bool canGoPrevious: active?.canGoPrevious ?? false
 
+    // Shuffle and repeat can only be set by a player that both takes
+    // control and has the setting at all.
+    readonly property bool canShuffle: canControl && (active?.shuffleSupported ?? false)
+    readonly property bool canLoop: canControl && (active?.loopSupported ?? false)
+    readonly property bool shuffle: active?.shuffle ?? false
+    readonly property int loopState: active?.loopState ?? MprisLoopState.None
+
+    function toggleShuffle(): void {
+        if (canShuffle)
+            active.shuffle = !active.shuffle;
+    }
+
+    // Off, then the whole playlist, then the one track, then off again.
+    function cycleLoop(): void {
+        if (!canLoop)
+            return;
+
+        switch (active.loopState) {
+        case MprisLoopState.None:
+            active.loopState = MprisLoopState.Playlist;
+            break;
+        case MprisLoopState.Playlist:
+            active.loopState = MprisLoopState.Track;
+            break;
+        default:
+            active.loopState = MprisLoopState.None;
+        }
+    }
+
     // Which track is loaded. MPRIS publishes an id for it; the player's
     // own uniqueId is no use here, as it numbers players rather than
     // tracks and so never moves when one song follows another. The
