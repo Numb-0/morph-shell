@@ -327,7 +327,7 @@ BlobPopup {
                 implicitHeight: 56
 
                 radius: Appearance.rounding.extraLarge
-                color: Net.wifiEnabled ? Appearance.palette.m3secondaryContainer : Appearance.palette.m3surfaceContainerHigh
+                color: Net.wifiEnabled ? Appearance.palette.m3primaryContainer : Appearance.palette.m3surfaceContainerHigh
 
                 Behavior on color {
                     CAnim {}
