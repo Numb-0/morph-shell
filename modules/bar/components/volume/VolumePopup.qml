@@ -8,7 +8,8 @@ import qs.services
 
 // The output's panel: a wavy level slider, the glyph as a mute button,
 // and whichever device is being fed -- and under it, folded away until
-// asked for, a mixer of the applications playing into it.
+// asked for, either a picker of the outputs and inputs to use or a mixer
+// of the applications playing into the output.
 //
 // The mixer is a row of faders after the Android volume panel's
 // expanded form: a tall pill per application, filled from the bottom to
@@ -22,11 +23,13 @@ BlobPopup {
 
     readonly property int panelWidth: 320
 
+    // Which section is unfolded -- "devices", "mixer" or neither. One
+    // at a time, so the panel never grows taller than either alone.
     // Remembered between openings: someone who reaches for the mixer
     // tends to want it every time.
-    property bool mixerOpen: false
+    property string section: ""
 
-    readonly property bool mixerShown: open && mixerOpen
+    readonly property bool mixerShown: open && section === "mixer"
 
     readonly property int faderWidth: 52
     readonly property int faderHeight: 148
@@ -130,85 +133,147 @@ BlobPopup {
                     elide: Text.ElideRight
                 }
 
-                // Opens the mixer: a tonal chip carrying how many are
-                // playing, so it is worth opening before it is opened.
-                Rectangle {
-                    id: chip
+                // Opens the device picker: no count, since there is
+                // always at least the one being fed.
+                SectionChip {
+                    icon: "speaker_group"
+                    open: root.section === "devices"
 
-                    implicitWidth: chipRow.implicitWidth + Appearance.padding.medium * 2
-                    implicitHeight: 32
+                    onToggled: root.section = open ? "" : "devices"
+                }
 
-                    radius: height / 2
-                    color: root.mixerOpen ? Appearance.palette.m3secondaryContainer : Appearance.palette.m3surfaceContainerHigh
+                // Opens the mixer, carrying how many are playing, so it
+                // is worth opening before it is opened.
+                SectionChip {
+                    icon: "tune"
+                    label: Audio.streams.length
+                    open: root.section === "mixer"
 
-                    Behavior on color {
-                        CAnim {}
+                    onToggled: root.section = open ? "" : "mixer"
+                }
+            }
+
+            // The device picker: every output, then every input, the
+            // default of each on its pill. Laid out only while open, as
+            // the mixer is.
+            ColumnLayout {
+                visible: root.section === "devices"
+
+                Layout.fillWidth: true
+                Layout.topMargin: Appearance.spacing.small
+                spacing: Appearance.spacing.extraSmall
+
+                StyledText {
+                    Layout.leftMargin: Appearance.padding.medium
+
+                    text: qsTr("Output")
+                    color: Appearance.palette.m3primary
+                    font.weight: Font.Medium
+                }
+
+                Repeater {
+                    model: ScriptModel {
+                        values: Audio.sinks
                     }
 
-                    HoverHandler {
-                        id: chipHover
+                    AudioDeviceItem {
+                        active: modelData === Audio.sink
 
-                        cursorShape: Qt.PointingHandCursor
+                        onChosen: Audio.setSink(modelData)
                     }
+                }
 
-                    TapHandler {
-                        onTapped: root.mixerOpen = !root.mixerOpen
-                    }
+                StyledText {
+                    Layout.leftMargin: Appearance.padding.medium
+                    Layout.topMargin: Appearance.spacing.small
 
-                    Rectangle {
-                        anchors.fill: parent
+                    text: qsTr("Input")
+                    color: Appearance.palette.m3primary
+                    font.weight: Font.Medium
+                }
 
-                        radius: parent.radius
-                        color: Appearance.palette.m3onSurface
-                        opacity: chipHover.hovered ? 0.08 : 0
+                // The default input's level, laid out as the output's is
+                // at the head of the panel: the glyph mutes, the slider
+                // moves live and lets go of the value while dragged.
+                RowLayout {
+                    visible: Audio.micAvailable
+
+                    Layout.fillWidth: true
+                    Layout.leftMargin: Appearance.padding.medium
+                    Layout.bottomMargin: Appearance.spacing.extraSmall
+                    spacing: Appearance.spacing.medium
+
+                    MaterialSymbol {
+                        Layout.alignment: Qt.AlignVCenter
+
+                        icon: Audio.micMuted ? "mic_off" : "mic"
+                        color: Audio.micMuted ? Appearance.palette.m3error : Appearance.palette.m3primary
+                        fill: Audio.micMuted ? 1 : 0
+
+                        opacity: micIconHover.hovered ? 1 : 0.85
 
                         Behavior on opacity {
                             Anim {
                                 type: Anim.FastEffects
                             }
                         }
-                    }
 
-                    Row {
-                        id: chipRow
+                        HoverHandler {
+                            id: micIconHover
 
-                        anchors.centerIn: parent
-                        spacing: Appearance.spacing.extraSmall
-
-                        readonly property color tint: root.mixerOpen ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
-
-                        MaterialSymbol {
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            icon: "tune"
-                            size: Appearance.font.icon.small
-                            color: chipRow.tint
-                            fill: root.mixerOpen ? 1 : 0
+                            cursorShape: Qt.PointingHandCursor
                         }
 
-                        StyledText {
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            text: Audio.streams.length
-                            color: chipRow.tint
-                            font.weight: Font.Medium
-                        }
-
-                        MaterialSymbol {
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            icon: "expand_more"
-                            size: Appearance.font.icon.small
-                            color: chipRow.tint
-                            rotation: root.mixerOpen ? 180 : 0
-
-                            Behavior on rotation {
-                                Anim {
-                                    type: Anim.DefaultSpatial
-                                }
-                            }
+                        TapHandler {
+                            onTapped: Audio.toggleMicMute()
                         }
                     }
+
+                    WavySlider {
+                        id: micSlider
+
+                        Layout.fillWidth: true
+
+                        wavy: !Audio.micMuted && Audio.micVolume > 0
+                        activeColor: Audio.micMuted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3primary
+
+                        onMoved: Audio.setMicVolume(value)
+
+                        Binding on value {
+                            when: !micSlider.pressed
+                            value: Audio.micVolume
+                        }
+                    }
+
+                    StyledText {
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.preferredWidth: 40
+
+                        horizontalAlignment: Text.AlignRight
+                        text: Math.round(Audio.micVolume * 100) + "%"
+                        color: Audio.micMuted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onSurface
+                    }
+                }
+
+                Repeater {
+                    model: ScriptModel {
+                        values: Audio.sources
+                    }
+
+                    AudioDeviceItem {
+                        active: modelData === Audio.source
+
+                        onChosen: Audio.setSource(modelData)
+                    }
+                }
+
+                StyledText {
+                    Layout.leftMargin: Appearance.padding.medium
+
+                    visible: Audio.sources.length === 0
+
+                    text: qsTr("No microphones")
+                    color: Appearance.palette.m3onSurfaceVariant
                 }
             }
 
@@ -216,7 +281,7 @@ BlobPopup {
             // content's height, so it grows down to take it in and draws
             // back up when it goes.
             Item {
-                visible: root.mixerOpen
+                visible: root.section === "mixer"
 
                 Layout.fillWidth: true
                 Layout.topMargin: Appearance.spacing.small

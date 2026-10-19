@@ -15,11 +15,12 @@ Singleton {
     readonly property real volume: sink?.audio?.volume ?? 0
     readonly property bool muted: sink?.audio?.muted ?? false
 
-    // The default input, for the OSD to say when it is muted. Only its
-    // mute: the shell has nowhere that sets a microphone's level.
+    // The default input: its mute for the OSD, and its level for the
+    // slider in the panel's device picker.
     readonly property PwNode source: Pipewire.defaultAudioSource
 
     readonly property bool micAvailable: source?.ready ?? false
+    readonly property real micVolume: source?.audio?.volume ?? 0
     readonly property bool micMuted: source?.audio?.muted ?? false
 
     // What the device calls itself. The node's own name is a pipewire
@@ -32,6 +33,47 @@ Singleton {
     // streams only: a recorder or the peak meters' own capture streams
     // are not something you would turn down.
     readonly property var streams: Pipewire.nodes.values.filter(n => n.type === PwNodeType.AudioOutStream && n.audio)
+
+    // The devices that could be made the default, for the panel's
+    // picker. Hardware and virtual sinks and sources alike, but never a
+    // stream: those are applications, and the mixer has them.
+    readonly property var sinks: Pipewire.nodes.values.filter(n => n.audio && n.isSink && !n.isStream)
+    readonly property var sources: Pipewire.nodes.values.filter(n => n.audio && !n.isSink && !n.isStream)
+
+    // Asked of pipewire rather than forced: the session manager takes
+    // it as the user's choice and remembers it across reboots.
+    function setSink(node: PwNode): void {
+        if (node)
+            Pipewire.preferredDefaultAudioSink = node;
+    }
+
+    function setSource(node: PwNode): void {
+        if (node)
+            Pipewire.preferredDefaultAudioSource = node;
+    }
+
+    // As description does for the default, for any device.
+    function deviceName(node: PwNode): string {
+        return node?.description || node?.nickname || node?.name || qsTr("Unknown");
+    }
+
+    // Guessed from the node's name, which carries the bus it hangs off:
+    // bluez_output.*, alsa_output.*.hdmi-stereo and so on.
+    function deviceIcon(node: PwNode): string {
+        const name = (node?.name ?? "").toLowerCase();
+        if (node?.isSink) {
+            if (name.startsWith("bluez"))
+                return "headphones";
+            if (name.includes("hdmi") || name.includes("displayport"))
+                return "tv";
+            if (name.includes("usb"))
+                return "headset";
+            return "speaker";
+        }
+        if (name.startsWith("bluez") || name.includes("usb"))
+            return "headset_mic";
+        return "mic";
+    }
 
     // What a stream is called. Pipewire's own name for one is whatever
     // the client typed into its connect call -- "playback", "audio
@@ -111,6 +153,19 @@ Singleton {
     function toggleMute(): void {
         if (sink?.audio)
             sink.audio.muted = !sink.audio.muted;
+    }
+
+    // As changeVolume does for the output: turning a muted microphone
+    // up unmutes it.
+    function setMicVolume(value: real): void {
+        if (!source?.audio)
+            return;
+
+        const v = Math.max(0, Math.min(1, value));
+        if (v > source.audio.volume && source.audio.muted)
+            source.audio.muted = false;
+
+        source.audio.volume = v;
     }
 
     function toggleMicMute(): void {
