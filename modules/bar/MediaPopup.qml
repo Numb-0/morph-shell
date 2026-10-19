@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Shapes
 import Quickshell.Services.Mpris
 import qs.components
 import qs.config
@@ -198,6 +199,15 @@ BlobPopup {
                         Row {
                             anchors.centerIn: parent
 
+                            visible: opacity > 0
+                            opacity: Players.available ? 1 : 0
+
+                            Behavior on opacity {
+                                Anim {
+                                    type: Anim.FastEffects
+                                }
+                            }
+
                             // Held at the tallest a bar gets, so the row
                             // does not recentre as they grow and shrink.
                             height: 46
@@ -225,6 +235,146 @@ BlobPopup {
                         }
                     }
 
+                    // With no player at all, an expressive shape in
+                    // place of the equaliser, turning slowly behind a
+                    // note. Every few seconds it sheds its lobes down to
+                    // a circle and springs back out as the next shape,
+                    // as the active workspace does on a switch.
+                    Item {
+                        id: idle
+
+                        anchors.fill: parent
+
+                        visible: opacity > 0
+                        opacity: Players.available ? 0 : 1
+
+                        Behavior on opacity {
+                            Anim {
+                                type: Anim.FastEffects
+                            }
+                        }
+
+                        // Only while it can be seen.
+                        readonly property bool running: visible && root.open
+
+                        readonly property var shapes: [
+                            { lobes: 9, depth: 0.09 }, // cookie
+                            { lobes: 4, depth: 0.2 }, // clover
+                            { lobes: 8, depth: 0.1 }, // sunny
+                            { lobes: 6, depth: 0.13 }, // flower
+                            { lobes: 5, depth: 0.16 } // puffy
+                        ]
+
+                        property int shapeIndex: 0
+
+                        // 0 is a plain circle, 1 the shape in full.
+                        property real bloom: 1
+
+                        // Quarter turns taken on each morph, over the
+                        // idle spin.
+                        property real turn: 0
+                        property real spin: 0
+
+                        Behavior on turn {
+                            Anim {
+                                type: Anim.DefaultSpatial
+                            }
+                        }
+
+                        NumberAnimation on spin {
+                            running: idle.running
+                            loops: Animation.Infinite
+                            from: 0
+                            to: 360
+                            duration: 12000
+                        }
+
+                        Timer {
+                            running: idle.running
+                            interval: 3200
+                            repeat: true
+
+                            onTriggered: {
+                                idle.turn += 1;
+                                morph.restart();
+                            }
+                        }
+
+                        SequentialAnimation {
+                            id: morph
+
+                            Anim {
+                                target: idle
+                                property: "bloom"
+                                to: 0
+                                type: Anim.FastEffects
+                            }
+                            ScriptAction {
+                                script: idle.shapeIndex = (idle.shapeIndex + 1) % idle.shapes.length
+                            }
+                            Anim {
+                                target: idle
+                                property: "bloom"
+                                to: 1
+                                type: Anim.FastSpatial
+                            }
+                        }
+
+                        // The outline is rebuilt only while it morphs;
+                        // the turning is a transform on the finished path.
+                        Shape {
+                            id: idleShape
+
+                            readonly property real radius: 30
+                            readonly property real c: width / 2
+
+                            readonly property var outline: {
+                                const s = idle.shapes[idle.shapeIndex];
+                                const a = s.depth * idle.bloom;
+                                const out = [];
+                                for (let i = 0; i <= 120; i++) {
+                                    const th = i / 120 * Math.PI * 2;
+                                    const d = radius * (1 - a * 0.35 + a * Math.cos(s.lobes * th));
+                                    out.push(Qt.point(c + Math.cos(th) * d, c + Math.sin(th) * d));
+                                }
+                                return out;
+                            }
+
+                            anchors.centerIn: parent
+
+                            // Room for the lobes, which reach past the
+                            // radius at full bloom.
+                            width: radius * 2.4
+                            height: width
+
+                            preferredRendererType: Shape.CurveRenderer
+
+                            transform: Rotation {
+                                origin.x: idleShape.c
+                                origin.y: idleShape.c
+                                angle: idle.spin + idle.turn * 90
+                            }
+
+                            ShapePath {
+                                fillColor: Appearance.palette.m3primary
+                                strokeWidth: -1
+
+                                PathPolyline {
+                                    path: idleShape.outline
+                                }
+                            }
+                        }
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+
+                            icon: "music_note"
+                            size: Appearance.font.icon.large
+                            color: Appearance.palette.m3onPrimary
+                            fill: 1
+                        }
+                    }
+
                     Image {
                         id: art
 
@@ -241,6 +391,14 @@ BlobPopup {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     spacing: Appearance.spacing.extraSmall
+
+                    // With nothing playing there is no transport to sit
+                    // over, so the text centres on the art instead of
+                    // hanging from its top edge.
+                    Item {
+                        Layout.fillHeight: true
+                        visible: !Players.available
+                    }
 
                     // Up to two lines: titles run long, and the width
                     // beside the art is there to hold them.
