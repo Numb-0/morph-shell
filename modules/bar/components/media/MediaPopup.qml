@@ -18,121 +18,6 @@ BlobPopup {
     Component.onDestruction: if (open)
         Players.watchPosition(false)
 
-    // One transport control: a pill stretched across its share of the
-    // row. The primary one is filled and takes a wider share, as the
-    // action the panel is mostly opened for; the others are tonal. A
-    // toggle is narrower and takes no share at all: bare while off,
-    // filled with the secondary container while on.
-    component Button: Item {
-        id: btn
-
-        required property string icon
-        property bool primary: false
-        property bool toggle: false
-        property bool checked: false
-
-        signal activated
-
-        implicitWidth: toggle ? 36 : 48
-        implicitHeight: 48
-
-        Layout.fillWidth: !toggle
-        Layout.horizontalStretchFactor: primary ? 2 : 1
-
-        HoverHandler {
-            id: hover
-
-            cursorShape: Qt.PointingHandCursor
-        }
-
-        TapHandler {
-            onTapped: {
-                glyph.press();
-                btn.activated();
-            }
-        }
-
-        // A toggle's is a circle in the middle of the row's height.
-        Rectangle {
-            anchors.centerIn: parent
-
-            width: parent.width
-            height: btn.toggle ? width : parent.height
-            radius: height / 2
-            color: btn.primary ? Appearance.palette.m3primary : btn.toggle ? Qt.alpha(Appearance.palette.m3secondaryContainer, btn.checked ? 1 : 0) : Appearance.palette.m3surfaceContainerHigh
-
-            Behavior on color {
-                CAnim {}
-            }
-
-            // The M3 state layer.
-            Rectangle {
-                anchors.fill: parent
-
-                radius: parent.radius
-                color: btn.primary ? Appearance.palette.m3onPrimary : btn.checked ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
-                opacity: hover.hovered ? 0.08 : 0
-
-                Behavior on opacity {
-                    Anim {
-                        type: Anim.FastEffects
-                    }
-                }
-            }
-        }
-
-        MaterialSymbol {
-            id: glyph
-
-            anchors.centerIn: parent
-
-            icon: btn.icon
-            size: btn.primary ? Appearance.font.icon.large : Appearance.font.icon.normal
-            color: btn.primary ? Appearance.palette.m3onPrimary : btn.toggle ? (btn.checked ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurfaceVariant) : Appearance.palette.m3onSurface
-
-            // Solid, as the drawn icons were -- transport controls read
-            // as buttons rather than as outlines.
-            fill: 1
-        }
-    }
-
-    // One bar of the placeholder's equaliser. It bobs on its own period,
-    // so a few side by side never move in step, and only as far as
-    // energy lets it: at rest it is a short pill.
-    component EqBar: Rectangle {
-        id: bar
-
-        required property int period
-        property real energy: 0
-        property real level: 0.5
-
-        anchors.bottom: parent?.bottom
-
-        width: 8
-        height: 10 + level * energy * 36
-        radius: width / 2
-        color: Appearance.palette.m3onPrimaryContainer
-
-        // Only while it is seen and has somewhere to go; hidden or
-        // paused, nothing should keep the animation driver ticking.
-        SequentialAnimation on level {
-            running: bar.visible && bar.energy > 0
-            loops: Animation.Infinite
-
-            NumberAnimation {
-                to: 1
-                duration: bar.period
-                easing.type: Easing.InOutSine
-            }
-
-            NumberAnimation {
-                to: 0.15
-                duration: bar.period
-                easing.type: Easing.InOutSine
-            }
-        }
-    }
-
     ColumnLayout {
         anchors.centerIn: parent
         spacing: 0
@@ -433,7 +318,7 @@ BlobPopup {
                         Layout.fillWidth: true
                         spacing: Appearance.spacing.small
 
-                        Button {
+                        MediaButton {
                             icon: "shuffle"
                             toggle: true
                             checked: Players.shuffle
@@ -442,14 +327,14 @@ BlobPopup {
                             onActivated: Players.toggleShuffle()
                         }
 
-                        Button {
+                        MediaButton {
                             icon: "skip_previous"
                             visible: Players.canGoPrevious
 
                             onActivated: Players.active.previous()
                         }
 
-                        Button {
+                        MediaButton {
                             icon: Players.playing ? "pause" : "play_arrow"
                             primary: true
                             visible: Players.canTogglePlaying
@@ -457,14 +342,14 @@ BlobPopup {
                             onActivated: Players.active.togglePlaying()
                         }
 
-                        Button {
+                        MediaButton {
                             icon: "skip_next"
                             visible: Players.canGoNext
 
                             onActivated: Players.active.next()
                         }
 
-                        Button {
+                        MediaButton {
                             icon: Players.loopState === MprisLoopState.Track ? "repeat_one" : "repeat"
                             toggle: true
                             checked: Players.loopState !== MprisLoopState.None

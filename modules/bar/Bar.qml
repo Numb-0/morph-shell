@@ -6,6 +6,18 @@ import Morph.Blobs
 import qs.components
 import qs.config
 import qs.modules.bar.components
+import qs.modules.bar.components.battery
+import qs.modules.bar.components.bluetooth
+import qs.modules.bar.components.brightness
+import qs.modules.bar.components.clock
+import qs.modules.bar.components.media
+import qs.modules.bar.components.network
+import qs.modules.bar.components.notifications
+import qs.modules.bar.components.theme
+import qs.modules.bar.components.tray
+import qs.modules.bar.components.volume
+import qs.modules.bar.components.weather
+import qs.modules.bar.components.workspaces
 import qs.services
 
 Variants {

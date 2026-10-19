@@ -38,51 +38,6 @@ BlobPopup {
     onOpenChanged: if (!open)
         resetMonth()
 
-    // A round, borderless icon button with an M3 state layer.
-    component IconButton: Item {
-        id: btn
-
-        required property string icon
-        property color color: Appearance.palette.m3onSurface
-
-        signal activated
-
-        implicitWidth: 32
-        implicitHeight: 32
-
-        HoverHandler {
-            id: btnHover
-
-            cursorShape: Qt.PointingHandCursor
-        }
-
-        TapHandler {
-            onTapped: btn.activated()
-        }
-
-        Rectangle {
-            anchors.fill: parent
-
-            radius: width / 2
-            color: btn.color
-            opacity: btnHover.hovered ? 0.12 : 0
-
-            Behavior on opacity {
-                Anim {
-                    type: Anim.FastEffects
-                }
-            }
-        }
-
-        MaterialSymbol {
-            anchors.centerIn: parent
-
-            icon: btn.icon
-            size: Appearance.font.icon.small
-            color: btn.color
-        }
-    }
-
     Item {
         anchors.centerIn: parent
 

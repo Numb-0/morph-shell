@@ -31,51 +31,6 @@ BlobPopup {
         sweep.restart();
     }
 
-    // A round, borderless icon button with an M3 state layer, as the
-    // network panel's are.
-    component IconButton: Item {
-        id: btn
-
-        required property string icon
-        property color color: Appearance.palette.m3onSurface
-
-        signal activated
-
-        implicitWidth: 36
-        implicitHeight: 36
-
-        HoverHandler {
-            id: btnHover
-
-            cursorShape: Qt.PointingHandCursor
-        }
-
-        TapHandler {
-            onTapped: btn.activated()
-        }
-
-        Rectangle {
-            anchors.fill: parent
-
-            radius: width / 2
-            color: btn.color
-            opacity: btnHover.hovered ? 0.12 : 0
-
-            Behavior on opacity {
-                Anim {
-                    type: Anim.FastEffects
-                }
-            }
-        }
-
-        MaterialSymbol {
-            anchors.centerIn: parent
-
-            icon: btn.icon
-            color: btn.color
-        }
-    }
-
     Item {
         anchors.centerIn: parent
 
@@ -148,9 +103,13 @@ BlobPopup {
                 }
 
                 IconButton {
+                    implicitWidth: 36
+                    implicitHeight: 36
+
                     visible: Notifs.list.length > 0
 
                     icon: "clear_all"
+                    iconSize: Appearance.font.icon.normal
                     color: Appearance.palette.m3primary
 
                     onActivated: root.clearAll()
