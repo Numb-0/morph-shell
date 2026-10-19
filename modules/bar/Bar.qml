@@ -21,6 +21,7 @@ Variants {
         property string openPanel: ""
 
         readonly property bool clockOpen: openPanel === "clock"
+        readonly property bool weatherOpen: openPanel === "weather"
         readonly property bool mediaOpen: openPanel === "media"
         readonly property bool volumeOpen: openPanel === "volume"
         readonly property bool batteryOpen: openPanel === "battery"
@@ -90,7 +91,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || recording.hovered || clockPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || awake.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || recording.hovered || clockPopup.hovered || sky.hovered || weatherPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || awake.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -176,6 +177,10 @@ Variants {
 
             Region {
                 item: clockPopup.maskItem
+            }
+
+            Region {
+                item: weatherPopup.maskItem
             }
 
             Region {
@@ -406,6 +411,18 @@ Variants {
             suppressed: win.openPanel !== ""
         }
 
+        // After the pill hanging under the clock, whose stub it would
+        // otherwise show through: the weather card runs right up to the
+        // panel's top edge, where the clock's panel has only background.
+        WeatherPopup {
+            id: weatherPopup
+
+            group: group
+            anchor: sky
+            anchorBottom: surface.y + surface.height
+            open: win.weatherOpen
+        }
+
         BlobRect {
             id: surface
 
@@ -457,6 +474,22 @@ Variants {
             opacity: win.reveal
 
             onClicked: win.toggle("clock")
+        }
+
+        // The weather's glyph, on the other side of the clock from the
+        // recorder, once there is weather to show.
+        Sky {
+            id: sky
+
+            anchors.right: clock.left
+
+            visible: Weather.ready
+
+            y: surface.y + (surface.height - height) / 2
+
+            opacity: win.reveal
+
+            onClicked: win.toggle("weather")
         }
 
         // Beside the clock, so the clock stays centred. Opens out to the

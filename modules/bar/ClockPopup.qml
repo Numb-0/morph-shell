@@ -6,6 +6,7 @@ import qs.config
 import qs.services
 
 // The clock's panel: the date and time, and a month calendar under them.
+// The weather has a panel of its own, from the glyph beside the clock.
 // Everything about how it grows out of the bar lives in BlobPopup.
 //
 // The calendar is Qt's own MonthGrid and DayOfWeekRow, which work out
@@ -95,36 +96,81 @@ BlobPopup {
             anchors.right: parent.right
             spacing: Appearance.spacing.medium
 
-            // The day and date on the left, the time set large on the
-            // right, as the top of an M3 date picker carries its headline.
+            // The time large, its hours in the primary colour, beside the
+            // date as a desk
+            // calendar shows it: the month over the day, on a tile.
             RowLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: Appearance.padding.small
-                Layout.rightMargin: Appearance.padding.small
+                Layout.rightMargin: Appearance.padding.extraSmall
                 spacing: Appearance.spacing.medium
 
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 0
+                    spacing: -6
 
-                    StyledText {
-                        text: Time.format("dddd")
-                        font.pixelSize: Appearance.font.large
-                        color: Appearance.palette.m3primary
+                    // Deliberately not animated: the digits change every
+                    // minute, and a fade would read as a flicker.
+                    Row {
+                        StyledText {
+                            text: Time.format("hh")
+                            font.pixelSize: 54
+                            font.weight: Font.DemiBold
+                            color: Appearance.palette.m3primary
+                        }
+
+                        StyledText {
+                            text: ":"
+                            font.pixelSize: 54
+                            font.weight: Font.DemiBold
+                            color: Appearance.palette.m3outline
+                        }
+
+                        StyledText {
+                            text: Time.format("mm")
+                            font.pixelSize: 54
+                            font.weight: Font.DemiBold
+                        }
                     }
 
                     StyledText {
-                        text: Time.format("d MMMM yyyy")
+                        text: Time.format("dddd")
+                        font.pixelSize: Appearance.font.normal
+                        font.weight: Font.Medium
                         color: Appearance.palette.m3onSurfaceVariant
                     }
                 }
 
-                // Deliberately not animated: this changes every second,
-                // and the fade would read as a flicker.
-                StyledText {
-                    text: Time.format("hh:mm")
-                    font.pixelSize: 32
-                    font.weight: Font.Medium
+                Rectangle {
+                    implicitWidth: 68
+                    implicitHeight: 76
+
+                    radius: Appearance.rounding.large
+                    color: Appearance.palette.m3primaryContainer
+
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: -4
+
+                        StyledText {
+                            anchors.horizontalCenter: parent.horizontalCenter
+
+                            text: Time.format("MMM").toUpperCase()
+                            font.pixelSize: Appearance.font.small
+                            font.weight: Font.Bold
+                            font.letterSpacing: 1.5
+                            color: Appearance.palette.m3primary
+                        }
+
+                        StyledText {
+                            anchors.horizontalCenter: parent.horizontalCenter
+
+                            text: Time.format("d")
+                            font.pixelSize: 34
+                            font.weight: Font.DemiBold
+                            color: Appearance.palette.m3onPrimaryContainer
+                        }
+                    }
                 }
             }
 

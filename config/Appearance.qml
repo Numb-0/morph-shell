@@ -18,6 +18,12 @@ Singleton {
     readonly property string wallpaperPath: `${Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state"}/morph-shell/wallpaper.json`
     property string wallpaper: ""
 
+    // The user's own settings, over the defaults written below. Only the
+    // ones a person rather than the repo should decide -- where they are
+    // -- read it so far; the rest still live here.
+    readonly property string configPath: `${Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config"}/morph-shell/config.json`
+    property var user: ({})
+
     // The full Material 3 role set, named as material-color-utilities
     // names them behind an m3 prefix: QML reads a property called
     // onSurface as a handler for a surface signal, so the bare names
@@ -290,6 +296,26 @@ Singleton {
         onLoadFailed: root.wallpaper = ""
     }
 
+    // Followed as it is edited, so a change shows without a restart. A
+    // file that does not parse is left out rather than half applied.
+    FileView {
+        path: root.configPath
+
+        watchChanges: true
+        onFileChanged: reload()
+
+        onLoaded: {
+            try {
+                root.user = JSON.parse(text()) ?? {};
+            } catch (e) {
+                console.warn(`config: ${root.configPath} is not valid JSON (${e}); keeping the settings from before.`);
+            }
+        }
+
+        printErrors: false
+        onLoadFailed: root.user = {}
+    }
+
     // Re-reads the colours and wallpaper files, for a switcher that
     // repoints a link the watches above cannot see.
     function reloadPalette(): void {
@@ -488,6 +514,21 @@ Singleton {
 
         // Hyprland only.
         readonly property int screenOff: 420
+    }
+
+    // The clock panel's weather, from Open-Meteo. Set in the user's
+    // config, under "weather"; these are the defaults.
+    readonly property QtObject weather: QtObject {
+        // A place to look up by its English name, "Florence" or
+        // "Florence, IT", or a "latitude,longitude" pair. Empty asks
+        // where the machine's address is, which only gets as close as
+        // wherever the ISP registered it.
+        readonly property string location: root.user.weather?.location ?? ""
+
+        readonly property bool fahrenheit: root.user.weather?.fahrenheit ?? false
+
+        // Minutes between fetches. Open-Meteo updates every 15.
+        readonly property int refresh: Math.max(1, root.user.weather?.refresh ?? 15)
     }
 
     readonly property QtObject notifs: QtObject {

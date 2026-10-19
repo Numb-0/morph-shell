@@ -256,7 +256,7 @@ morph-shell ipc show   # list every target and function the running shell expose
 
 | Target | Function | Description |
 | --- | --- | --- |
-| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications` or `theme`. |
+| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `weather`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications` or `theme`. |
 | `bar` | `togglePinned` | Pin or unpin the bar (see [Bar and dock](#bar-and-dock)). |
 | `dock` | `togglePinned` | Pin or unpin the dock (see [Bar and dock](#bar-and-dock)). |
 | `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
@@ -415,9 +415,30 @@ panels all set it off.
 
 ## Configuration
 
-There is no config file yet: the knobs live in `config/Appearance.qml`,
-so changing them means editing a checkout (or overriding the package's
-source). The ones you're most likely to want:
+Settings that are yours rather than the shell's, so far only the
+weather's, go in `~/.config/morph-shell/config.json` (under
+`$XDG_CONFIG_HOME` if that is set). The shell follows the file as you
+edit it, without a restart, and leaves anything missing at its default:
+
+```json
+{
+  "weather": {
+    "location": "Florence, IT",
+    "fahrenheit": false,
+    "refresh": 15
+  }
+}
+```
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `weather.location` | `""` | Where the weather is for: a place by its English name, `"Florence"` or `"Florence, IT"`, or `"latitude,longitude"`. Empty guesses from the machine's address (see [Weather](#weather)). |
+| `weather.fahrenheit` | `false` | Fahrenheit and mph rather than Celsius and km/h. |
+| `weather.refresh` | `15` | Minutes between fetches. |
+
+The rest of the knobs still live in `config/Appearance.qml`, so changing
+them means editing a checkout (or overriding the package's source). The
+ones you're most likely to want:
 
 | Property | Default | Description |
 | --- | --- | --- |
@@ -433,6 +454,25 @@ source). The ones you're most likely to want:
 | `osd.timeout` | `1500` | Milliseconds the OSD stays up after what it shows last changed. |
 | `notifs.maxPopups` | `4` | Popups shown at once; older ones wait in the centre. |
 | `font.family` | `"JetBrains Mono"` | Text font. |
+
+## Weather
+
+Once there is weather to show, its glyph sits left of the bar's clock,
+and a click opens the weather panel: how it is now, on a card that
+takes the weather's colour, with what it feels like, the humidity and
+the wind, and the next five days, each with its range against the
+week's and its chance of rain once that reaches 20%. It comes from
+[Open-Meteo](https://open-meteo.com), which needs no key or account,
+every 15 minutes and again on opening the panel if the last fetch is
+getting old.
+
+Set `weather.location` in `config.json` (see
+[Configuration](#configuration)) to a place or a pair of coordinates. Left empty, the shell asks
+[ipapi.co](https://ipapi.co) where the machine's address is, which is
+often only the nearest city the ISP routes through. Place names are
+looked up in English, so `"Florence"` finds the city where `"Firenze"`
+finds a suburb of it; add a country code, `"Florence, IT"`, to keep
+out a namesake abroad.
 
 ## Lock screen
 
