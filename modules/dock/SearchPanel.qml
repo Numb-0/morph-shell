@@ -5,7 +5,8 @@ import qs.config
 
 // What the dock grows into, whichever panel it is: a search field over
 // a list of results. The launcher and the clipboard each hand it their
-// results and a row to draw them with, and say what Enter does.
+// results and a row to draw them with, and say what Enter does. The
+// emoji panel asks for a grid instead, by giving it columns.
 Item {
     id: root
 
@@ -22,7 +23,21 @@ Item {
 
     property var results: []
     property Component delegate
-    property alias currentIndex: list.currentIndex
+
+    // More than one lays the results out in a grid of square cells,
+    // this many to a row, rather than in a list.
+    property int columns: 1
+    readonly property bool grid: columns > 1
+
+    // Mirrors the selection of whichever view is showing, both ways:
+    // the view moves its own when rows are inserted above it, and the
+    // panels move it on hover.
+    property int currentIndex: 0
+
+    readonly property var view: grid ? gridView : list
+
+    onCurrentIndexChanged: if (view.currentIndex !== currentIndex)
+        view.currentIndex = currentIndex
 
     // What sort of results these are. A panel that lists more than one
     // sort -- the launcher's applications and its commands -- names
@@ -38,7 +53,7 @@ Item {
     property string shownEmptyText
     property string shownIcon: icon
 
-    readonly property var current: results[list.currentIndex] ?? null
+    readonly property var current: results[currentIndex] ?? null
 
     // Anything else the field carries, after the text.
     property alias actions: actionRow.data
@@ -51,7 +66,21 @@ Item {
 
     function reset(): void {
         search.text = "";
-        list.currentIndex = 0;
+        currentIndex = 0;
+    }
+
+    // The arrows step a row at a time, which in a grid is a row of
+    // cells; Left and Right step a cell, there being no text to move
+    // through that a search of a word or two needs them for.
+    function step(by: int): void {
+        const last = shownResults.length - 1;
+        const next = currentIndex + by;
+
+        if (next >= 0 && next <= last)
+            currentIndex = next;
+        // Down from the row above a short last one lands on its end.
+        else if (by > 1 && Math.floor(currentIndex / columns) < Math.floor(last / columns))
+            currentIndex = last;
     }
 
     // Hands the list its new rows. Emptied in between, so for no frame
@@ -210,7 +239,7 @@ Item {
 
         PropertyChanges {
             field.opacity: 1
-            list.opacity: 1
+            views.opacity: 1
             listShift.y: 0
         }
     }
@@ -237,7 +266,7 @@ Item {
                     }
                     ParallelAnimation {
                         Anim {
-                            target: list
+                            target: views
                             property: "opacity"
                             type: Anim.SlowEffects
                         }
@@ -254,7 +283,7 @@ Item {
             from: "open"
 
             Anim {
-                targets: [field, list]
+                targets: [field, views]
                 property: "opacity"
                 type: Anim.FastEffects
             }
@@ -278,7 +307,10 @@ Item {
     //
     // Off what the list shows rather than the results themselves, so a
     // swap's held rows are not reset under it.
-    onShownResultsChanged: Qt.callLater(() => list.currentIndex = 0)
+    onShownResultsChanged: Qt.callLater(() => {
+        root.currentIndex = 0;
+        root.view.currentIndex = 0;
+    })
 
     onActiveChanged: {
         if (active) {
@@ -342,8 +374,20 @@ Item {
                 // The list never takes focus -- the field keeps it and
                 // drives the selection -- so typing continues to work
                 // while arrowing through results.
-                Keys.onDownPressed: list.currentIndex = Math.min(list.currentIndex + 1, root.shownResults.length - 1)
-                Keys.onUpPressed: list.currentIndex = Math.max(list.currentIndex - 1, 0)
+                Keys.onDownPressed: root.step(root.columns)
+                Keys.onUpPressed: root.step(-root.columns)
+                Keys.onLeftPressed: event => {
+                    if (root.grid)
+                        root.step(-1);
+                    else
+                        event.accepted = false;
+                }
+                Keys.onRightPressed: event => {
+                    if (root.grid)
+                        root.step(1);
+                    else
+                        event.accepted = false;
+                }
                 Keys.onEscapePressed: root.dismissed()
                 Keys.onReturnPressed: root.accepted(root.current)
                 Keys.onEnterPressed: root.accepted(root.current)
@@ -391,84 +435,169 @@ Item {
             id: pageShift
         }
 
-        ListView {
-            id: list
+        // Opens and closes both views, whichever is showing: closed, and
+        // sunk a little, until the open state says otherwise.
+        Item {
+            id: views
 
             anchors.fill: parent
 
-            clip: true
-            spacing: Appearance.spacing.extraSmall
-
-            // Closed, and sunk a little, until the open state says otherwise.
             opacity: 0
 
-            model: ScriptModel {
-                values: root.shownResults
-            }
-
-            delegate: root.shownDelegate
-
-            // Keeps the selection on screen as the arrows walk past the
-            // bottom of the view.
-            highlightRangeMode: ListView.ApplyRange
-            preferredHighlightBegin: 0
-            preferredHighlightEnd: height
-            highlightFollowsCurrentItem: true
-            highlightMoveDuration: Appearance.anim.durations.fastEffects
-
-            // Rows fade and slide rather than popping as the search
-            // narrows or widens the results; the rest close ranks smoothly.
-            add: Transition {
-                Anim {
-                    property: "opacity"
-                    from: 0
-                    to: 1
-                    type: Anim.DefaultEffects
-                }
-                Anim {
-                    property: "scale"
-                    from: 0.9
-                    to: 1
-                    type: Anim.Emphasized
-                }
-            }
-
-            remove: Transition {
-                Anim {
-                    property: "opacity"
-                    to: 0
-                    type: Anim.FastEffects
-                }
-                Anim {
-                    property: "scale"
-                    to: 0.9
-                    type: Anim.FastEffects
-                }
-            }
-
-            displaced: Transition {
-                Anim {
-                    property: "y"
-                    type: Anim.Emphasized
-                }
-                // Brings back a row whose own add or remove was cut short.
-                Anim {
-                    properties: "opacity,scale"
-                    to: 1
-                    type: Anim.DefaultEffects
-                }
-            }
-
-            // Driven by the open state below.
+            // Driven by the open state above.
             transform: Translate {
                 id: listShift
 
                 y: Appearance.spacing.large * 2
             }
 
-            highlight: Rectangle {
-                radius: Appearance.rounding.large
-                color: Appearance.palette.m3surfaceContainerHigh
+            ListView {
+                id: list
+
+                anchors.fill: parent
+
+                visible: !root.grid
+                clip: true
+                spacing: Appearance.spacing.extraSmall
+
+                model: ScriptModel {
+                    values: root.grid ? [] : root.shownResults
+                }
+
+                delegate: root.shownDelegate
+
+                onCurrentIndexChanged: if (!root.grid && root.currentIndex !== currentIndex)
+                    root.currentIndex = currentIndex
+
+                // Keeps the selection on screen as the arrows walk past the
+                // bottom of the view.
+                highlightRangeMode: ListView.ApplyRange
+                preferredHighlightBegin: 0
+                preferredHighlightEnd: height
+                highlightFollowsCurrentItem: true
+                highlightMoveDuration: Appearance.anim.durations.fastEffects
+
+                // Rows fade and slide rather than popping as the search
+                // narrows or widens the results; the rest close ranks smoothly.
+                add: Transition {
+                    Anim {
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        type: Anim.DefaultEffects
+                    }
+                    Anim {
+                        property: "scale"
+                        from: 0.9
+                        to: 1
+                        type: Anim.Emphasized
+                    }
+                }
+
+                remove: Transition {
+                    Anim {
+                        property: "opacity"
+                        to: 0
+                        type: Anim.FastEffects
+                    }
+                    Anim {
+                        property: "scale"
+                        to: 0.9
+                        type: Anim.FastEffects
+                    }
+                }
+
+                displaced: Transition {
+                    Anim {
+                        property: "y"
+                        type: Anim.Emphasized
+                    }
+                    // Brings back a row whose own add or remove was cut short.
+                    Anim {
+                        properties: "opacity,scale"
+                        to: 1
+                        type: Anim.DefaultEffects
+                    }
+                }
+
+                highlight: Rectangle {
+                    radius: Appearance.rounding.large
+                    color: Appearance.palette.m3surfaceContainerHigh
+                }
+            }
+
+            // The same, in square cells. Cells only fade: a grid reflowing
+            // under a search moves too much at once for each to slide too.
+            GridView {
+                id: gridView
+
+                anchors.fill: parent
+
+                visible: root.grid
+                clip: true
+
+                // As near square as a whole number of rows allows: the rows
+                // fill the view exactly, so none is left cut off at the
+                // bottom, and scrolling snaps a whole row at a time.
+                cellWidth: Math.floor(width / Math.max(1, root.columns))
+                cellHeight: height / Math.max(1, Math.round(height / cellWidth))
+
+                snapMode: GridView.SnapToRow
+
+                model: ScriptModel {
+                    values: root.grid ? root.shownResults : []
+                }
+
+                delegate: root.shownDelegate
+
+                onCurrentIndexChanged: if (root.grid && root.currentIndex !== currentIndex)
+                    root.currentIndex = currentIndex
+
+                highlightRangeMode: GridView.ApplyRange
+                preferredHighlightBegin: 0
+                preferredHighlightEnd: height
+                highlightFollowsCurrentItem: true
+                highlightMoveDuration: Appearance.anim.durations.fastEffects
+
+                add: Transition {
+                    Anim {
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        type: Anim.DefaultEffects
+                    }
+                    Anim {
+                        property: "scale"
+                        from: 0.6
+                        to: 1
+                        type: Anim.FastSpatial
+                    }
+                }
+
+                remove: Transition {
+                    Anim {
+                        property: "opacity"
+                        to: 0
+                        type: Anim.FastEffects
+                    }
+                }
+
+                displaced: Transition {
+                    Anim {
+                        properties: "x,y"
+                        type: Anim.Emphasized
+                    }
+                    Anim {
+                        properties: "opacity,scale"
+                        to: 1
+                        type: Anim.DefaultEffects
+                    }
+                }
+
+                highlight: Rectangle {
+                    radius: Appearance.rounding.medium
+                    color: Appearance.palette.m3surfaceContainerHigh
+                }
             }
 
             StyledText {

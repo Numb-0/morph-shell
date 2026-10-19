@@ -19,6 +19,7 @@
   libnotify,
   satty,
   cliphist,
+  libqalculate,
   wf-recorder,
   xdg-utils,
   jetbrains-mono,
@@ -34,8 +35,9 @@
   # clipboard history, fed by wl-paste. wf-recorder: screen recordings,
   # and xdg-open for the notification that opens one. gdbus: the lock's
   # ear on logind, for lock requests and the warning before sleep. find:
-  # the privacy indicator's look for who has a camera open.
-  runtimeDeps = [brightnessctl dbus glib coreutils findutils grim wl-clipboard libnotify satty cliphist wf-recorder xdg-utils] ++ extraRuntimeDeps;
+  # the privacy indicator's look for who has a camera open. qalc: the
+  # launcher's calculator.
+  runtimeDeps = [brightnessctl dbus glib coreutils findutils grim wl-clipboard libnotify satty cliphist libqalculate wf-recorder xdg-utils] ++ extraRuntimeDeps;
 
   # Layer the bundled fonts on top of the system fontconfig, so the shell
   # finds them whether or not they are installed, and every other font

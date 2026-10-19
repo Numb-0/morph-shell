@@ -19,8 +19,8 @@ directly, through Quickshell's Hyprland integration, and only work there:
 | Workspaces widget | Shows each monitor's workspaces, and switches them on click and scroll. | Shows only empty slots, with the active one parked on the first, and clicks and scrolls do nothing. |
 | `bar toggle <panel>` over IPC | Opens the panel on the focused monitor. | Opens nothing: there is no focused monitor to pick. Panels still open from the bar itself. |
 | Closing bar panels on an outside click | A click anywhere outside them, on any monitor, closes them, through a Hyprland focus grab. | Only a click elsewhere on the same screen closes them. |
-| Closing the launcher or the clipboard on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. |
-| `launcher`/`clipboard` `toggle`/`open` over IPC | Opens the panel on the focused monitor. | Opens it on the first screen. |
+| Closing the launcher, the clipboard or the emoji picker on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. |
+| `launcher`/`clipboard`/`emoji` `toggle`/`open` over IPC | Opens the panel on the focused monitor. | Opens it on the first screen. |
 | Screenshot region picker | Snaps to the window under the pointer, and outlines it from the first frame. | Only drags or the whole screen, and the outline waits for the pointer to move. |
 | Workspace overview | Shows each workspace with its windows live, and switches, focuses, closes and moves them. | Opens on an empty grid, and nothing in it does anything. |
 | Colour picker | The lens is under the pointer from the first frame. | The lens waits for the pointer to move. |
@@ -70,6 +70,8 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | `wf-recorder`, `xdg-utils` | Screen recordings, and opening one from its notification | Put on the wrapper's `PATH`. |
 | `dbus-send` | Power profile widget's startup check | Put on the wrapper's `PATH`. |
 | `cliphist`, `wl-clipboard` | Clipboard history | Put on the wrapper's `PATH`. The shell runs the `wl-paste --watch cliphist store` watchers itself, for text and images; ones already started from your compositor config do no harm, since cliphist doesn't store an entry twice. Without cliphist the history is off, and `:cliphist` isn't offered. |
+| `qalc` (libqalculate) | The launcher's calculator | Put on the wrapper's `PATH`. Without it the launcher stays a search, and `=` finds nothing. |
+| An emoji font | The emoji picker | Not bundled: most desktops have one already (on NixOS, `fonts.enableDefaultPackages` brings `noto-fonts-color-emoji`). Without one, emoji draw as boxes. |
 | `hyprctl` | Screenshot and colour pickers' pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
 | `loginctl`, `systemctl` | Session menu: Lock, Suspend, Restart and Shut down, and Log out off Hyprland | Part of systemd; not put on the `PATH`. |
 | `find` | Privacy indicator: which processes have a camera open | Put on the wrapper's `PATH`. |
@@ -263,6 +265,9 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `clipboard` | `toggle` | Open the clipboard history on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
 | `clipboard` | `open` | Open the clipboard history on the focused screen. Off Hyprland it opens on the first screen. |
 | `clipboard` | `close` | Close the clipboard history. |
+| `emoji` | `toggle` | Open the emoji picker on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
+| `emoji` | `open` | Open the emoji picker on the focused screen. Off Hyprland it opens on the first screen. |
+| `emoji` | `close` | Close the emoji picker. |
 | `lock` | `lock` | Lock the session (see [Lock screen](#lock-screen)). Does nothing if it's already locked. |
 | `lock` | `isLocked` | Print whether the session is locked. |
 | `idle` | `toggleAwake` | Keep the session from dimming, locking and turning the screens off when idle, or let it again (see [Idle](#idle)). |
@@ -294,6 +299,7 @@ history with Super+V in Hyprland:
 ```
 bind = SUPER, Space, exec, morph-shell ipc call launcher toggle
 bind = SUPER, V, exec, morph-shell ipc call clipboard toggle
+bind = SUPER, Period, exec, morph-shell ipc call emoji toggle
 ```
 
 When running from a checkout (`morph-run`), point `qs` at the working
@@ -323,6 +329,7 @@ own commands instead, and `:` alone lists them all:
 | Command | Does |
 | --- | --- |
 | `:cliphist` | Turns the launcher into the clipboard history (see below). Typing the name is enough; it opens without Enter. |
+| `:emoji` | Turns the launcher into the emoji picker (see below). Typing the name is enough; it opens without Enter. |
 | `:screenshot` | Picks a region to screenshot (see [Screenshots](#screenshots)). |
 | `:record` | Picks a region to record, or stops the recording under way (see [Screen recordings](#screen-recordings)). |
 | `:recordaudio` | Picks a region to record with the output's sound. |
@@ -331,6 +338,24 @@ own commands instead, and `:` alone lists them all:
 | `:session` | Opens the full-screen session menu (see [Session menu](#session-menu)). |
 | `:dnd` | Turns do not disturb on or off. |
 | `:clear` | Dismisses every notification. |
+
+A search that reads as arithmetic (`12*7`, `(3+4)/2`) or as a number
+converted to another unit (`5 km in mi`, `100 °F to °C`, `10 usd to eur`)
+gets its answer from qalc as the top result, above any applications it
+also matches; Enter or a click copies the answer. Starting a search with
+`=` hands anything to qalc and nothing else, for functions and constants
+such as `=sqrt(2)` or `=pi`. A dot between digits is always read as a
+decimal point, whatever the locale; otherwise qalc follows it.
+
+The emoji picker, reached through `:emoji` or the `emoji` IPC target,
+lays out every emoji and the symbols a keyboard lacks (arrows, dashes,
+maths, quotes) in a grid, the recently picked ones first. The search
+covers their names and the words people use for them, so `fire` finds 🔥
+and `arow` still finds the arrows. The arrows move through the grid,
+the field shows the selected one's name, and Enter or a click copies
+it. The table is `assets/glyphs.tsv`, generated from Unicode's and
+CLDR's data by `tools/glyphs.py`; its docstring has the command to
+regenerate it.
 
 The clipboard history, reached through `:cliphist` or the `clipboard`
 IPC target, holds text and images, newest first, with a search over

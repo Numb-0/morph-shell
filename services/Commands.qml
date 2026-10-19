@@ -44,6 +44,13 @@ Singleton {
             available: Clipboard.available
         },
         {
+            name: "emoji",
+            description: qsTr("Emoji and symbols"),
+            icon: "add_reaction",
+            panel: "emoji",
+            available: true
+        },
+        {
             name: "overview",
             description: qsTr("Every workspace and its windows"),
             icon: "grid_view",

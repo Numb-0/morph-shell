@@ -10,8 +10,9 @@ import qs.modules.dock.components
 import qs.services
 
 // The dock, and the panels it turns into: the launcher, the clipboard
-// history it leads to through ":cliphist", and the chooser between the
-// windows of a pinned app that has more than one open.
+// history and the emoji picker it leads to through ":cliphist" and
+// ":emoji", and the chooser between the windows of a pinned app that
+// has more than one open.
 //
 // One shape does every job: closed it is a pill of pinned icons at the
 // bottom edge, and opening a panel grows that same pill upwards into
@@ -23,7 +24,7 @@ Scope {
 
     // One panel for the session rather than one per screen: two open at
     // once would each be holding the keyboard. Which one is open --
-    // "launcher" or "clipboard" -- and the name of the screen it is open
+    // "launcher", "clipboard" or "emoji" -- and the name of the screen it is open
     // on, or "" for both when the dock is closed.
     property string panel: ""
     property string panelScreen: ""
@@ -113,6 +114,23 @@ Scope {
         }
     }
 
+    //   bind = SUPER, Period, exec, qs -p ~/morph-shell ipc call emoji toggle
+    IpcHandler {
+        target: "emoji"
+
+        function toggle(): void {
+            root.toggle("emoji", root.focusedScreen);
+        }
+
+        function open(): void {
+            root.open("emoji", root.focusedScreen);
+        }
+
+        function close(): void {
+            root.close("emoji");
+        }
+    }
+
     Variants {
         model: Quickshell.screens
 
@@ -127,10 +145,15 @@ Scope {
             readonly property bool panelOpen: root.panelScreen === modelData.name
             readonly property bool launcherOpen: panelOpen && root.panel === "launcher"
             readonly property bool clipboardOpen: panelOpen && root.panel === "clipboard"
+            readonly property bool emojiOpen: panelOpen && root.panel === "emoji"
             readonly property bool windowsOpen: panelOpen && root.panel === "windows"
 
             // The chooser grows the dock only as far as its cards need,
             // where the search panels share one fixed height.
+            // The search panels' size once the shape is fully open.
+            readonly property int searchWidth: Appearance.dock.launcherWidth - Appearance.padding.large * 2
+            readonly property int searchHeight: Appearance.dock.launcherHeight - Appearance.padding.large - Appearance.spacing.small
+
             readonly property int panelHeight: windowsOpen ? chooser.implicitHeight + Appearance.padding.large : Appearance.dock.launcherHeight
 
             // How many pinned icons the pointer is on. A count rather
@@ -329,12 +352,16 @@ Scope {
                 }
 
                 Launcher {
-                    anchors.fill: parent
-                    anchors.margins: Appearance.padding.large
-
-                    // Stops short of the pinned row rather than running
-                    // into it.
-                    anchors.bottomMargin: Appearance.spacing.small
+                    // At their open size from the start, rather than
+                    // filling the shape as it grows: the shape reveals
+                    // them, and nothing inside lays itself out afresh on
+                    // every frame of the morph. Stops short of the pinned
+                    // row rather than running into it.
+                    anchors.top: parent.top
+                    anchors.topMargin: Appearance.padding.large
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: win.searchWidth
+                    height: win.searchHeight
 
                     enabled: win.launcherOpen
                     active: win.launcherOpen
@@ -347,9 +374,11 @@ Scope {
                 }
 
                 ClipboardPanel {
-                    anchors.fill: parent
-                    anchors.margins: Appearance.padding.large
-                    anchors.bottomMargin: Appearance.spacing.small
+                    anchors.top: parent.top
+                    anchors.topMargin: Appearance.padding.large
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: win.searchWidth
+                    height: win.searchHeight
 
                     // Only the open one takes the pointer, so the rows
                     // of the other, fading out on top or underneath,
@@ -359,6 +388,19 @@ Scope {
                     active: win.clipboardOpen
 
                     onDismissed: root.close("clipboard")
+                }
+
+                EmojiPanel {
+                    anchors.top: parent.top
+                    anchors.topMargin: Appearance.padding.large
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: win.searchWidth
+                    height: win.searchHeight
+
+                    enabled: win.emojiOpen
+                    active: win.emojiOpen
+
+                    onDismissed: root.close("emoji")
                 }
 
                 WindowChooser {
