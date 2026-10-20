@@ -42,7 +42,7 @@ Item {
     // run the blend fillet wants beyond it. A blend radius alone is
     // enough to unpinch it, but it leaves the curve cramped against the
     // corner; this leaves a little bar between the two.
-    property real edgeMargin: Appearance.bar.margin + Appearance.rounding.large + group.smoothing
+    property real edgeMargin: Config.bar.margin + Appearance.rounding.large + group.smoothing
 
     // Every blob draws a smoothing radius past its own edges, which is
     // where neighbouring shapes fuse. The anchor's shape is drawn after

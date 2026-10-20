@@ -22,9 +22,9 @@ Item {
 
     readonly property var windows: Apps.windowsFor(entry)
 
-    readonly property int columns: Appearance.dock.chooserColumns
-    readonly property int rows: Math.max(1, Math.min(Appearance.dock.chooserRows, Math.ceil(windows.length / columns)))
-    readonly property int cardHeight: Appearance.dock.previewHeight + Appearance.dock.cardTitleHeight
+    readonly property int columns: Config.dock.chooserColumns
+    readonly property int rows: Math.max(1, Math.min(Config.dock.chooserRows, Math.ceil(windows.length / columns)))
+    readonly property int cardHeight: Config.dock.previewHeight + Config.dock.cardTitleHeight
 
     // As tall as the rows it has, and no more: the dock grows only to
     // fit, so two windows make a short panel rather than a launcher-sized
@@ -186,10 +186,10 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        implicitHeight: Appearance.dock.resultHeight
+        implicitHeight: Config.dock.resultHeight
 
         radius: height / 2
-        color: Appearance.palette.m3surfaceContainerHighest
+        color: Colours.palette.m3surfaceContainerHighest
 
         opacity: 0
 
@@ -224,7 +224,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
 
                 text: root.windows.length === 1 ? qsTr("1 window") : qsTr("%1 windows").arg(root.windows.length)
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
             }
         }
     }
@@ -498,7 +498,7 @@ Item {
             height: target?.height ?? 0
 
             radius: Appearance.rounding.large
-            color: Appearance.palette.m3surfaceContainerHigh
+            color: Colours.palette.m3surfaceContainerHigh
 
             Behavior on x {
                 enabled: selection.animate
@@ -577,15 +577,15 @@ Item {
                     anchors.right: parent.right
                     anchors.margins: Appearance.padding.small
 
-                    height: Appearance.dock.previewHeight - Appearance.padding.small
+                    height: Config.dock.previewHeight - Appearance.padding.small
 
                     radius: Appearance.rounding.medium
-                    color: Appearance.palette.m3surfaceContainerHighest
+                    color: Colours.palette.m3surfaceContainerHighest
 
                     // The focused window is ringed, so the one you are
                     // already on is told apart from the one to go to.
                     border.width: cell.focused ? 2 : 0
-                    border.color: Appearance.palette.m3primary
+                    border.color: Colours.palette.m3primary
 
                     // Captured only while the panel is up: a live copy of
                     // every window kept running behind a closed dock would
@@ -619,11 +619,11 @@ Item {
                     anchors.leftMargin: Appearance.padding.medium
                     anchors.rightMargin: Appearance.padding.medium
 
-                    height: Appearance.dock.cardTitleHeight
+                    height: Config.dock.cardTitleHeight
                     verticalAlignment: Text.AlignVCenter
 
                     text: cell.modelData?.title || root.entry?.name || ""
-                    color: cell.focused ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+                    color: cell.focused ? Colours.palette.m3primary : Colours.palette.m3onSurface
                     elide: Text.ElideRight
                 }
             }

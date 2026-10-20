@@ -38,7 +38,7 @@ SearchPanel {
         width: Math.min(implicitWidth, 200)
 
         text: root.current?.name ?? ""
-        color: Appearance.palette.m3onSurfaceVariant
+        color: Colours.palette.m3onSurfaceVariant
         elide: Text.ElideRight
     }
 
@@ -70,7 +70,7 @@ SearchPanel {
             textFormat: Text.PlainText
             renderType: Text.NativeRendering
 
-            color: Appearance.palette.m3onSurface
+            color: Colours.palette.m3onSurface
             font.family: Appearance.font.family
 
             // Grows a little under the selection, as a key would. By its

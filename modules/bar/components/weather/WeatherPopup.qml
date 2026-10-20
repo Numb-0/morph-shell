@@ -45,10 +45,10 @@ BlobPopup {
                 readonly property int code: Weather.current?.code ?? 0
                 readonly property string mood: code <= 1 ? "clear" : code <= 48 ? "cloud" : "wet"
 
-                readonly property color container: mood === "clear" ? Appearance.palette.m3primaryContainer : mood === "cloud" ? Appearance.palette.m3secondaryContainer : Appearance.palette.m3tertiaryContainer
-                readonly property color ink: mood === "clear" ? Appearance.palette.m3onPrimaryContainer : mood === "cloud" ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onTertiaryContainer
-                readonly property color accent: mood === "clear" ? Appearance.palette.m3primary : mood === "cloud" ? Appearance.palette.m3secondary : Appearance.palette.m3tertiary
-                readonly property color accentInk: mood === "clear" ? Appearance.palette.m3onPrimary : mood === "cloud" ? Appearance.palette.m3onSecondary : Appearance.palette.m3onTertiary
+                readonly property color container: mood === "clear" ? Colours.palette.m3primaryContainer : mood === "cloud" ? Colours.palette.m3secondaryContainer : Colours.palette.m3tertiaryContainer
+                readonly property color ink: mood === "clear" ? Colours.palette.m3onPrimaryContainer : mood === "cloud" ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onTertiaryContainer
+                readonly property color accent: mood === "clear" ? Colours.palette.m3primary : mood === "cloud" ? Colours.palette.m3secondary : Colours.palette.m3tertiary
+                readonly property color accentInk: mood === "clear" ? Colours.palette.m3onPrimary : mood === "cloud" ? Colours.palette.m3onSecondary : Colours.palette.m3onTertiary
 
                 visible: Weather.ready || Weather.error !== ""
 
@@ -56,7 +56,7 @@ BlobPopup {
                 implicitHeight: Weather.ready ? now.implicitHeight + Appearance.padding.large * 2 : 56
 
                 radius: Appearance.rounding.extraLarge
-                color: Weather.ready ? container : Appearance.palette.m3surfaceContainerHigh
+                color: Weather.ready ? container : Colours.palette.m3surfaceContainerHigh
 
                 Behavior on color {
                     CAnim {}
@@ -68,7 +68,7 @@ BlobPopup {
                     visible: !Weather.ready
 
                     text: Weather.error
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
 
                 // A second, larger shape bleeding off the corner, faint,
@@ -264,7 +264,7 @@ BlobPopup {
                 implicitHeight: forecast.implicitHeight + Appearance.padding.medium * 2
 
                 radius: Appearance.rounding.extraLarge
-                color: Appearance.palette.m3surfaceContainerHigh
+                color: Colours.palette.m3surfaceContainerHigh
 
                 readonly property real low: Math.min(...Weather.days.map(d => d.min))
                 readonly property real high: Math.max(...Weather.days.map(d => d.max))
@@ -298,7 +298,7 @@ BlobPopup {
 
                                 visible: day.today
                                 radius: Appearance.rounding.large
-                                color: Qt.alpha(Appearance.palette.m3primary, 0.12)
+                                color: Qt.alpha(Colours.palette.m3primary, 0.12)
                             }
 
                             Column {
@@ -314,14 +314,14 @@ BlobPopup {
 
                                     text: day.today ? qsTr("Today") : Qt.formatDate(day.modelData.date, "ddd")
                                     font.weight: Font.Medium
-                                    color: day.today ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
+                                    color: day.today ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
                                 }
 
                                 MaterialSymbol {
                                     anchors.horizontalCenter: parent.horizontalCenter
 
                                     icon: Weather.icon(day.modelData.code, true)
-                                    color: day.today ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+                                    color: day.today ? Colours.palette.m3primary : Colours.palette.m3onSurface
                                     fill: 1
                                 }
 
@@ -345,7 +345,7 @@ BlobPopup {
                                     implicitHeight: 52
 
                                     radius: width / 2
-                                    color: Qt.alpha(Appearance.palette.m3onSurface, 0.08)
+                                    color: Qt.alpha(Colours.palette.m3onSurface, 0.08)
 
                                     Rectangle {
                                         width: parent.width
@@ -357,11 +357,11 @@ BlobPopup {
                                         gradient: Gradient {
                                             GradientStop {
                                                 position: 0
-                                                color: Appearance.palette.m3primary
+                                                color: Colours.palette.m3primary
                                             }
                                             GradientStop {
                                                 position: 1
-                                                color: Appearance.palette.m3tertiary
+                                                color: Colours.palette.m3tertiary
                                             }
                                         }
                                     }
@@ -371,7 +371,7 @@ BlobPopup {
                                     anchors.horizontalCenter: parent.horizontalCenter
 
                                     text: Weather.temperature(day.modelData.min)
-                                    color: Appearance.palette.m3onSurfaceVariant
+                                    color: Colours.palette.m3onSurfaceVariant
                                 }
 
                                 // Kept in the layout on dry days too, so
@@ -385,7 +385,7 @@ BlobPopup {
                                     implicitHeight: 20
 
                                     radius: height / 2
-                                    color: Appearance.palette.m3tertiaryContainer
+                                    color: Colours.palette.m3tertiaryContainer
 
                                     Row {
                                         id: rainRow
@@ -398,7 +398,7 @@ BlobPopup {
 
                                             icon: "water_drop"
                                             size: 12
-                                            color: Appearance.palette.m3onTertiaryContainer
+                                            color: Colours.palette.m3onTertiaryContainer
                                             fill: 1
                                         }
 
@@ -408,7 +408,7 @@ BlobPopup {
                                             text: `${day.modelData.rain}`
                                             font.pixelSize: 11
                                             font.weight: Font.Medium
-                                            color: Appearance.palette.m3onTertiaryContainer
+                                            color: Colours.palette.m3onTertiaryContainer
                                         }
                                     }
                                 }

@@ -21,7 +21,7 @@ Rectangle {
     implicitHeight: 40
 
     radius: height / 2
-    color: active ? Appearance.palette.m3secondaryContainer : itemHover.hovered ? Qt.alpha(Appearance.palette.m3onSurface, 0.08) : "transparent"
+    color: active ? Colours.palette.m3secondaryContainer : itemHover.hovered ? Qt.alpha(Colours.palette.m3onSurface, 0.08) : "transparent"
 
     Behavior on color {
         CAnim {}
@@ -46,7 +46,7 @@ Rectangle {
 
         MaterialSymbol {
             icon: Audio.deviceIcon(item.modelData)
-            color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+            color: item.active ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
             fill: item.active ? 1 : 0
         }
 
@@ -56,7 +56,7 @@ Rectangle {
             text: Audio.deviceName(item.modelData)
             font.pixelSize: Appearance.font.normal
             font.weight: item.active ? Font.Medium : Font.Normal
-            color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+            color: item.active ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
             elide: Text.ElideRight
         }
 
@@ -65,7 +65,7 @@ Rectangle {
 
             icon: "check"
             size: Appearance.font.icon.small
-            color: Appearance.palette.m3onSecondaryContainer
+            color: Colours.palette.m3onSecondaryContainer
         }
     }
 }

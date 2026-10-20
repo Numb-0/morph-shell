@@ -73,7 +73,7 @@ BlobPopup {
                 anchors.fill: parent
 
                 radius: tile.selected ? Appearance.rounding.extraLarge : Appearance.rounding.medium
-                color: tile.colors.surfaceContainerHighest ?? Appearance.palette.m3surfaceContainerHighest
+                color: tile.colors.surfaceContainerHighest ?? Colours.palette.m3surfaceContainerHighest
 
                 Behavior on radius {
                     Anim {
@@ -103,7 +103,7 @@ BlobPopup {
                 Rectangle {
                     anchors.fill: parent
 
-                    color: Appearance.palette.m3onSurface
+                    color: Colours.palette.m3onSurface
                     opacity: tileTap.pressed ? 0.16 : tile.hovered ? 0.08 : 0
 
                     Behavior on opacity {
@@ -116,7 +116,7 @@ BlobPopup {
                 Rectangle {
                     anchors.fill: parent
 
-                    color: Appearance.palette.m3surface
+                    color: Colours.palette.m3surface
                     visible: tile.pending
 
                     SequentialAnimation on opacity {
@@ -157,7 +157,7 @@ BlobPopup {
 
                             color: tile.colors[modelData] ?? "transparent"
                             border.width: 2
-                            border.color: tile.colors.surface ?? Appearance.palette.m3surface
+                            border.color: tile.colors.surface ?? Colours.palette.m3surface
                             visible: tile.colors[modelData] !== undefined
                         }
                     }
@@ -172,7 +172,7 @@ BlobPopup {
                 radius: frame.radius
                 color: "transparent"
                 border.width: 3
-                border.color: Appearance.palette.m3primary
+                border.color: Colours.palette.m3primary
                 opacity: tile.selected ? 1 : 0
 
                 Behavior on opacity {
@@ -204,12 +204,12 @@ BlobPopup {
 
                 icon: "check"
                 size: Appearance.font.icon.small
-                color: Appearance.palette.m3primary
+                color: Colours.palette.m3primary
             }
 
             StyledText {
                 text: tile.name
-                color: tile.selected ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
+                color: tile.selected ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
             }
         }
     }
@@ -231,7 +231,7 @@ BlobPopup {
 
             MaterialSymbol {
                 icon: Themes.dark ? "dark_mode" : "light_mode"
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
             }
 
             Switch {

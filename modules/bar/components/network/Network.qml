@@ -17,7 +17,7 @@ Item {
     // the bar along; the panel has room for all of it.
     readonly property int maxLabelWidth: 140
 
-    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: row.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -71,7 +71,7 @@ Item {
 
             // Dimmed while there is no link at all, so an unplugged machine
             // reads at a glance -- as a muted output does.
-            color: Net.connected ? Appearance.palette.m3onSurface : Appearance.palette.m3onSurfaceVariant
+            color: Net.connected ? Colours.palette.m3onSurface : Colours.palette.m3onSurfaceVariant
 
             // Solid while connected: the fan filled up to its signal.
             fill: Net.connected ? 1 : 0

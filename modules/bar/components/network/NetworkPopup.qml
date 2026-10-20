@@ -61,7 +61,7 @@ BlobPopup {
                 implicitHeight: 56
 
                 radius: Appearance.rounding.extraLarge
-                color: Net.wifiEnabled ? Appearance.palette.m3primaryContainer : Appearance.palette.m3surfaceContainerHigh
+                color: Net.wifiEnabled ? Colours.palette.m3primaryContainer : Colours.palette.m3surfaceContainerHigh
 
                 Behavior on color {
                     CAnim {}
@@ -76,7 +76,7 @@ BlobPopup {
                     MaterialSymbol {
                         icon: Net.wifiEnabled ? "wifi" : "wifi_off"
                         size: Appearance.font.icon.normal
-                        color: Net.wifiEnabled ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurfaceVariant
+                        color: Net.wifiEnabled ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurfaceVariant
                         fill: Net.wifiEnabled ? 1 : 0
                     }
 
@@ -88,7 +88,7 @@ BlobPopup {
                             text: qsTr("Wi-Fi")
                             font.pixelSize: Appearance.font.normal
                             font.weight: Font.Medium
-                            color: Net.wifiEnabled ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+                            color: Net.wifiEnabled ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
                         }
 
                         StyledText {
@@ -96,7 +96,7 @@ BlobPopup {
 
                             animate: true
                             text: !Net.wifi ? qsTr("No adapter") : Net.wifiBlocked ? qsTr("Blocked by hardware switch") : !Net.wifiEnabled ? qsTr("Off") : Net.active?.name ?? qsTr("Not connected")
-                            color: Net.wifiEnabled ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurfaceVariant
+                            color: Net.wifiEnabled ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurfaceVariant
                             elide: Text.ElideRight
                         }
                     }
@@ -123,7 +123,7 @@ BlobPopup {
 
                 MaterialSymbol {
                     icon: "lan"
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
                     fill: 1
                 }
 
@@ -136,7 +136,7 @@ BlobPopup {
 
                 StyledText {
                     text: Net.ethernet?.name ?? ""
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
             }
 
@@ -153,7 +153,7 @@ BlobPopup {
 
                     animate: true
                     text: Net.networks.length === 1 ? qsTr("1 network available") : qsTr("%1 networks available").arg(Net.networks.length)
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
 
                 // The scanner is on for as long as the panel is open
@@ -162,7 +162,7 @@ BlobPopup {
                 MaterialSymbol {
                     icon: "progress_activity"
                     size: Appearance.font.icon.small
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
 
                     RotationAnimation on rotation {
                         running: root.open

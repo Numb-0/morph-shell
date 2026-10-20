@@ -42,7 +42,7 @@ ColumnLayout {
         // list item does in M3; the rest only light up under the
         // pointer.
         radius: height / 2
-        color: item.active ? Appearance.palette.m3secondaryContainer : itemHover.hovered ? Qt.alpha(Appearance.palette.m3onSurface, 0.08) : "transparent"
+        color: item.active ? Colours.palette.m3secondaryContainer : itemHover.hovered ? Qt.alpha(Colours.palette.m3onSurface, 0.08) : "transparent"
 
         Behavior on color {
             CAnim {}
@@ -67,7 +67,7 @@ ColumnLayout {
 
             MaterialSymbol {
                 icon: Net.strengthIcon(item.modelData.signalStrength)
-                color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+                color: item.active ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
                 fill: 1
             }
 
@@ -81,7 +81,7 @@ ColumnLayout {
                     text: item.modelData.name
                     font.pixelSize: Appearance.font.normal
                     font.weight: item.active ? Font.Medium : Font.Normal
-                    color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+                    color: item.active ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
                     elide: Text.ElideRight
                 }
 
@@ -98,7 +98,7 @@ ColumnLayout {
 
                     animate: true
                     text: item.connecting ? qsTr("Connecting…") : item.active ? qsTr("Connected") : showsError ? item.error : item.modelData.known && item.modelData !== Net.trial ? qsTr("Saved") : ""
-                    color: showsError ? Appearance.palette.m3error : Appearance.palette.m3onSurfaceVariant
+                    color: showsError ? Colours.palette.m3error : Colours.palette.m3onSurfaceVariant
                     elide: Text.ElideRight
                 }
             }
@@ -108,7 +108,7 @@ ColumnLayout {
 
                 icon: "lock"
                 size: Appearance.font.icon.small
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
             }
 
             // Leave, for the joined one; a spinner while joining;
@@ -123,7 +123,7 @@ ColumnLayout {
                     visible: item.active
 
                     icon: "link_off"
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
 
                     onActivated: Net.disconnectWifi()
                 }
@@ -135,7 +135,7 @@ ColumnLayout {
 
                     icon: "progress_activity"
                     size: Appearance.font.icon.small
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
 
                     RotationAnimation on rotation {
                         running: item.connecting
@@ -160,9 +160,9 @@ ColumnLayout {
         implicitHeight: 44
 
         radius: height / 2
-        color: Appearance.palette.m3surfaceContainerHighest
+        color: Colours.palette.m3surfaceContainerHighest
         border.width: 2
-        border.color: item.error !== "" ? Appearance.palette.m3error : password.activeFocus ? Appearance.palette.m3primary : Appearance.palette.m3outline
+        border.color: item.error !== "" ? Colours.palette.m3error : password.activeFocus ? Colours.palette.m3primary : Colours.palette.m3outline
 
         Behavior on border.color {
             CAnim {}
@@ -188,7 +188,7 @@ ColumnLayout {
 
                 Layout.fillWidth: true
 
-                color: Appearance.palette.m3onSurface
+                color: Colours.palette.m3onSurface
                 font.family: Appearance.font.family
                 font.pixelSize: Appearance.font.normal
 
@@ -196,8 +196,8 @@ ColumnLayout {
                 echoMode: TextInput.Password
                 passwordCharacter: "•"
                 selectByMouse: true
-                selectionColor: Appearance.palette.m3primary
-                selectedTextColor: Appearance.palette.m3onPrimary
+                selectionColor: Colours.palette.m3primary
+                selectedTextColor: Colours.palette.m3onPrimary
                 clip: true
 
                 Keys.onReturnPressed: Net.connectWithPassword(item.modelData, text)
@@ -211,20 +211,20 @@ ColumnLayout {
 
                     text: qsTr("Password")
                     font.pixelSize: Appearance.font.normal
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
             }
 
             IconButton {
                 icon: password.echoMode === TextInput.Password ? "visibility" : "visibility_off"
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
 
                 onActivated: password.echoMode = password.echoMode === TextInput.Password ? TextInput.Normal : TextInput.Password
             }
 
             IconButton {
                 icon: "arrow_forward"
-                color: Appearance.palette.m3primary
+                color: Colours.palette.m3primary
 
                 onActivated: Net.connectWithPassword(item.modelData, password.text)
             }

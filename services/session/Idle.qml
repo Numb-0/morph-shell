@@ -49,7 +49,7 @@ Singleton {
             return;
 
         undimmed = Backlight.brightness;
-        setBacklight(undimmed * Appearance.idle.dimTo);
+        setBacklight(undimmed * Config.idle.dimTo);
     }
 
     function undim(): void {
@@ -59,7 +59,7 @@ Singleton {
         // Unless something else has moved it since: a brightness key
         // pressed in the dark counts as input and lands here, and its
         // new level is the one to keep.
-        if (Backlight.available && Math.abs(Backlight.brightness - undimmed * Appearance.idle.dimTo) < 0.01)
+        if (Backlight.available && Math.abs(Backlight.brightness - undimmed * Config.idle.dimTo) < 0.01)
             setBacklight(undimmed);
         undimmed = -1;
     }
@@ -94,15 +94,15 @@ Singleton {
     }
 
     IdleMonitor {
-        enabled: !root.awake && Appearance.idle.dim > 0
-        timeout: Appearance.idle.dim
+        enabled: !root.awake && Config.idle.dim > 0
+        timeout: Config.idle.dim
 
         onIsIdleChanged: isIdle ? root.dim() : root.undim()
     }
 
     IdleMonitor {
-        enabled: !root.awake && Appearance.idle.lock > 0
-        timeout: Appearance.idle.lock
+        enabled: !root.awake && Config.idle.lock > 0
+        timeout: Config.idle.lock
 
         onIsIdleChanged: {
             if (isIdle)
@@ -111,8 +111,8 @@ Singleton {
     }
 
     IdleMonitor {
-        enabled: !root.awake && root.onHyprland && Appearance.idle.screenOff > 0
-        timeout: Appearance.idle.screenOff
+        enabled: !root.awake && root.onHyprland && Config.idle.screenOff > 0
+        timeout: Config.idle.screenOff
 
         onIsIdleChanged: root.setScreens(!isIdle)
     }

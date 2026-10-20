@@ -174,7 +174,7 @@ Item {
             height: size * boil
             radius: width / 2
 
-            color: urgent ? Appearance.palette.m3error : windows > 0 ? Appearance.palette.m3secondary : Appearance.palette.m3outlineVariant
+            color: urgent ? Colours.palette.m3error : windows > 0 ? Colours.palette.m3secondary : Colours.palette.m3outlineVariant
 
             SequentialAnimation on boil {
                 running: drop.urgent && root.ws.running
@@ -236,7 +236,7 @@ Item {
         ]
 
         ShapePath {
-            fillColor: Appearance.palette.m3primary
+            fillColor: Colours.palette.m3primary
             strokeWidth: -1
 
             PathPolyline {

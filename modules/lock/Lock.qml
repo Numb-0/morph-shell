@@ -248,7 +248,7 @@ Scope {
 
     onSleepingChanged: {
         if (sleeping) {
-            if (Appearance.idle.lockBeforeSleep)
+            if (Config.idle.lockBeforeSleep)
                 root.lock();
         } else {
             lockDrawn = false;
@@ -270,7 +270,7 @@ Scope {
     }
 
     Process {
-        running: Appearance.idle.lockBeforeSleep && !(root.sleeping && root.lockDrawn)
+        running: Config.idle.lockBeforeSleep && !(root.sleeping && root.lockDrawn)
 
         command: ["systemd-inhibit", "--what=sleep", "--mode=delay", "--who=morph-shell", "--why=Locking the screen first", "sleep", "infinity"]
     }

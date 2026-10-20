@@ -21,7 +21,7 @@ WlSessionLockSurface {
 
     required property Lock lock
 
-    color: Appearance.palette.m3surface
+    color: Colours.palette.m3surface
 
     // Decoded before the first frame, not after: the compositor shows a
     // lock surface the moment it has one, and an async load would flash
@@ -29,7 +29,7 @@ WlSessionLockSurface {
     Image {
         anchors.fill: parent
 
-        source: Appearance.wallpaper ? `file://${Appearance.wallpaper}` : ""
+        source: Wallpaper.image ? `file://${Wallpaper.image}` : ""
         fillMode: Image.PreserveAspectCrop
         asynchronous: false
         cache: false
@@ -42,7 +42,7 @@ WlSessionLockSurface {
         anchors.fill: parent
 
         color: {
-            const c = Appearance.palette.m3scrim;
+            const c = Colours.palette.m3scrim;
             return Qt.rgba(c.r, c.g, c.b, 0.3);
         }
 
@@ -126,14 +126,14 @@ WlSessionLockSurface {
             StyledText {
                 text: Time.format("HH:mm")
                 font.pixelSize: 120
-                color: Appearance.palette.m3primaryFixed
+                color: Colours.palette.m3primaryFixed
             }
 
             StyledText {
                 leftPadding: Appearance.padding.small
                 text: Time.format("dddd d MMMM")
                 font.pixelSize: Appearance.font.large
-                color: Appearance.palette.m3primaryFixedDim
+                color: Colours.palette.m3primaryFixedDim
             }
         }
 
@@ -192,7 +192,7 @@ WlSessionLockSurface {
             anchors.verticalCenter: parent.verticalCenter
             anchors.verticalCenterOffset: 120
 
-            readonly property color content: root.lock.unlocking ? Appearance.palette.m3onSuccess : root.lock.wrong ? Appearance.palette.m3onError : Appearance.palette.m3onTertiary
+            readonly property color content: root.lock.unlocking ? Colours.palette.m3onSuccess : root.lock.wrong ? Colours.palette.m3onError : Colours.palette.m3onTertiary
 
             readonly property int dotSize: 10
             readonly property int step: dotSize + Appearance.spacing.small
@@ -222,7 +222,7 @@ WlSessionLockSurface {
             implicitHeight: 60
 
             radius: height / 2
-            color: root.lock.unlocking ? Appearance.palette.m3success : root.lock.wrong ? Appearance.palette.m3error : Appearance.palette.m3tertiary
+            color: root.lock.unlocking ? Colours.palette.m3success : root.lock.wrong ? Colours.palette.m3error : Colours.palette.m3tertiary
 
             // Leans with the swing, as a head shaken rather than slid.
             rotation: anchors.horizontalCenterOffset * 0.15
@@ -278,7 +278,7 @@ WlSessionLockSurface {
 
                 function onFailed(): void {
                     shake.restart();
-                    ring.burst(Appearance.palette.m3error);
+                    ring.burst(Colours.palette.m3error);
                 }
 
                 function onUnlockingChanged(): void {
@@ -605,7 +605,7 @@ WlSessionLockSurface {
 
             text: root.lock.message || (root.lock.wrong ? qsTr("Wrong password, try again") : "")
             font.pixelSize: Appearance.font.normal
-            color: Appearance.palette.m3error
+            color: Colours.palette.m3error
         }
     }
 }

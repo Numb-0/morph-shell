@@ -121,7 +121,7 @@ Scope {
                     anchors.fill: parent
 
                     color: {
-                        const c = Appearance.palette.m3scrim;
+                        const c = Colours.palette.m3scrim;
                         return Qt.rgba(c.r, c.g, c.b, 0.45);
                     }
 

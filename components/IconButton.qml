@@ -6,7 +6,7 @@ Item {
     id: btn
 
     required property string icon
-    property color color: Appearance.palette.m3onSurface
+    property color color: Colours.palette.m3onSurface
     property int iconSize: Appearance.font.icon.small
 
     signal activated

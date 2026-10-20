@@ -98,19 +98,19 @@ Item {
             Glyph {
                 on: Privacy.micInUse
                 icon: Audio.micMuted ? "mic_off" : "mic"
-                tint: Audio.micMuted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3warning
+                tint: Audio.micMuted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3warning
             }
 
             Glyph {
                 on: Privacy.cameraInUse
                 icon: "videocam"
-                tint: Appearance.palette.m3success
+                tint: Colours.palette.m3success
             }
 
             Glyph {
                 on: Privacy.screenInUse
                 icon: "screen_share"
-                tint: Appearance.palette.m3error
+                tint: Colours.palette.m3error
             }
 
             // Who, beside the glyphs.
@@ -141,7 +141,7 @@ Item {
                     text: Privacy.everyone.join(", ")
                     elide: Text.ElideRight
                     font.pixelSize: Appearance.font.small
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
             }
         }

@@ -71,14 +71,14 @@ BlobPopup {
                             text: Time.format("hh")
                             font.pixelSize: 54
                             font.weight: Font.DemiBold
-                            color: Appearance.palette.m3primary
+                            color: Colours.palette.m3primary
                         }
 
                         StyledText {
                             text: ":"
                             font.pixelSize: 54
                             font.weight: Font.DemiBold
-                            color: Appearance.palette.m3outline
+                            color: Colours.palette.m3outline
                         }
 
                         StyledText {
@@ -92,7 +92,7 @@ BlobPopup {
                         text: Time.format("dddd")
                         font.pixelSize: Appearance.font.normal
                         font.weight: Font.Medium
-                        color: Appearance.palette.m3onSurfaceVariant
+                        color: Colours.palette.m3onSurfaceVariant
                     }
                 }
 
@@ -101,7 +101,7 @@ BlobPopup {
                     implicitHeight: 76
 
                     radius: Appearance.rounding.large
-                    color: Appearance.palette.m3primaryContainer
+                    color: Colours.palette.m3primaryContainer
 
                     Column {
                         anchors.centerIn: parent
@@ -114,7 +114,7 @@ BlobPopup {
                             font.pixelSize: Appearance.font.small
                             font.weight: Font.Bold
                             font.letterSpacing: 1.5
-                            color: Appearance.palette.m3primary
+                            color: Colours.palette.m3primary
                         }
 
                         StyledText {
@@ -123,7 +123,7 @@ BlobPopup {
                             text: Time.format("d")
                             font.pixelSize: 34
                             font.weight: Font.DemiBold
-                            color: Appearance.palette.m3onPrimaryContainer
+                            color: Colours.palette.m3onPrimaryContainer
                         }
                     }
                 }
@@ -135,7 +135,7 @@ BlobPopup {
                 implicitHeight: calendar.implicitHeight + Appearance.padding.medium * 2
 
                 radius: Appearance.rounding.extraLarge
-                color: Appearance.palette.m3surfaceContainerHigh
+                color: Colours.palette.m3surfaceContainerHigh
 
                 ColumnLayout {
                     id: calendar
@@ -164,7 +164,7 @@ BlobPopup {
 
                         IconButton {
                             icon: "today"
-                            color: Appearance.palette.m3primary
+                            color: Colours.palette.m3primary
 
                             opacity: root.onToday ? 0 : 1
                             visible: opacity > 0
@@ -204,7 +204,7 @@ BlobPopup {
 
                             text: Qt.formatDate(new Date(2024, 0, day), "ddd").charAt(0)
                             horizontalAlignment: Text.AlignHCenter
-                            color: Appearance.palette.m3outline
+                            color: Colours.palette.m3outline
                             font.weight: Font.Medium
                         }
                     }
@@ -254,7 +254,7 @@ BlobPopup {
                                 height: 32
 
                                 radius: width / 2
-                                color: cell.isToday ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+                                color: cell.isToday ? Colours.palette.m3primary : Colours.palette.m3onSurface
                                 opacity: cell.isToday ? 1 : cellHover.hovered && cell.inMonth ? 0.1 : 0
                                 scale: cell.isToday || cellHover.hovered ? 1 : 0.6
 
@@ -276,7 +276,7 @@ BlobPopup {
 
                                 text: cell.model.day
                                 font.weight: cell.isToday ? Font.Bold : Font.Normal
-                                color: cell.isToday ? Appearance.palette.m3onPrimary : cell.inMonth ? Appearance.palette.m3onSurface : Qt.alpha(Appearance.palette.m3onSurface, 0.38)
+                                color: cell.isToday ? Colours.palette.m3onPrimary : cell.inMonth ? Colours.palette.m3onSurface : Qt.alpha(Colours.palette.m3onSurface, 0.38)
                             }
                         }
                     }

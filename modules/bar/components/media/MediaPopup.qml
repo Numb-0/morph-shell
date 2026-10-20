@@ -42,7 +42,7 @@ BlobPopup {
                     Layout.alignment: Qt.AlignTop
 
                     radius: Appearance.rounding.large
-                    color: Appearance.palette.m3surfaceContainerHighest
+                    color: Colours.palette.m3surfaceContainerHighest
                     clip: true
 
                     // Under the art, for players that publish none: a
@@ -72,12 +72,12 @@ BlobPopup {
 
                             GradientStop {
                                 position: 0
-                                color: Appearance.palette.m3primaryContainer
+                                color: Colours.palette.m3primaryContainer
                             }
 
                             GradientStop {
                                 position: 1
-                                color: Appearance.palette.m3tertiaryContainer
+                                color: Colours.palette.m3tertiaryContainer
                             }
                         }
 
@@ -241,7 +241,7 @@ BlobPopup {
                             }
 
                             ShapePath {
-                                fillColor: Appearance.palette.m3primary
+                                fillColor: Colours.palette.m3primary
                                 strokeWidth: -1
 
                                 PathPolyline {
@@ -255,7 +255,7 @@ BlobPopup {
 
                             icon: "music_note"
                             size: Appearance.font.icon.large
-                            color: Appearance.palette.m3onPrimary
+                            color: Colours.palette.m3onPrimary
                             fill: 1
                         }
                     }
@@ -303,7 +303,7 @@ BlobPopup {
 
                         animate: true
                         text: [Players.active?.trackArtist, Players.active?.trackAlbum].filter(s => s).join(" · ")
-                        color: Appearance.palette.m3onSurfaceVariant
+                        color: Colours.palette.m3onSurfaceVariant
                         elide: Text.ElideRight
                         visible: text.length > 0
                     }
@@ -384,7 +384,7 @@ BlobPopup {
                     Layout.preferredWidth: timeMetrics.advanceWidth
 
                     text: Players.formatTime(Players.position)
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                     horizontalAlignment: Text.AlignRight
                 }
 
@@ -416,7 +416,7 @@ BlobPopup {
                     Layout.preferredWidth: timeMetrics.advanceWidth
 
                     text: Players.formatTime(Players.length)
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
             }
         }

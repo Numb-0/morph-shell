@@ -17,8 +17,8 @@ Item {
 
     signal tapped
 
-    implicitWidth: Appearance.dock.iconSize + Appearance.padding.small * 2
-    implicitHeight: Appearance.dock.iconSize + Appearance.padding.small * 2
+    implicitWidth: Config.dock.iconSize + Appearance.padding.small * 2
+    implicitHeight: Config.dock.iconSize + Appearance.padding.small * 2
 
     HoverHandler {
         id: hover
@@ -35,7 +35,7 @@ Item {
 
         icon: root.icon
         size: Appearance.font.icon.large
-        color: root.active || hover.hovered ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+        color: root.active || hover.hovered ? Colours.palette.m3primary : Colours.palette.m3onSurface
 
         // Fills while its panel is open, so the button shows the state
         // it put the dock in.

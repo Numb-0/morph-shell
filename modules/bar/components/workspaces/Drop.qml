@@ -190,7 +190,7 @@ Item {
     BlobGroup {
         id: still
 
-        color: Appearance.palette.m3secondary
+        color: Colours.palette.m3secondary
         smoothing: 4
         cornerFill: false
     }
@@ -198,7 +198,7 @@ Item {
     BlobGroup {
         id: alarm
 
-        color: Appearance.palette.m3error
+        color: Colours.palette.m3error
         smoothing: 4
         cornerFill: false
     }
@@ -208,7 +208,7 @@ Item {
     BlobGroup {
         id: leaper
 
-        color: Appearance.palette.m3primary
+        color: Colours.palette.m3primary
         smoothing: 7
         cornerFill: false
     }
@@ -230,7 +230,7 @@ Item {
             height: 4
             radius: 2
 
-            color: Appearance.palette.m3outlineVariant
+            color: Colours.palette.m3outlineVariant
             opacity: root.ws.windowsOn(wsId) > 0 ? 0 : 1
 
             Behavior on opacity {

@@ -31,7 +31,7 @@ Item {
         anchors.right: parent.right
 
         height: 1
-        color: Appearance.palette.m3outlineVariant
+        color: Colours.palette.m3outlineVariant
     }
 
     HoverHandler {
@@ -55,7 +55,7 @@ Item {
         anchors.fill: parent
 
         radius: Appearance.rounding.medium
-        color: Appearance.palette.m3onSurface
+        color: Colours.palette.m3onSurface
         opacity: entryTap.pressed ? 0.12 : entryHover.hovered ? 0.08 : 0
 
         Behavior on opacity {
@@ -92,7 +92,7 @@ Item {
                 return "";
             }
             size: Appearance.font.icon.small
-            color: checked !== Qt.Unchecked ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
+            color: checked !== Qt.Unchecked ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
             fill: checked !== Qt.Unchecked ? 1 : 0
         }
 
@@ -123,7 +123,7 @@ Item {
 
             icon: "chevron_right"
             size: Appearance.font.icon.small
-            color: Appearance.palette.m3onSurfaceVariant
+            color: Colours.palette.m3onSurfaceVariant
         }
     }
 }

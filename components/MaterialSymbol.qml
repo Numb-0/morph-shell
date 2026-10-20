@@ -32,7 +32,7 @@ Text {
     }
 
     text: icon
-    color: Appearance.palette.m3onSurface
+    color: Colours.palette.m3onSurface
 
     font.family: Appearance.font.material
     font.pixelSize: size

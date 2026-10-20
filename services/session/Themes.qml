@@ -153,7 +153,7 @@ Singleton {
                 // The first read is the shell starting up, which has
                 // its colours already.
                 if (loaded)
-                    Appearance.reloadPalette();
+                    Colours.reload();
                 loaded = true;
             } catch (e) {
                 // Caught mid-write: the next change brings the rest.

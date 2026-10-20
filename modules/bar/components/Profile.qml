@@ -11,7 +11,7 @@ Item {
 
     readonly property bool hovered: hover.hovered
 
-    implicitWidth: icon.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: icon.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: icon.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -36,7 +36,7 @@ Item {
 
         // Performance held back by the daemon -- too hot, or on a lap --
         // reads as a warning rather than as the bolt it asked for.
-        color: Profiles.degraded ? Appearance.palette.m3warning : Appearance.palette.m3primary
+        color: Profiles.degraded ? Colours.palette.m3warning : Colours.palette.m3primary
         fill: root.hovered ? 1 : 0
 
         Behavior on fill {

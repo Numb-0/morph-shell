@@ -146,7 +146,7 @@ BlobPopup {
                     anchors.fill: parent
 
                     radius: Appearance.rounding.medium
-                    color: Appearance.palette.m3onSurface
+                    color: Colours.palette.m3onSurface
                     visible: heading.inSubmenu
                     opacity: headerTap.pressed ? 0.12 : headerHover.hovered ? 0.08 : 0
 
@@ -170,7 +170,7 @@ BlobPopup {
 
                         icon: "arrow_back"
                         size: Appearance.font.icon.small
-                        color: Appearance.palette.m3primary
+                        color: Colours.palette.m3primary
                     }
 
                     StyledText {
@@ -180,7 +180,7 @@ BlobPopup {
                         text: heading.inSubmenu ? root.trail[root.trail.length - 1].text : root.item?.tooltipTitle || root.item?.title || root.item?.id || ""
                         font.pixelSize: Appearance.font.normal
                         font.weight: Font.Medium
-                        color: heading.inSubmenu ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+                        color: heading.inSubmenu ? Colours.palette.m3primary : Colours.palette.m3onSurface
                         elide: Text.ElideRight
                     }
                 }
@@ -192,7 +192,7 @@ BlobPopup {
                 Layout.bottomMargin: Appearance.spacing.extraSmall
                 implicitHeight: 1
 
-                color: Appearance.palette.m3outlineVariant
+                color: Colours.palette.m3outlineVariant
             }
 
             // The entries, sliding in from the side they were reached

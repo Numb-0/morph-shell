@@ -23,7 +23,7 @@ ColumnLayout {
 
     spacing: Appearance.spacing.small
 
-    readonly property color accent: notif.critical ? Appearance.palette.m3error : Appearance.palette.m3primary
+    readonly property color accent: notif.critical ? Colours.palette.m3error : Colours.palette.m3primary
 
     // Minutes, then hours, then the date: fine grained while it is fresh,
     // and nobody needs the minute of something from last week.
@@ -76,7 +76,7 @@ ColumnLayout {
             Layout.fillWidth: true
 
             text: root.notif.appName
-            color: Appearance.palette.m3onSurfaceVariant
+            color: Colours.palette.m3onSurfaceVariant
             elide: Text.ElideRight
         }
 
@@ -84,7 +84,7 @@ ColumnLayout {
             visible: !root.showClose
 
             text: root.ago(root.notif.time)
-            color: Appearance.palette.m3onSurfaceVariant
+            color: Colours.palette.m3onSurfaceVariant
         }
 
         // Swapped in over the time rather than beside it, so the header
@@ -114,7 +114,7 @@ ColumnLayout {
                 width: 28
                 height: 28
                 radius: 14
-                color: Appearance.palette.m3onSurface
+                color: Colours.palette.m3onSurface
                 opacity: closeHover.hovered ? 0.12 : 0
 
                 Behavior on opacity {
@@ -129,7 +129,7 @@ ColumnLayout {
 
                 icon: "close"
                 size: Appearance.font.icon.small
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
             }
         }
     }
@@ -151,7 +151,7 @@ ColumnLayout {
                 text: root.notif.summary
                 font.pixelSize: Appearance.font.normal
                 font.weight: Font.Medium
-                color: root.notif.critical ? Appearance.palette.m3error : Appearance.palette.m3onSurface
+                color: root.notif.critical ? Colours.palette.m3error : Colours.palette.m3onSurface
                 elide: Text.ElideRight
             }
 
@@ -161,7 +161,7 @@ ColumnLayout {
                 visible: text !== ""
 
                 text: root.notif.body
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
                 wrapMode: Text.Wrap
                 maximumLineCount: root.bodyLines
                 elide: Text.ElideRight
@@ -181,7 +181,7 @@ ColumnLayout {
             radius: Appearance.rounding.medium
             color: root.notif.swatch || "transparent"
             border.width: 1
-            border.color: Appearance.palette.m3outlineVariant
+            border.color: Colours.palette.m3outlineVariant
         }
 
         // A sender's picture -- an avatar, album art -- in a rounded well.
@@ -193,7 +193,7 @@ ColumnLayout {
             implicitWidth: 48
             implicitHeight: 48
             radius: Appearance.rounding.medium
-            color: Appearance.palette.m3surfaceContainerHighest
+            color: Colours.palette.m3surfaceContainerHighest
             clip: true
 
             Image {
@@ -228,7 +228,7 @@ ColumnLayout {
                 implicitHeight: 30
 
                 radius: height / 2
-                color: chipHover.hovered ? Appearance.palette.m3secondaryContainer : Appearance.palette.m3surfaceContainerHighest
+                color: chipHover.hovered ? Colours.palette.m3secondaryContainer : Colours.palette.m3surfaceContainerHighest
 
                 Behavior on color {
                     CAnim {}
@@ -251,7 +251,7 @@ ColumnLayout {
                     anchors.centerIn: parent
 
                     text: chip.modelData.text
-                    color: chipHover.hovered ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+                    color: chipHover.hovered ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
                 }
             }
         }

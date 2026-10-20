@@ -111,7 +111,7 @@ Item {
             Layout.preferredHeight: fader.faderHeight
 
             radius: width / 2
-            color: Appearance.palette.m3surfaceContainerHigh
+            color: Colours.palette.m3surfaceContainerHigh
 
             Rectangle {
                 id: fill
@@ -122,7 +122,7 @@ Item {
                 height: parent.width + track.span * fader.value * fader.rise
 
                 radius: parent.radius
-                color: fader.muted ? Appearance.palette.m3surfaceContainerHighest : Appearance.palette.m3primaryContainer
+                color: fader.muted ? Colours.palette.m3surfaceContainerHighest : Colours.palette.m3primaryContainer
 
                 Behavior on color {
                     CAnim {}
@@ -137,7 +137,7 @@ Item {
                     height: parent.width + (parent.height - parent.width) * fader.level
 
                     radius: parent.radius
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
                     opacity: fader.muted ? 0 : 0.22 + fader.level * 0.2
 
                     Behavior on opacity {
@@ -186,7 +186,7 @@ Item {
                         visible: !appIcon.visible
 
                         icon: "graphic_eq"
-                        color: fader.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onPrimaryContainer
+                        color: fader.muted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3onPrimaryContainer
                         fill: 1
                     }
 
@@ -200,7 +200,7 @@ Item {
                         height: 18
                         radius: 9
 
-                        color: Appearance.palette.m3error
+                        color: Colours.palette.m3error
                         scale: fader.muted ? 1 : 0
 
                         Behavior on scale {
@@ -214,7 +214,7 @@ Item {
 
                             icon: "volume_off"
                             size: 12
-                            color: Appearance.palette.m3onError
+                            color: Colours.palette.m3onError
                             fill: 1
                         }
                     }
@@ -230,7 +230,7 @@ Item {
 
                 // Over the fill once it has climbed this far, under it
                 // until then.
-                color: fill.height > track.height - Appearance.padding.small - 8 && !fader.muted ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
+                color: fill.height > track.height - Appearance.padding.small - 8 && !fader.muted ? Colours.palette.m3onPrimaryContainer : Colours.palette.m3onSurfaceVariant
                 font.weight: Font.Medium
             }
 
@@ -239,7 +239,7 @@ Item {
                 anchors.fill: parent
 
                 radius: parent.radius
-                color: Appearance.palette.m3onSurface
+                color: Colours.palette.m3onSurface
                 opacity: area.pressed ? 0.1 : area.containsMouse ? 0.06 : 0
 
                 Behavior on opacity {
@@ -312,7 +312,7 @@ Item {
 
             text: Audio.streamName(fader.modelData)
             horizontalAlignment: Text.AlignHCenter
-            color: fader.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onSurface
+            color: fader.muted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3onSurface
             elide: Text.ElideRight
         }
     }

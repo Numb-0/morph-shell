@@ -331,10 +331,10 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        implicitHeight: Appearance.dock.resultHeight
+        implicitHeight: Config.dock.resultHeight
 
         radius: height / 2
-        color: Appearance.palette.m3surfaceContainerHighest
+        color: Colours.palette.m3surfaceContainerHighest
 
         // Closed until the open state says otherwise.
         opacity: 0
@@ -352,7 +352,7 @@ Item {
 
                 icon: root.shownIcon
                 size: Appearance.font.icon.normal
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
             }
 
             TextInput {
@@ -362,14 +362,14 @@ Item {
 
                 width: parent.width - searchIcon.width - parent.spacing - (actionRow.visible ? actionRow.width + parent.spacing : 0)
 
-                color: Appearance.palette.m3onSurface
+                color: Colours.palette.m3onSurface
                 font.family: Appearance.font.family
                 font.pixelSize: Appearance.font.normal
 
                 renderType: TextInput.NativeRendering
                 selectByMouse: true
-                selectionColor: Appearance.palette.m3primary
-                selectedTextColor: Appearance.palette.m3onPrimary
+                selectionColor: Colours.palette.m3primary
+                selectedTextColor: Colours.palette.m3onPrimary
 
                 // The list never takes focus -- the field keeps it and
                 // drives the selection -- so typing continues to work
@@ -405,7 +405,7 @@ Item {
 
                     text: root.placeholder
                     font.pixelSize: Appearance.font.normal
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
             }
 
@@ -522,7 +522,7 @@ Item {
 
                 highlight: Rectangle {
                     radius: Appearance.rounding.large
-                    color: Appearance.palette.m3surfaceContainerHigh
+                    color: Colours.palette.m3surfaceContainerHigh
                 }
             }
 
@@ -596,7 +596,7 @@ Item {
 
                 highlight: Rectangle {
                     radius: Appearance.rounding.medium
-                    color: Appearance.palette.m3surfaceContainerHigh
+                    color: Colours.palette.m3surfaceContainerHigh
                 }
             }
 
@@ -606,7 +606,7 @@ Item {
                 visible: root.shownResults.length === 0
 
                 text: root.shownEmptyText
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
             }
         }
     }

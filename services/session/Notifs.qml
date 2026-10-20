@@ -161,7 +161,7 @@ Singleton {
         // A popup past the cap, kept off the screen until one above it
         // goes. Its countdown waits with it: run down unseen, it would
         // have nobody to take it away, and turn up already spent.
-        readonly property bool waiting: popup && root.popups.indexOf(notif) >= Appearance.notifs.maxPopups
+        readonly property bool waiting: popup && root.popups.indexOf(notif) >= Config.notifs.maxPopups
 
         onWaitingChanged: waiting ? disarm() : arm()
 

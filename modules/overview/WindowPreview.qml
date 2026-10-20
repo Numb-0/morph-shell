@@ -37,9 +37,9 @@ ClippingRectangle {
     signal dragMoved(real cx, real cy)
     signal dragEnded
 
-    color: Appearance.palette.m3surfaceContainerHigh
+    color: Colours.palette.m3surfaceContainerHigh
     border.width: 1
-    border.color: Appearance.palette.m3outlineVariant
+    border.color: Colours.palette.m3outlineVariant
 
     scale: dragging ? 1.06 : 1
     opacity: (dragging ? 0.9 : 1) * Math.min(1, appear)
@@ -93,7 +93,7 @@ ClippingRectangle {
         width: Math.min(root.width - Appearance.padding.small * 2, title.implicitWidth + Appearance.padding.medium * 2)
         height: title.implicitHeight + Appearance.padding.extraSmall * 2
         radius: height / 2
-        color: Appearance.palette.m3inverseSurface
+        color: Colours.palette.m3inverseSurface
 
         Behavior on opacity {
             Anim {
@@ -109,7 +109,7 @@ ClippingRectangle {
 
             text: root.toplevel?.title ?? ""
             elide: Text.ElideRight
-            color: Appearance.palette.m3inverseOnSurface
+            color: Colours.palette.m3inverseOnSurface
         }
     }
 

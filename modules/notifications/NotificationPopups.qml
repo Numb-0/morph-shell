@@ -30,11 +30,11 @@ Variants {
 
         required property var modelData
 
-        readonly property int cardWidth: Appearance.notifs.width
-        readonly property int drop: Appearance.notifs.drop
+        readonly property int cardWidth: Config.notifs.width
+        readonly property int drop: Config.notifs.drop
 
         // Where the stack's column sits, and so the spout above it.
-        readonly property real columnX: width - Appearance.notifs.margin - cardWidth
+        readonly property real columnX: width - Config.notifs.margin - cardWidth
         readonly property real columnCentre: columnX + cardWidth / 2
 
         screen: modelData
@@ -58,7 +58,7 @@ Variants {
 
         // Room either side of the column for a card overshooting as it
         // swells, and for one wobbling as it is dragged back.
-        implicitWidth: cardWidth + Appearance.notifs.margin * 2 + 32
+        implicitWidth: cardWidth + Config.notifs.margin * 2 + 32
 
         Item {
             id: hitArea
@@ -71,7 +71,7 @@ Variants {
 
         // What should be up: newest first, and past the cap the oldest
         // wait in the centre instead of running down the screen.
-        readonly property var wanted: Notifs.popups.slice(0, Appearance.notifs.maxPopups)
+        readonly property var wanted: Notifs.popups.slice(0, Config.notifs.maxPopups)
 
         // What is drawn: everything wanted, plus whatever is still on its
         // way out. A toast leaves this only once its own exit has played
@@ -96,8 +96,8 @@ Variants {
         BlobGroup {
             id: group
 
-            color: Appearance.palette.m3surfaceContainer
-            smoothing: Appearance.notifs.smoothing
+            color: Colours.palette.m3surfaceContainer
+            smoothing: Config.notifs.smoothing
         }
 
         // The spout. Pokes a little way out of the top edge while a drop
@@ -140,7 +140,7 @@ Variants {
             id: stack
 
             x: win.columnX
-            y: Appearance.notifs.top
+            y: Config.notifs.top
             width: win.cardWidth
 
             Repeater {
@@ -219,7 +219,7 @@ Variants {
                     }
 
                     width: win.cardWidth
-                    height: (bodyHeight + Appearance.notifs.gap) * presence
+                    height: (bodyHeight + Config.notifs.gap) * presence
 
                     // Over its neighbours while falling past them or being
                     // dragged across them.
@@ -483,7 +483,7 @@ Variants {
                             fullLength: content.width
                             value: 1
 
-                            color: toast.notif.critical ? Appearance.palette.m3error : Appearance.palette.m3primary
+                            color: toast.notif.critical ? Colours.palette.m3error : Colours.palette.m3primary
                             opacity: 0.85
 
                             NumberAnimation on waveProgress {

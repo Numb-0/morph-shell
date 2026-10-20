@@ -34,7 +34,7 @@ Rectangle {
     // The connected ones sit on a tonal pill, as the joined network
     // does; the rest only light up under the pointer.
     radius: height / 2
-    color: active ? Appearance.palette.m3secondaryContainer : itemHover.hovered ? Qt.alpha(Appearance.palette.m3onSurface, 0.08) : "transparent"
+    color: active ? Colours.palette.m3secondaryContainer : itemHover.hovered ? Qt.alpha(Colours.palette.m3onSurface, 0.08) : "transparent"
 
     Behavior on color {
         CAnim {}
@@ -62,7 +62,7 @@ Rectangle {
 
         MaterialSymbol {
             icon: Bt.deviceIcon(item.modelData)
-            color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+            color: item.active ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
             fill: item.active ? 1 : 0
         }
 
@@ -76,7 +76,7 @@ Rectangle {
                 text: item.modelData.name
                 font.pixelSize: Appearance.font.normal
                 font.weight: item.active ? Font.Medium : Font.Normal
-                color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+                color: item.active ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
                 elide: Text.ElideRight
             }
 
@@ -87,7 +87,7 @@ Rectangle {
 
                 animate: true
                 text: item.status
-                color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurfaceVariant
+                color: item.active ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurfaceVariant
                 elide: Text.ElideRight
             }
         }
@@ -99,7 +99,7 @@ Rectangle {
             visible: item.modelData.paired && !item.busy
 
             icon: "delete"
-            color: item.active ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurfaceVariant
+            color: item.active ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurfaceVariant
 
             onActivated: Bt.forget(item.modelData)
         }
@@ -119,7 +119,7 @@ Rectangle {
                 visible: item.active && !item.busy
 
                 icon: "link_off"
-                color: Appearance.palette.m3primary
+                color: Colours.palette.m3primary
 
                 onActivated: Bt.toggle(item.modelData)
             }
@@ -131,7 +131,7 @@ Rectangle {
 
                 icon: "progress_activity"
                 size: Appearance.font.icon.small
-                color: Appearance.palette.m3primary
+                color: Colours.palette.m3primary
 
                 RotationAnimation on rotation {
                     running: item.busy

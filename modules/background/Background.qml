@@ -5,7 +5,7 @@ import qs.config
 
 // The desktop wallpaper, drawn by the shell so a theme switch can fade
 // from one image to the next instead of cutting. The image comes from
-// Appearance.wallpaper; with none, the screen is plain surface.
+// Wallpaper.image; with none, the screen is plain surface.
 Variants {
     model: Quickshell.screens
 
@@ -15,7 +15,7 @@ Variants {
         required property var modelData
 
         screen: modelData
-        color: Appearance.palette.m3surface
+        color: Colours.palette.m3surface
 
         // Under every window, over the whole screen, reserving nothing
         // and taking no input.
@@ -37,7 +37,7 @@ Variants {
         property Image front: null
         property Image incoming: null
 
-        readonly property string path: Appearance.wallpaper
+        readonly property string path: Wallpaper.image
 
         onPathChanged: change()
         Component.onCompleted: change()

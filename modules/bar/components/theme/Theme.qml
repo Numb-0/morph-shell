@@ -15,7 +15,7 @@ Item {
 
     readonly property bool hovered: hover.hovered
 
-    implicitWidth: glyph.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: glyph.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: glyph.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -47,7 +47,7 @@ Item {
 
         icon: "palette"
         size: Appearance.font.icon.normal
-        color: root.active || root.hovered ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+        color: root.active || root.hovered ? Colours.palette.m3primary : Colours.palette.m3onSurface
         fill: root.active || root.hovered ? 1 : 0
 
         Behavior on fill {

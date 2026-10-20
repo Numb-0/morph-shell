@@ -90,7 +90,7 @@ SearchPanel {
             anchors.fill: parent
 
             radius: height / 2
-            color: wipeButton.armed ? Appearance.palette.m3errorContainer : Appearance.palette.m3onSurface
+            color: wipeButton.armed ? Colours.palette.m3errorContainer : Colours.palette.m3onSurface
             opacity: wipeButton.armed ? 1 : wipeHover.hovered ? 0.08 : 0
 
             Behavior on opacity {
@@ -111,7 +111,7 @@ SearchPanel {
 
             icon: "delete_sweep"
             size: Appearance.font.icon.normal
-            color: wipeButton.armed ? Appearance.palette.m3onErrorContainer : Appearance.palette.m3onSurfaceVariant
+            color: wipeButton.armed ? Colours.palette.m3onErrorContainer : Colours.palette.m3onSurfaceVariant
             fill: wipeButton.armed ? 1 : 0
         }
     }
@@ -125,7 +125,7 @@ SearchPanel {
         readonly property bool selected: root.currentIndex === index
 
         width: ListView.view.width
-        implicitHeight: modelData.image ? Appearance.dock.imageResultHeight : Appearance.dock.resultHeight
+        implicitHeight: modelData.image ? Config.dock.imageResultHeight : Config.dock.resultHeight
 
         HoverHandler {
             id: itemHover
@@ -164,14 +164,14 @@ SearchPanel {
                 implicitHeight: 36
 
                 radius: Appearance.rounding.medium
-                color: Appearance.palette.m3secondaryContainer
+                color: Colours.palette.m3secondaryContainer
 
                 MaterialSymbol {
                     anchors.centerIn: parent
 
                     icon: "notes"
                     size: Appearance.font.icon.normal
-                    color: Appearance.palette.m3onSecondaryContainer
+                    color: Colours.palette.m3onSecondaryContainer
                 }
             }
 
@@ -188,11 +188,11 @@ SearchPanel {
 
                 readonly property real aspect: item.modelData.height > 0 ? item.modelData.width / item.modelData.height : 1
 
-                implicitHeight: Appearance.dock.imageResultHeight - Appearance.padding.small * 2
-                implicitWidth: Math.max(implicitHeight * 0.75, Math.min(implicitHeight * aspect, Appearance.dock.thumbnailMaxWidth))
+                implicitHeight: Config.dock.imageResultHeight - Appearance.padding.small * 2
+                implicitWidth: Math.max(implicitHeight * 0.75, Math.min(implicitHeight * aspect, Config.dock.thumbnailMaxWidth))
 
                 radius: Appearance.rounding.medium
-                color: Appearance.palette.m3surfaceContainerHighest
+                color: Colours.palette.m3surfaceContainerHighest
 
                 Image {
                     anchors.fill: parent
@@ -247,7 +247,7 @@ SearchPanel {
                     visible: item.modelData.image
 
                     text: item.modelData.image ? `${item.modelData.format.toUpperCase()} · ${item.modelData.width} × ${item.modelData.height} · ${item.modelData.size}` : ""
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                     elide: Text.ElideRight
                 }
             }
@@ -285,7 +285,7 @@ SearchPanel {
                     anchors.fill: parent
 
                     radius: height / 2
-                    color: Appearance.palette.m3onSurface
+                    color: Colours.palette.m3onSurface
                     opacity: removeHover.hovered ? 0.12 : 0
 
                     Behavior on opacity {
@@ -300,7 +300,7 @@ SearchPanel {
 
                     icon: "close"
                     size: Appearance.font.icon.small
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
             }
         }

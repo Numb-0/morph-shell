@@ -51,7 +51,7 @@ ClippingRectangle {
         anchors.fill: parent
 
         radius: root.radius
-        color: root.fresh && !root.target ? Appearance.palette.m3primary : Appearance.palette.m3tertiary
+        color: root.fresh && !root.target ? Colours.palette.m3primary : Colours.palette.m3tertiary
         opacity: root.target ? 0.2 : root.selected ? 0.08 : 0
 
         Behavior on opacity {
@@ -70,7 +70,7 @@ ClippingRectangle {
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
-            strokeColor: root.target ? Appearance.palette.m3tertiary : root.selected ? Appearance.palette.m3primary : Appearance.palette.m3outline
+            strokeColor: root.target ? Colours.palette.m3tertiary : root.selected ? Colours.palette.m3primary : Colours.palette.m3outline
             strokeWidth: 2
             strokeStyle: root.target ? ShapePath.SolidLine : ShapePath.DashLine
             dashPattern: [4, 3]
@@ -96,7 +96,7 @@ ClippingRectangle {
         visible: root.fresh
         icon: "add"
         size: Math.round(root.height * 0.32)
-        color: root.target ? Appearance.palette.m3tertiary : root.selected ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
+        color: root.target ? Colours.palette.m3tertiary : root.selected ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
         opacity: root.selected || root.target ? 0.9 : 0.5
 
         // A quarter turn as the pointer comes over it.

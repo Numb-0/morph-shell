@@ -42,22 +42,22 @@ Item {
 
     readonly property color containerColor: {
         if (taken)
-            return Appearance.palette.m3success;
+            return Colours.palette.m3success;
         if (armed)
-            return Appearance.palette.m3error;
+            return Colours.palette.m3error;
         if (selected)
-            return action.confirm ? Appearance.palette.m3errorContainer : Appearance.palette.m3primary;
-        return Appearance.palette.m3surfaceContainerHigh;
+            return action.confirm ? Colours.palette.m3errorContainer : Colours.palette.m3primary;
+        return Colours.palette.m3surfaceContainerHigh;
     }
 
     readonly property color contentColor: {
         if (taken)
-            return Appearance.palette.m3onSuccess;
+            return Colours.palette.m3onSuccess;
         if (armed)
-            return Appearance.palette.m3onError;
+            return Colours.palette.m3onError;
         if (selected)
-            return action.confirm ? Appearance.palette.m3onErrorContainer : Appearance.palette.m3onPrimary;
-        return Appearance.palette.m3onSurface;
+            return action.confirm ? Colours.palette.m3onErrorContainer : Colours.palette.m3onPrimary;
+        return Colours.palette.m3onSurface;
     }
 
     implicitWidth: size
@@ -76,12 +76,12 @@ Item {
             if (index !== root.position)
                 return;
             shake.restart();
-            ring.burst(Appearance.palette.m3error);
+            ring.burst(Colours.palette.m3error);
         }
 
         function onCommitted(index: int): void {
             if (index === root.position) {
-                ring.burst(Appearance.palette.m3success);
+                ring.burst(Colours.palette.m3success);
                 swellAnim.restart();
             } else {
                 gatherAnim.restart();
@@ -287,7 +287,7 @@ Item {
         text: root.armed ? qsTr("Confirm") : root.action.label
         font.pixelSize: Appearance.font.normal
         font.weight: root.selected ? Font.DemiBold : Font.Normal
-        color: root.armed ? Appearance.palette.m3error : root.selected ? Appearance.palette.m3onSurface : Appearance.palette.m3onSurfaceVariant
+        color: root.armed ? Colours.palette.m3error : root.selected ? Colours.palette.m3onSurface : Colours.palette.m3onSurfaceVariant
 
         opacity: root.menu.committing ? 0 : 1
 

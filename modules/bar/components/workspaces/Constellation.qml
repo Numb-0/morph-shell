@@ -35,7 +35,7 @@ Item {
 
         anchors.fill: parent
 
-        readonly property color stroke: Appearance.palette.m3outline
+        readonly property color stroke: Colours.palette.m3outline
 
         onStrokeChanged: requestPaint()
         onWidthChanged: requestPaint()
@@ -92,7 +92,7 @@ Item {
 
             size: root.starSize(windows)
             pinch: windows > 0 ? 0.82 : 0
-            color: urgent ? Appearance.palette.m3error : windows > 0 ? Appearance.palette.m3secondary : Appearance.palette.m3outlineVariant
+            color: urgent ? Colours.palette.m3error : windows > 0 ? Colours.palette.m3secondary : Colours.palette.m3outlineVariant
 
             opacity: wsId === root.ws.activeId ? 0 : 1
 
@@ -172,7 +172,7 @@ Item {
             }
             GradientStop {
                 position: 1
-                color: Appearance.palette.m3primary
+                color: Colours.palette.m3primary
             }
         }
     }
@@ -184,7 +184,7 @@ Item {
 
         size: star.size * 1.5
         pinch: 0.9
-        color: Appearance.palette.m3primary
+        color: Colours.palette.m3primary
         opacity: 0.18
         rotation: -star.rotation * 0.5
     }
@@ -198,7 +198,7 @@ Item {
         y: root.starY(root.ws.activeId) - height / 2
 
         size: 16
-        color: Appearance.palette.m3primary
+        color: Colours.palette.m3primary
 
         Behavior on x {
             Anim {

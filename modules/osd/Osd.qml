@@ -177,14 +177,14 @@ Variants {
         anchors.right: true
 
         // Room above the pill for the droplet to fly into.
-        implicitHeight: Appearance.osd.margin + pillHeight + dropTravel + dropSize + Appearance.spacing.large
+        implicitHeight: Config.osd.margin + pillHeight + dropTravel + dropSize + Appearance.spacing.large
 
         // The droplet only ever fuses with the pill, so the pair have a
         // group of their own.
         BlobGroup {
             id: group
 
-            color: Appearance.palette.m3surfaceContainer
+            color: Colours.palette.m3surfaceContainer
             smoothing: Appearance.border.smoothing
         }
 
@@ -193,10 +193,10 @@ Variants {
         BlobRect {
             id: pill
 
-            readonly property real restY: win.height - Appearance.osd.margin - win.pillHeight
+            readonly property real restY: win.height - Config.osd.margin - win.pillHeight
 
             x: (win.width - width) / 2
-            y: restY + (Appearance.osd.margin + win.pillHeight) * (1 - win.reveal) + win.hop
+            y: restY + (Config.osd.margin + win.pillHeight) * (1 - win.reveal) + win.hop
 
             implicitWidth: win.pillHeight + Math.max(0, win.width_ - win.pillHeight) * win.stretch
             implicitHeight: win.pillHeight
@@ -270,7 +270,7 @@ Variants {
                 icon: Audio.micMuted ? "mic_off" : "mic"
                 text: Audio.micMuted ? qsTr("Microphone muted") : qsTr("Microphone on")
                 lit: Audio.micMuted
-                litColor: Appearance.palette.m3error
+                litColor: Colours.palette.m3error
             }
 
             Toggle {
@@ -384,7 +384,7 @@ Variants {
 
                 icon: level.icon
                 size: Appearance.font.icon.large
-                color: level.muted ? Appearance.palette.m3error : Appearance.palette.m3primary
+                color: level.muted ? Colours.palette.m3error : Colours.palette.m3primary
                 fill: level.muted ? 1 : 0
             }
 
@@ -400,7 +400,7 @@ Variants {
                 // wave is stopped by hand while the OSD is going or
                 // showing something else.
                 animateWave: wavy && OsdState.shown && level.current
-                activeColor: level.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3primary
+                activeColor: level.muted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3primary
             }
 
             StyledText {
@@ -410,7 +410,7 @@ Variants {
                 horizontalAlignment: Text.AlignRight
                 text: Math.round(level.value * 100) + "%"
                 font.pixelSize: Appearance.font.normal
-                color: level.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onSurface
+                color: level.muted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3onSurface
             }
         }
 
@@ -423,7 +423,7 @@ Variants {
             required property string icon
             required property string text
             property bool lit: false
-            property color litColor: Appearance.palette.m3primary
+            property color litColor: Colours.palette.m3primary
 
             Connections {
                 target: OsdState
@@ -441,7 +441,7 @@ Variants {
 
                 icon: toggle.icon
                 size: Appearance.font.icon.large
-                color: toggle.lit ? toggle.litColor : Appearance.palette.m3onSurfaceVariant
+                color: toggle.lit ? toggle.litColor : Colours.palette.m3onSurfaceVariant
                 fill: toggle.lit ? 1 : 0
             }
 
@@ -451,7 +451,7 @@ Variants {
 
                 text: toggle.text
                 font.pixelSize: Appearance.font.normal
-                color: Appearance.palette.m3onSurface
+                color: Colours.palette.m3onSurface
             }
         }
     }

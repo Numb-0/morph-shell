@@ -18,7 +18,7 @@ Item {
     // sideways on every song change.
     readonly property int titleWidth: 180
 
-    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: row.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -56,7 +56,7 @@ Item {
 
             icon: Players.playing ? "pause" : "play_arrow"
             size: Appearance.font.icon.normal
-            color: Appearance.palette.m3primary
+            color: Colours.palette.m3primary
 
             // Solid, as the drawn transport icons were. An outlined
             // triangle at this size reads as a hollow arrow rather than
@@ -72,7 +72,7 @@ Item {
             // stays where you expect it rather than appearing and
             // shifting the row about.
             text: Players.active?.trackTitle || qsTr("Nothing playing")
-            color: Players.available ? Appearance.palette.m3onSurface : Appearance.palette.m3onSurfaceVariant
+            color: Players.available ? Colours.palette.m3onSurface : Colours.palette.m3onSurfaceVariant
             elide: Text.ElideRight
             width: root.titleWidth
         }

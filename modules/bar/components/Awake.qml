@@ -11,7 +11,7 @@ Item {
 
     readonly property bool hovered: hover.hovered
 
-    implicitWidth: icon.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: icon.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: icon.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -32,7 +32,7 @@ Item {
         icon: "coffee"
         size: Appearance.font.icon.normal
 
-        color: Idle.awake ? Appearance.palette.m3primary : Appearance.palette.m3onSurfaceVariant
+        color: Idle.awake ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
         fill: Idle.awake || root.hovered ? 1 : 0
 
         Behavior on fill {

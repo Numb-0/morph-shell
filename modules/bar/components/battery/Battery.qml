@@ -15,7 +15,7 @@ Item {
     // Shared with the panel, which tints the same way. A tenth left is
     // an error, a fifth a warning, and charging is called out rather
     // than left to read as ordinary.
-    readonly property color accent: Power.critical ? Appearance.palette.m3error : Power.low ? Appearance.palette.m3warning : Power.charging ? Appearance.palette.m3success : Appearance.palette.m3onSurface
+    readonly property color accent: Power.critical ? Colours.palette.m3error : Power.low ? Colours.palette.m3warning : Power.charging ? Colours.palette.m3success : Colours.palette.m3onSurface
 
     // The number is two digits for almost all of its life and three at
     // the top. Giving it a fixed box and hanging it off the right keeps
@@ -23,7 +23,7 @@ Item {
     // is boxed rather than sized to the track.
     readonly property int labelWidth: 36
 
-    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: row.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {

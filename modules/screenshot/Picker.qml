@@ -230,7 +230,7 @@ MouseArea {
             color: "transparent"
             border.width: reach
             border.color: {
-                const c = Appearance.palette.m3scrim;
+                const c = Colours.palette.m3scrim;
                 return Qt.rgba(c.r, c.g, c.b, 0.45);
             }
         }
@@ -249,7 +249,7 @@ MouseArea {
 
             color: "transparent"
             border.width: thickness
-            border.color: root.recording ? Appearance.palette.m3error : Appearance.palette.m3primary
+            border.color: root.recording ? Colours.palette.m3error : Colours.palette.m3primary
         }
 
         // The size the image will come out at, in real pixels. Sits
@@ -269,7 +269,7 @@ MouseArea {
             implicitHeight: label.implicitHeight + Appearance.padding.extraSmall * 2
 
             radius: height / 2
-            color: root.recording ? Appearance.palette.m3errorContainer : Appearance.palette.m3primaryContainer
+            color: root.recording ? Colours.palette.m3errorContainer : Colours.palette.m3primaryContainer
 
             Row {
                 id: label
@@ -278,7 +278,7 @@ MouseArea {
                 spacing: Appearance.spacing.small
 
                 readonly property real factor: root.monitorScale
-                readonly property color ink: root.recording ? Appearance.palette.m3onErrorContainer : Appearance.palette.m3onPrimaryContainer
+                readonly property color ink: root.recording ? Colours.palette.m3onErrorContainer : Colours.palette.m3onPrimaryContainer
 
                 MaterialSymbol {
                     anchors.verticalCenter: parent.verticalCenter

@@ -14,7 +14,7 @@ Item {
     signal pointed
     signal activated
 
-    implicitHeight: Appearance.dock.resultHeight
+    implicitHeight: Config.dock.resultHeight
 
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
@@ -44,14 +44,14 @@ Item {
             implicitHeight: 36
 
             radius: Appearance.rounding.medium
-            color: Appearance.palette.m3primaryContainer
+            color: Colours.palette.m3primaryContainer
 
             MaterialSymbol {
                 anchors.centerIn: parent
 
                 icon: "calculate"
                 size: Appearance.font.icon.normal
-                color: Appearance.palette.m3onPrimaryContainer
+                color: Colours.palette.m3onPrimaryContainer
             }
         }
 
@@ -73,7 +73,7 @@ Item {
                 width: parent.width
 
                 text: Calc.expression
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
                 elide: Text.ElideRight
             }
         }
@@ -86,7 +86,7 @@ Item {
 
             icon: "content_copy"
             size: Appearance.font.icon.small
-            color: Appearance.palette.m3onSurfaceVariant
+            color: Colours.palette.m3onSurfaceVariant
         }
     }
 }

@@ -34,7 +34,7 @@ BlobPopup {
     Item {
         anchors.centerIn: parent
 
-        implicitWidth: Appearance.notifs.panelWidth
+        implicitWidth: Config.notifs.panelWidth
         implicitHeight: column.implicitHeight
 
         // Kept in here rather than on the popup: the popup takes one
@@ -85,7 +85,7 @@ BlobPopup {
                     implicitWidth: Math.max(implicitHeight, countLabel.implicitWidth + Appearance.padding.small * 2)
                     implicitHeight: 22
                     radius: height / 2
-                    color: Appearance.palette.m3secondaryContainer
+                    color: Colours.palette.m3secondaryContainer
 
                     StyledText {
                         id: countLabel
@@ -94,7 +94,7 @@ BlobPopup {
 
                         animate: true
                         text: Notifs.list.length
-                        color: Appearance.palette.m3onSecondaryContainer
+                        color: Colours.palette.m3onSecondaryContainer
                     }
                 }
 
@@ -110,7 +110,7 @@ BlobPopup {
 
                     icon: "clear_all"
                     iconSize: Appearance.font.icon.normal
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
 
                     onActivated: root.clearAll()
                 }
@@ -123,7 +123,7 @@ BlobPopup {
                 implicitHeight: 56
 
                 radius: Appearance.rounding.extraLarge
-                color: Notifs.dnd ? Appearance.palette.m3primaryContainer : Appearance.palette.m3surfaceContainerHigh
+                color: Notifs.dnd ? Colours.palette.m3primaryContainer : Colours.palette.m3surfaceContainerHigh
 
                 Behavior on color {
                     CAnim {}
@@ -137,7 +137,7 @@ BlobPopup {
 
                     MaterialSymbol {
                         icon: Notifs.dnd ? "do_not_disturb_on" : "do_not_disturb_off"
-                        color: Notifs.dnd ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
+                        color: Notifs.dnd ? Colours.palette.m3onPrimaryContainer : Colours.palette.m3onSurfaceVariant
                         fill: Notifs.dnd ? 1 : 0
                     }
 
@@ -149,7 +149,7 @@ BlobPopup {
                             text: qsTr("Do not disturb")
                             font.pixelSize: Appearance.font.normal
                             font.weight: Font.Medium
-                            color: Notifs.dnd ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurface
+                            color: Notifs.dnd ? Colours.palette.m3onPrimaryContainer : Colours.palette.m3onSurface
                         }
 
                         StyledText {
@@ -157,7 +157,7 @@ BlobPopup {
 
                             animate: true
                             text: Notifs.dnd ? qsTr("Only critical ones pop up") : qsTr("Off")
-                            color: Notifs.dnd ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
+                            color: Notifs.dnd ? Colours.palette.m3onPrimaryContainer : Colours.palette.m3onSurfaceVariant
                             elide: Text.ElideRight
                         }
                     }
@@ -242,7 +242,7 @@ BlobPopup {
 
                     icon: "notifications_paused"
                     size: 40
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                     horizontalAlignment: Text.AlignHCenter
                 }
 
@@ -251,7 +251,7 @@ BlobPopup {
 
                     text: qsTr("All caught up")
                     font.pixelSize: Appearance.font.normal
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                     horizontalAlignment: Text.AlignHCenter
                 }
             }
@@ -262,7 +262,7 @@ BlobPopup {
                 visible: Notifs.list.length > 0
 
                 Layout.fillWidth: true
-                implicitHeight: Math.min(contentHeight, Appearance.notifs.panelHeight)
+                implicitHeight: Math.min(contentHeight, Config.notifs.panelHeight)
 
                 clip: true
                 spacing: Appearance.spacing.small
@@ -420,12 +420,12 @@ BlobPopup {
 
                         opacity: 1 - Math.min(1, Math.abs(card.dragX) / card.width)
                         radius: Appearance.rounding.large
-                        color: cardHover.hovered ? Appearance.palette.m3surfaceContainerHighest : Appearance.palette.m3surfaceContainerHigh
+                        color: cardHover.hovered ? Colours.palette.m3surfaceContainerHighest : Colours.palette.m3surfaceContainerHigh
 
                         // A critical one keeps an accent edge, so it is
                         // still told apart once it has stopped popping up.
                         border.width: card.modelData.critical ? 1 : 0
-                        border.color: Appearance.palette.m3error
+                        border.color: Colours.palette.m3error
 
                         Behavior on color {
                             CAnim {}

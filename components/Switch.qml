@@ -36,9 +36,9 @@ Item {
         anchors.fill: parent
 
         radius: height / 2
-        color: root.checked ? Appearance.palette.m3primary : Appearance.palette.m3surfaceContainerHighest
+        color: root.checked ? Colours.palette.m3primary : Colours.palette.m3surfaceContainerHighest
         border.width: root.checked ? 0 : 2
-        border.color: Appearance.palette.m3outline
+        border.color: Colours.palette.m3outline
 
         Behavior on color {
             CAnim {}
@@ -60,7 +60,7 @@ Item {
         height: diameter
 
         radius: diameter / 2
-        color: root.checked ? Appearance.palette.m3onPrimary : Appearance.palette.m3outline
+        color: root.checked ? Colours.palette.m3onPrimary : Colours.palette.m3outline
 
         Behavior on centre {
             Anim {
@@ -86,7 +86,7 @@ Item {
             height: 40
             radius: 20
 
-            color: root.checked ? Appearance.palette.m3primary : Appearance.palette.m3onSurface
+            color: root.checked ? Colours.palette.m3primary : Colours.palette.m3onSurface
             opacity: hover.hovered ? 0.12 : 0
 
             Behavior on opacity {
@@ -106,7 +106,7 @@ Item {
             icon: "check"
             size: Appearance.font.icon.small - 1
             weight: 600
-            color: Appearance.palette.m3primary
+            color: Colours.palette.m3primary
 
             opacity: root.checked ? 1 : 0
 

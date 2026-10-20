@@ -208,7 +208,7 @@ matugen writes them:
 
 Keys the shell doesn't know are ignored, and a role the file leaves out
 falls back to the built-in default, as does every role when the file is
-missing. The palette lives in `config/Appearance.qml`; besides the
+missing. The palette lives in `config/Colours.qml`; besides the
 standard M3 roles it reads `success`, `warning` and their `on…`/`…Container`
 variants.
 
@@ -436,7 +436,8 @@ edit it, without a restart, and leaves anything missing at its default:
 | `weather.fahrenheit` | `false` | Fahrenheit and mph rather than Celsius and km/h. |
 | `weather.refresh` | `15` | Minutes between fetches. |
 
-The rest of the knobs still live in `config/Appearance.qml`, so changing
+The rest of the knobs still live in `config/`, a file per module
+(`BarConfig.qml`, `DockConfig.qml`, `IdleConfig.qml`, …), so changing
 them means editing a checkout (or overriding the package's source). The
 ones you're most likely to want:
 
@@ -613,8 +614,8 @@ screen into the new one instead. The shell blurs a still of the screen
 itself, so no blur rule is needed in Hyprland, and one would only pop in
 underneath.
 
-The grid's shape and how much of the screen it takes are set under
-`overview` in `config/Appearance.qml`. It needs Hyprland: elsewhere it
+The grid's shape and how much of the screen it takes are set in
+`config/OverviewConfig.qml`. It needs Hyprland: elsewhere it
 opens empty.
 
 ```

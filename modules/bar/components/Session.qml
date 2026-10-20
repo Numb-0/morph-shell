@@ -11,7 +11,7 @@ Item {
 
     readonly property bool hovered: hover.hovered
 
-    implicitWidth: glyph.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: glyph.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: glyph.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -34,6 +34,6 @@ Item {
 
         icon: "power_settings_new"
         size: Appearance.font.icon.normal
-        color: root.hovered ? Appearance.palette.m3error : Appearance.palette.m3onSurface
+        color: root.hovered ? Colours.palette.m3error : Colours.palette.m3onSurface
     }
 }

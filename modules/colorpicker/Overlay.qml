@@ -129,9 +129,9 @@ MouseArea {
             implicitHeight: implicitWidth
             radius: width / 2
 
-            color: Appearance.palette.m3surfaceContainer
+            color: Colours.palette.m3surfaceContainer
             border.width: ring
-            border.color: Appearance.palette.m3primary
+            border.color: Colours.palette.m3primary
 
             PixelLens {
                 anchors.fill: parent
@@ -143,7 +143,7 @@ MouseArea {
                 cells: 11
 
                 gridColor: {
-                    const c = Appearance.palette.m3shadow;
+                    const c = Colours.palette.m3shadow;
                     return Qt.rgba(c.r, c.g, c.b, 0.18);
                 }
                 // Light or dark against the pixel it rings, so it shows
@@ -159,7 +159,7 @@ MouseArea {
             implicitHeight: readout.implicitHeight + Appearance.padding.extraSmall * 2
             radius: height / 2
 
-            color: Appearance.palette.m3surfaceContainer
+            color: Colours.palette.m3surfaceContainer
 
             Row {
                 id: readout
@@ -176,14 +176,14 @@ MouseArea {
 
                     color: root.current
                     border.width: 1
-                    border.color: Appearance.palette.m3outline
+                    border.color: Colours.palette.m3outline
                 }
 
                 StyledText {
                     id: hex
 
                     text: root.current.toString().toUpperCase()
-                    color: Appearance.palette.m3onSurface
+                    color: Colours.palette.m3onSurface
                 }
             }
         }

@@ -16,7 +16,7 @@ Rectangle {
     width: 8
     height: 10 + level * energy * 36
     radius: width / 2
-    color: Appearance.palette.m3onPrimaryContainer
+    color: Colours.palette.m3onPrimaryContainer
 
     // Only while it is seen and has somewhere to go; hidden or
     // paused, nothing should keep the animation driver ticking.

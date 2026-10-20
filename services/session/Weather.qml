@@ -29,8 +29,8 @@ Singleton {
     // being the chance of any, in percent.
     property var days: []
 
-    readonly property string unit: Appearance.weather.fahrenheit ? "°F" : "°C"
-    readonly property string windUnit: Appearance.weather.fahrenheit ? "mph" : "km/h"
+    readonly property string unit: Config.weather.fahrenheit ? "°F" : "°C"
+    readonly property string windUnit: Config.weather.fahrenheit ? "mph" : "km/h"
 
     // The last thing that went wrong, for the panel to say while it has
     // nothing better to show.
@@ -141,7 +141,7 @@ Singleton {
     // Works out where "here" is, then fetches. Again whenever the
     // location in the config changes.
     function locate(): void {
-        const wanted = Appearance.weather.location.trim();
+        const wanted = Config.weather.location.trim();
         const asked = ++lookups;
 
         const pair = wanted.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
@@ -196,7 +196,7 @@ Singleton {
             return;
         }
 
-        const units = Appearance.weather.fahrenheit ? "&temperature_unit=fahrenheit&wind_speed_unit=mph" : "";
+        const units = Config.weather.fahrenheit ? "&temperature_unit=fahrenheit&wind_speed_unit=mph" : "";
         const url = "https://api.open-meteo.com/v1/forecast" + `?latitude=${latitude}&longitude=${longitude}` + "&current=temperature_2m,apparent_temperature,weather_code,is_day,relative_humidity_2m,wind_speed_10m" + "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" + `&forecast_days=5&timezone=auto${units}`;
 
         get(url, data => {
@@ -239,7 +239,7 @@ Singleton {
     // what it shows is never far behind even after a long sleep, when
     // the timer below has not caught up yet.
     function freshen(): void {
-        if (Date.now() - fetched.getTime() > Appearance.weather.refresh * 60 * 1000 / 2)
+        if (Date.now() - fetched.getTime() > Config.weather.refresh * 60 * 1000 / 2)
             fetch();
     }
 
@@ -248,7 +248,7 @@ Singleton {
     // Edits to the user's config land while the shell runs: a new place
     // is looked up afresh, and new units fetched in.
     Connections {
-        target: Appearance.weather
+        target: Config.weather
 
         function onLocationChanged(): void {
             root.latitude = NaN;
@@ -264,7 +264,7 @@ Singleton {
     Timer {
         running: true
         repeat: true
-        interval: Appearance.weather.refresh * 60 * 1000
+        interval: Config.weather.refresh * 60 * 1000
 
         onTriggered: root.fetch()
     }

@@ -46,7 +46,7 @@ BlobPopup {
                 implicitHeight: 56
 
                 radius: Appearance.rounding.extraLarge
-                color: Bt.enabled ? Appearance.palette.m3primaryContainer : Appearance.palette.m3surfaceContainerHigh
+                color: Bt.enabled ? Colours.palette.m3primaryContainer : Colours.palette.m3surfaceContainerHigh
 
                 Behavior on color {
                     CAnim {}
@@ -61,7 +61,7 @@ BlobPopup {
                     MaterialSymbol {
                         icon: Bt.icon
                         size: Appearance.font.icon.normal
-                        color: Bt.enabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
+                        color: Bt.enabled ? Colours.palette.m3onPrimaryContainer : Colours.palette.m3onSurfaceVariant
                         fill: Bt.enabled ? 1 : 0
                     }
 
@@ -73,7 +73,7 @@ BlobPopup {
                             text: qsTr("Bluetooth")
                             font.pixelSize: Appearance.font.normal
                             font.weight: Font.Medium
-                            color: Bt.enabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurface
+                            color: Bt.enabled ? Colours.palette.m3onPrimaryContainer : Colours.palette.m3onSurface
                         }
 
                         StyledText {
@@ -94,7 +94,7 @@ BlobPopup {
                                     return qsTr("%1 devices connected").arg(n);
                                 return qsTr("Not connected");
                             }
-                            color: Bt.enabled ? Appearance.palette.m3onPrimaryContainer : Appearance.palette.m3onSurfaceVariant
+                            color: Bt.enabled ? Colours.palette.m3onPrimaryContainer : Colours.palette.m3onSurfaceVariant
                             elide: Text.ElideRight
                         }
                     }
@@ -121,7 +121,7 @@ BlobPopup {
 
                     animate: true
                     text: Bt.devices.length === 1 ? qsTr("1 device") : qsTr("%1 devices").arg(Bt.devices.length)
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
 
                 // Discovery is on for as long as the panel is open, so
@@ -131,7 +131,7 @@ BlobPopup {
 
                     icon: "progress_activity"
                     size: Appearance.font.icon.small
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
 
                     RotationAnimation on rotation {
                         running: root.open && Bt.discovering

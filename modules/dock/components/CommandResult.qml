@@ -20,7 +20,7 @@ Item {
     signal activated
 
     width: ListView.view.width
-    implicitHeight: Appearance.dock.resultHeight
+    implicitHeight: Config.dock.resultHeight
 
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
@@ -50,14 +50,14 @@ Item {
             implicitHeight: 36
 
             radius: Appearance.rounding.medium
-            color: Appearance.palette.m3secondaryContainer
+            color: Colours.palette.m3secondaryContainer
 
             MaterialSymbol {
                 anchors.centerIn: parent
 
                 icon: root.modelData.icon ?? ""
                 size: Appearance.font.icon.normal
-                color: Appearance.palette.m3onSecondaryContainer
+                color: Colours.palette.m3onSecondaryContainer
             }
         }
 
@@ -78,7 +78,7 @@ Item {
                 width: parent.width
 
                 text: root.modelData.description ?? ""
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
                 elide: Text.ElideRight
             }
         }
@@ -94,7 +94,7 @@ Item {
 
             icon: "chevron_right"
             size: Appearance.font.icon.normal
-            color: Appearance.palette.m3onSurfaceVariant
+            color: Colours.palette.m3onSurfaceVariant
         }
     }
 }

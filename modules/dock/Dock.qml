@@ -140,8 +140,8 @@ Scope {
 
             required property var modelData
 
-            readonly property int dockMargin: Appearance.dock.margin
-            readonly property int dockHeight: Appearance.dock.height
+            readonly property int dockMargin: Config.dock.margin
+            readonly property int dockHeight: Config.dock.height
 
             readonly property bool panelOpen: root.panelScreen === modelData.name
             readonly property bool launcherOpen: panelOpen && root.panel === "launcher"
@@ -152,10 +152,10 @@ Scope {
             // The chooser grows the dock only as far as its cards need,
             // where the search panels share one fixed height.
             // The search panels' size once the shape is fully open.
-            readonly property int searchWidth: Appearance.dock.launcherWidth - Appearance.padding.large * 2
-            readonly property int searchHeight: Appearance.dock.launcherHeight - Appearance.padding.large - Appearance.spacing.small
+            readonly property int searchWidth: Config.dock.launcherWidth - Appearance.padding.large * 2
+            readonly property int searchHeight: Config.dock.launcherHeight - Appearance.padding.large - Appearance.spacing.small
 
-            readonly property int panelHeight: windowsOpen ? chooser.implicitHeight + Appearance.padding.large : Appearance.dock.launcherHeight
+            readonly property int panelHeight: windowsOpen ? chooser.implicitHeight + Appearance.padding.large : Config.dock.launcherHeight
 
             // How many pinned icons the pointer is on. A count rather
             // than a flag because the icons come out of a Repeater and
@@ -200,14 +200,14 @@ Scope {
             Timer {
                 id: openTimer
 
-                interval: Appearance.dock.openDelay
+                interval: Config.dock.openDelay
                 onTriggered: win.revealed = true
             }
 
             Timer {
                 id: closeTimer
 
-                interval: Appearance.dock.closeDelay
+                interval: Config.dock.closeDelay
                 onTriggered: win.revealed = false
             }
 
@@ -218,7 +218,7 @@ Scope {
             // out as if the dock were not there -- unless it is pinned,
             // when it keeps its own strip of the screen and windows tile
             // above it rather than under it.
-            implicitHeight: dockMargin + dockHeight + Appearance.dock.launcherHeight + 60
+            implicitHeight: dockMargin + dockHeight + Config.dock.launcherHeight + 60
             exclusiveZone: DockState.pinned ? dockMargin + dockHeight : 0
 
             anchors {
@@ -264,7 +264,7 @@ Scope {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                height: win.pointerInside || win.shown ? win.dockMargin + surface.height : Appearance.dock.reveal
+                height: win.pointerInside || win.shown ? win.dockMargin + surface.height : Config.dock.reveal
 
                 HoverHandler {
                     id: revealHover
@@ -291,7 +291,7 @@ Scope {
             BlobGroup {
                 id: group
 
-                color: Appearance.palette.m3surfaceContainer
+                color: Colours.palette.m3surfaceContainer
                 smoothing: Appearance.border.smoothing
             }
 
@@ -309,7 +309,7 @@ Scope {
                 // nothing, its whole height below it.
                 anchors.bottomMargin: (win.dockMargin + height) * win.reveal - height
 
-                implicitWidth: win.panelOpen ? Appearance.dock.launcherWidth : row.implicitWidth + Appearance.padding.large * 2
+                implicitWidth: win.panelOpen ? Config.dock.launcherWidth : row.implicitWidth + Appearance.padding.large * 2
                 implicitHeight: win.dockHeight + (win.panelOpen ? win.panelHeight : 0)
 
                 group: group
@@ -445,9 +445,9 @@ Scope {
                     anchors.verticalCenter: parent.verticalCenter
 
                     implicitWidth: 1
-                    implicitHeight: Appearance.dock.iconSize * 0.6
+                    implicitHeight: Config.dock.iconSize * 0.6
 
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                     opacity: 0.25
                 }
 
@@ -463,7 +463,7 @@ Scope {
                     // stays empty for good.
                     model: {
                         Apps.all;
-                        return Appearance.dock.pinned.map(id => Apps.byId(id)).filter(entry => entry !== null);
+                        return Config.dock.pinned.map(id => Apps.byId(id)).filter(entry => entry !== null);
                     }
 
                     DockApp {
@@ -488,9 +488,9 @@ Scope {
                     anchors.verticalCenter: parent.verticalCenter
 
                     implicitWidth: 1
-                    implicitHeight: Appearance.dock.iconSize * 0.6
+                    implicitHeight: Config.dock.iconSize * 0.6
 
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                     opacity: 0.25
                 }
 

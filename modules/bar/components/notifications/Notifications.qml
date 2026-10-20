@@ -18,7 +18,7 @@ Item {
 
     readonly property bool waiting: Notifs.unread > 0
 
-    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: row.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -65,7 +65,7 @@ Item {
 
             icon: Notifs.dnd ? "notifications_off" : root.waiting ? "notifications_unread" : "notifications"
             size: Appearance.font.icon.normal
-            color: root.active || root.waiting && !Notifs.dnd ? Appearance.palette.m3primary : Notifs.dnd ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onSurface
+            color: root.active || root.waiting && !Notifs.dnd ? Colours.palette.m3primary : Notifs.dnd ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3onSurface
             fill: root.waiting || root.active ? 1 : 0
 
             // Swings from the top, where a bell hangs, rather than about
@@ -146,7 +146,7 @@ Item {
             }
 
             text: Notifs.unread > 99 ? "99+" : Notifs.unread
-            color: Notifs.dnd ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3primary
+            color: Notifs.dnd ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3primary
             font.weight: Font.Medium
         }
     }

@@ -17,7 +17,7 @@ Rectangle {
     implicitHeight: 32
 
     radius: height / 2
-    color: open ? Appearance.palette.m3secondaryContainer : Appearance.palette.m3surfaceContainerHigh
+    color: open ? Colours.palette.m3secondaryContainer : Colours.palette.m3surfaceContainerHigh
 
     Behavior on color {
         CAnim {}
@@ -37,7 +37,7 @@ Rectangle {
         anchors.fill: parent
 
         radius: parent.radius
-        color: Appearance.palette.m3onSurface
+        color: Colours.palette.m3onSurface
         opacity: chipHover.hovered ? 0.08 : 0
 
         Behavior on opacity {
@@ -53,7 +53,7 @@ Rectangle {
         anchors.centerIn: parent
         spacing: Appearance.spacing.extraSmall
 
-        readonly property color tint: chip.open ? Appearance.palette.m3onSecondaryContainer : Appearance.palette.m3onSurface
+        readonly property color tint: chip.open ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
 
         MaterialSymbol {
             anchors.verticalCenter: parent.verticalCenter

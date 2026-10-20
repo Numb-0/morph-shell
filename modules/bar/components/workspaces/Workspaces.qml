@@ -6,7 +6,7 @@ import qs.config
 import qs.states
 
 // Bar widget: Hyprland's workspaces, drawn in one of the styles under
-// workspaces/ (Appearance.bar.workspaces.style). What is true of the
+// workspaces/ (Config.bar.workspaces.style). What is true of the
 // workspaces -- which exist, how many windows each holds -- is shared by
 // every bar and lives in WorkspacesState; this side adds only which one
 // this screen shows, and the input. A style only draws it. A click goes to the
@@ -27,11 +27,11 @@ Item {
     readonly property var windows: WorkspacesState.windows
     readonly property var urgent: WorkspacesState.urgent
 
-    readonly property int count: Math.max(Appearance.bar.workspaces.shown, activeId, WorkspacesState.occupied[WorkspacesState.occupied.length - 1] ?? 1)
+    readonly property int count: Math.max(Config.bar.workspaces.shown, activeId, WorkspacesState.occupied[WorkspacesState.occupied.length - 1] ?? 1)
 
     // Each style picks how much room a workspace takes.
     readonly property real slot: style.item?.slotWidth ?? 20
-    readonly property real padding: Appearance.bar.itemPadding
+    readonly property real padding: Config.bar.itemPadding
 
     // Continuous animations only run while anyone can see them.
     readonly property bool running: opacity > 0 && visible
@@ -78,7 +78,7 @@ Item {
         anchors.fill: parent
 
         sourceComponent: {
-            switch (Appearance.bar.workspaces.style) {
+            switch (Config.bar.workspaces.style) {
             case "constellation":
                 return constellation;
             case "fluid":

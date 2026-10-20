@@ -41,7 +41,7 @@ Item {
 
         anchors.fill: parent
 
-        source: Appearance.wallpaper ? `file://${Appearance.wallpaper}` : ""
+        source: Wallpaper.image ? `file://${Wallpaper.image}` : ""
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         cache: true
@@ -64,7 +64,7 @@ Item {
         anchors.fill: parent
 
         color: {
-            const c = Appearance.palette.m3scrim;
+            const c = Colours.palette.m3scrim;
             return Qt.rgba(c.r, c.g, c.b, 0.4);
         }
 
@@ -147,14 +147,14 @@ Item {
             StyledText {
                 text: Time.format("HH:mm")
                 font.pixelSize: 120
-                color: Appearance.palette.m3primaryFixed
+                color: Colours.palette.m3primaryFixed
             }
 
             StyledText {
                 leftPadding: Appearance.padding.small
                 text: Time.format("dddd d MMMM")
                 font.pixelSize: Appearance.font.large
-                color: Appearance.palette.m3primaryFixedDim
+                color: Colours.palette.m3primaryFixedDim
             }
         }
 
@@ -199,7 +199,7 @@ Item {
             animate: true
             text: root.menu.armed !== "" ? qsTr("Press again to confirm  ·  Esc to cancel") : qsTr("←  →  to choose  ·  Enter to confirm  ·  Esc to close")
             font.pixelSize: Appearance.font.small
-            color: root.menu.armed !== "" ? Appearance.palette.m3error : Appearance.palette.m3onSurfaceVariant
+            color: root.menu.armed !== "" ? Colours.palette.m3error : Colours.palette.m3onSurfaceVariant
 
             opacity: root.menu.committing ? 0 : 1
 

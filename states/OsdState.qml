@@ -79,7 +79,7 @@ Singleton {
     Timer {
         id: hideTimer
 
-        interval: Appearance.osd.timeout
+        interval: Config.osd.timeout
         onTriggered: root.shown = false
     }
 

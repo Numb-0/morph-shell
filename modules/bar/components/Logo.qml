@@ -13,7 +13,7 @@ Item {
 
     property int size: Appearance.font.icon.normal + 2
 
-    implicitWidth: size + Appearance.bar.itemPadding * 2
+    implicitWidth: size + Config.bar.itemPadding * 2
     implicitHeight: size + Appearance.padding.small * 2
 
     Image {
@@ -35,7 +35,7 @@ Item {
     Rectangle {
         anchors.fill: glyph
 
-        color: Appearance.palette.m3primary
+        color: Colours.palette.m3primary
 
         layer.enabled: true
         layer.effect: MultiEffect {

@@ -21,8 +21,8 @@ T.Slider {
     property real amplitude: wavy ? 6 : 0
     property int handleSize: 11
 
-    property color activeColor: Appearance.palette.m3primary
-    property color inactiveColor: Appearance.palette.m3secondaryContainer
+    property color activeColor: Colours.palette.m3primary
+    property color inactiveColor: Colours.palette.m3secondaryContainer
 
     // Owned here rather than inside the WavyLine so the handle can sample
     // the same wave and sit on it.

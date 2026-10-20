@@ -18,7 +18,7 @@ Item {
     signal activated
 
     width: ListView.view.width
-    implicitHeight: Appearance.dock.resultHeight
+    implicitHeight: Config.dock.resultHeight
 
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
@@ -65,7 +65,7 @@ Item {
                 // mixed entries does not jitter.
                 visible: text.length > 0
                 text: root.modelData.genericName || root.modelData.comment || ""
-                color: Appearance.palette.m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
                 elide: Text.ElideRight
             }
         }

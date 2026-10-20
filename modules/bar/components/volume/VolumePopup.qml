@@ -63,7 +63,7 @@ BlobPopup {
 
                     icon: Audio.icon
                     size: Appearance.font.icon.large
-                    color: Audio.muted ? Appearance.palette.m3error : Appearance.palette.m3primary
+                    color: Audio.muted ? Colours.palette.m3error : Colours.palette.m3primary
                     fill: Audio.muted ? 1 : 0
 
                     opacity: iconHover.hovered ? 1 : 0.85
@@ -94,7 +94,7 @@ BlobPopup {
                     // there is -- the same rule the media slider follows
                     // for paused and playing.
                     wavy: !Audio.muted && Audio.volume > 0
-                    activeColor: Audio.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3primary
+                    activeColor: Audio.muted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3primary
 
                     // Live rather than committed on release, as the media
                     // slider is: a volume you cannot hear until you let go
@@ -116,7 +116,7 @@ BlobPopup {
 
                     horizontalAlignment: Text.AlignRight
                     text: Math.round(Audio.volume * 100) + "%"
-                    color: Audio.muted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onSurface
+                    color: Audio.muted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3onSurface
                 }
             }
 
@@ -129,7 +129,7 @@ BlobPopup {
 
                     animate: true
                     text: Audio.description || qsTr("No output")
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                     elide: Text.ElideRight
                 }
 
@@ -167,7 +167,7 @@ BlobPopup {
                     Layout.leftMargin: Appearance.padding.medium
 
                     text: qsTr("Output")
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
                     font.weight: Font.Medium
                 }
 
@@ -188,7 +188,7 @@ BlobPopup {
                     Layout.topMargin: Appearance.spacing.small
 
                     text: qsTr("Input")
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
                     font.weight: Font.Medium
                 }
 
@@ -207,7 +207,7 @@ BlobPopup {
                         Layout.alignment: Qt.AlignVCenter
 
                         icon: Audio.micMuted ? "mic_off" : "mic"
-                        color: Audio.micMuted ? Appearance.palette.m3error : Appearance.palette.m3primary
+                        color: Audio.micMuted ? Colours.palette.m3error : Colours.palette.m3primary
                         fill: Audio.micMuted ? 1 : 0
 
                         opacity: micIconHover.hovered ? 1 : 0.85
@@ -235,7 +235,7 @@ BlobPopup {
                         Layout.fillWidth: true
 
                         wavy: !Audio.micMuted && Audio.micVolume > 0
-                        activeColor: Audio.micMuted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3primary
+                        activeColor: Audio.micMuted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3primary
 
                         onMoved: Audio.setMicVolume(value)
 
@@ -251,7 +251,7 @@ BlobPopup {
 
                         horizontalAlignment: Text.AlignRight
                         text: Math.round(Audio.micVolume * 100) + "%"
-                        color: Audio.micMuted ? Appearance.palette.m3onSurfaceVariant : Appearance.palette.m3onSurface
+                        color: Audio.micMuted ? Colours.palette.m3onSurfaceVariant : Colours.palette.m3onSurface
                     }
                 }
 
@@ -273,7 +273,7 @@ BlobPopup {
                     visible: Audio.sources.length === 0
 
                     text: qsTr("No microphones")
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
             }
 
@@ -336,7 +336,7 @@ BlobPopup {
 
                         icon: "music_off"
                         size: Appearance.font.icon.large
-                        color: Appearance.palette.m3onSurfaceVariant
+                        color: Colours.palette.m3onSurfaceVariant
                     }
 
                     StyledText {
@@ -344,7 +344,7 @@ BlobPopup {
                         Layout.bottomMargin: Appearance.padding.small
 
                         text: qsTr("Nothing is playing")
-                        color: Appearance.palette.m3onSurfaceVariant
+                        color: Colours.palette.m3onSurfaceVariant
                     }
                 }
             }

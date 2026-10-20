@@ -85,7 +85,7 @@ Rectangle {
     implicitHeight: column.implicitHeight + Appearance.padding.extraLarge * 2
 
     radius: Appearance.rounding.extraLarge
-    color: Appearance.palette.m3surfaceContainer
+    color: Colours.palette.m3surfaceContainer
 
     // Rises into place as the dim comes up, and once the tick has had
     // its moment, shrinks away again.
@@ -174,7 +174,7 @@ Rectangle {
             implicitWidth: 56
             implicitHeight: 56
             radius: height / 2
-            color: root.succeeded ? Appearance.palette.m3primary : Appearance.palette.m3primaryContainer
+            color: root.succeeded ? Colours.palette.m3primary : Colours.palette.m3primaryContainer
 
             Behavior on color {
                 CAnim {
@@ -188,7 +188,7 @@ Rectangle {
                 icon: root.succeeded ? "check" : "shield_lock"
                 size: Appearance.font.icon.large
                 weight: root.succeeded ? 600 : 400
-                color: root.succeeded ? Appearance.palette.m3onPrimary : Appearance.palette.m3onPrimaryContainer
+                color: root.succeeded ? Colours.palette.m3onPrimary : Colours.palette.m3onPrimaryContainer
                 fill: 1
             }
 
@@ -225,7 +225,7 @@ Rectangle {
             wrapMode: Text.Wrap
             text: root.message
             font.pixelSize: Appearance.font.normal
-            color: Appearance.palette.m3onSurfaceVariant
+            color: Colours.palette.m3onSurfaceVariant
         }
 
         // Who the password is for. A chip you can click through when
@@ -242,7 +242,7 @@ Rectangle {
             implicitHeight: identityRow.implicitHeight + Appearance.padding.extraSmall * 2
 
             radius: height / 2
-            color: Appearance.palette.m3secondaryContainer
+            color: Colours.palette.m3secondaryContainer
 
             RowLayout {
                 id: identityRow
@@ -253,19 +253,19 @@ Rectangle {
                 MaterialSymbol {
                     icon: root.identityIsGroup ? "group" : "person"
                     size: Appearance.font.icon.small
-                    color: Appearance.palette.m3onSecondaryContainer
+                    color: Colours.palette.m3onSecondaryContainer
                 }
 
                 StyledText {
                     text: root.identityName
-                    color: Appearance.palette.m3onSecondaryContainer
+                    color: Colours.palette.m3onSecondaryContainer
                 }
 
                 MaterialSymbol {
                     visible: identity.choosable
                     icon: "unfold_more"
                     size: Appearance.font.icon.small
-                    color: Appearance.palette.m3onSecondaryContainer
+                    color: Colours.palette.m3onSecondaryContainer
                 }
             }
 
@@ -288,9 +288,9 @@ Rectangle {
             implicitHeight: 48
 
             radius: height / 2
-            color: Appearance.palette.m3surfaceContainerHighest
+            color: Colours.palette.m3surfaceContainerHighest
             border.width: root.wrong ? 2 : password.activeFocus ? 2 : 0
-            border.color: root.wrong ? Appearance.palette.m3error : Appearance.palette.m3primary
+            border.color: root.wrong ? Colours.palette.m3error : Colours.palette.m3primary
             opacity: root.busy ? 0.6 : 1
 
             Behavior on border.color {
@@ -312,7 +312,7 @@ Rectangle {
                 MaterialSymbol {
                     icon: "key"
                     size: Appearance.font.icon.normal
-                    color: Appearance.palette.m3onSurfaceVariant
+                    color: Colours.palette.m3onSurfaceVariant
                 }
 
                 TextInput {
@@ -324,13 +324,13 @@ Rectangle {
                     echoMode: root.flow?.responseVisible ? TextInput.Normal : TextInput.Password
                     passwordCharacter: "•"
 
-                    color: Appearance.palette.m3onSurface
+                    color: Colours.palette.m3onSurface
                     font.family: Appearance.font.family
                     font.pixelSize: Appearance.font.normal
 
                     renderType: TextInput.NativeRendering
-                    selectionColor: Appearance.palette.m3primary
-                    selectedTextColor: Appearance.palette.m3onPrimary
+                    selectionColor: Colours.palette.m3primary
+                    selectedTextColor: Colours.palette.m3onPrimary
 
                     onTextChanged: if (text.length > 0)
                         root.wrong = false
@@ -346,7 +346,7 @@ Rectangle {
 
                         text: root.succeeded ? "" : root.busy ? qsTr("Checking…") : root.prompt
                         font.pixelSize: Appearance.font.normal
-                        color: Appearance.palette.m3onSurfaceVariant
+                        color: Colours.palette.m3onSurfaceVariant
                     }
                 }
             }
@@ -362,7 +362,7 @@ Rectangle {
             wrapMode: Text.Wrap
 
             text: root.flow?.supplementaryMessage || (root.wrong ? qsTr("Wrong password, try again") : "")
-            color: root.wrong || root.flow?.supplementaryIsError ? Appearance.palette.m3error : Appearance.palette.m3onSurfaceVariant
+            color: root.wrong || root.flow?.supplementaryIsError ? Colours.palette.m3error : Colours.palette.m3onSurfaceVariant
         }
 
         RowLayout {
@@ -394,13 +394,13 @@ Rectangle {
 
         signal clicked
 
-        readonly property color content: filled ? Appearance.palette.m3onPrimary : Appearance.palette.m3primary
+        readonly property color content: filled ? Colours.palette.m3onPrimary : Colours.palette.m3primary
 
         implicitWidth: btnLabel.implicitWidth + Appearance.padding.large * 2
         implicitHeight: 40
 
         radius: btnHover.hovered ? Appearance.rounding.medium : height / 2
-        color: filled ? Appearance.palette.m3primary : "transparent"
+        color: filled ? Colours.palette.m3primary : "transparent"
         opacity: enabled ? 1 : 0.5
 
         Behavior on radius {

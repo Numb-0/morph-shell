@@ -51,7 +51,7 @@ Item {
         onTriggered: root.launching = false
     }
 
-    readonly property int size: Appearance.dock.iconSize
+    readonly property int size: Config.dock.iconSize
 
     implicitWidth: size + Appearance.padding.small * 2
     implicitHeight: size + Appearance.padding.small * 2
@@ -159,7 +159,7 @@ Item {
         anchors.topMargin: root.size / 2 + Appearance.padding.extraSmall
 
         Repeater {
-            model: Appearance.dock.maxDots
+            model: Config.dock.maxDots
 
             // Each slot carries its share of the gap on either side, and
             // closes to nothing when its window is not there, so the dots
@@ -192,7 +192,7 @@ Item {
                     implicitHeight: slot.shown ? slot.dot : 0
 
                     radius: height / 2
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
 
                     Behavior on implicitWidth {
                         Anim {

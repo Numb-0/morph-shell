@@ -77,7 +77,7 @@ Item {
         rotation: root.spin
 
         ShapePath {
-            fillColor: root.selected ? Appearance.palette.m3primary : Appearance.palette.m3secondaryContainer
+            fillColor: root.selected ? Colours.palette.m3primary : Colours.palette.m3secondaryContainer
             strokeWidth: -1
 
             Behavior on fillColor {
@@ -96,7 +96,7 @@ Item {
         text: root.wsId
         font.pixelSize: Math.round(root.radius * 0.95)
         font.weight: Font.Bold
-        color: root.selected ? Appearance.palette.m3onPrimary : Appearance.palette.m3onSecondaryContainer
+        color: root.selected ? Colours.palette.m3onPrimary : Colours.palette.m3onSecondaryContainer
 
         Behavior on color {
             CAnim {}

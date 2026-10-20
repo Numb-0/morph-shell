@@ -40,7 +40,7 @@ Item {
 
         icon: "keep"
         size: root.size
-        color: root.pinned ? Appearance.palette.m3primary : root.hovered ? Appearance.palette.m3onSurface : Appearance.palette.m3onSurfaceVariant
+        color: root.pinned ? Colours.palette.m3primary : root.hovered ? Colours.palette.m3onSurface : Colours.palette.m3onSurfaceVariant
         fill: root.pinned ? 1 : 0
         rotation: root.pinned ? 0 : 45
 

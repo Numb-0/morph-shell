@@ -61,7 +61,7 @@ MouseArea {
     }
     readonly property var ids: [...used, newId]
 
-    readonly property int columns: Math.max(1, Math.min(ids.length, Appearance.overview.columns))
+    readonly property int columns: Math.max(1, Math.min(ids.length, Config.overview.columns))
     readonly property int rows: Math.ceil(ids.length / columns)
 
     // The workspace the keyboard or the pointer is on.
@@ -141,10 +141,10 @@ MouseArea {
 
     // A cell keeps this screen's shape, and is sized for a full grid, so
     // a few workspaces make a small card rather than big cells.
-    readonly property int fitColumns: Appearance.overview.columns
-    readonly property int fitRows: Math.max(rows, Appearance.overview.rows)
+    readonly property int fitColumns: Config.overview.columns
+    readonly property int fitRows: Math.max(rows, Config.overview.rows)
     readonly property real aspect: screen.width / Math.max(1, screen.height)
-    readonly property real cellWidth: Math.min((width * Appearance.overview.maxWidth - inset * 2 - gap * (fitColumns - 1)) / fitColumns, (height * Appearance.overview.maxHeight - inset * 2 - gap * (fitRows - 1)) / fitRows * aspect)
+    readonly property real cellWidth: Math.min((width * Config.overview.maxWidth - inset * 2 - gap * (fitColumns - 1)) / fitColumns, (height * Config.overview.maxHeight - inset * 2 - gap * (fitRows - 1)) / fitRows * aspect)
     readonly property real cellHeight: cellWidth / aspect
 
     // Hyprland's monitors, for where each window's monitor sits and how
@@ -416,7 +416,7 @@ MouseArea {
         anchors.fill: parent
 
         color: {
-            const c = Appearance.palette.m3scrim;
+            const c = Colours.palette.m3scrim;
             return Qt.rgba(c.r, c.g, c.b, 0.3);
         }
 
@@ -439,9 +439,9 @@ MouseArea {
         height: board.height + root.inset * 2
 
         radius: Appearance.rounding.extraLarge
-        color: Appearance.palette.m3surfaceContainer
+        color: Colours.palette.m3surfaceContainer
         border.width: 1
-        border.color: Qt.alpha(Appearance.palette.m3outlineVariant, 0.6)
+        border.color: Qt.alpha(Colours.palette.m3outlineVariant, 0.6)
 
         visible: root.ready
         opacity: root.up ? 1 : 0
@@ -664,7 +664,7 @@ MouseArea {
                     radius: Appearance.rounding.small
                     color: "transparent"
                     border.width: 2
-                    border.color: target ? Appearance.palette.m3tertiary : modelData === root.selected && root.dragging === "" ? Appearance.palette.m3primary : "transparent"
+                    border.color: target ? Colours.palette.m3tertiary : modelData === root.selected && root.dragging === "" ? Colours.palette.m3primary : "transparent"
 
                     opacity: Math.min(1, appear)
                     scale: 0.82 + 0.18 * appear

@@ -109,7 +109,7 @@ SearchPanel {
             required property var modelData
 
             width: ListView.view.width
-            implicitHeight: Appearance.dock.resultHeight
+            implicitHeight: Config.dock.resultHeight
 
             Loader {
                 anchors.fill: parent

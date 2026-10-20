@@ -13,7 +13,7 @@ Item {
 
     readonly property bool hovered: hover.hovered
 
-    implicitWidth: glyph.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: glyph.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: glyph.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {

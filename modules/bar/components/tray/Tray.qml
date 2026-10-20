@@ -37,7 +37,7 @@ Item {
 
     visible: items.length > 0
 
-    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: row.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: Appearance.font.icon.normal + Appearance.padding.small * 2
 
     // Many applications hand over their icon as a theme name with the
@@ -185,7 +185,7 @@ Item {
                     implicitWidth: icon.active ? 4 : 0
                     implicitHeight: implicitWidth
                     radius: height / 2
-                    color: Appearance.palette.m3primary
+                    color: Colours.palette.m3primary
 
                     Behavior on implicitWidth {
                         Anim {

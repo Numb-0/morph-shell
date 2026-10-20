@@ -17,8 +17,8 @@ Item {
     readonly property bool hovered: hover.hovered
     readonly property bool recording: Recorder.recording
 
-    readonly property real idleWidth: markBox.implicitWidth + Appearance.bar.itemPadding * 2
-    readonly property real fullWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
+    readonly property real idleWidth: markBox.implicitWidth + Config.bar.itemPadding * 2
+    readonly property real fullWidth: row.implicitWidth + Config.bar.itemPadding * 2
 
     implicitWidth: recording ? fullWidth : idleWidth
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
@@ -55,7 +55,7 @@ Item {
     Row {
         id: row
 
-        x: Appearance.bar.itemPadding
+        x: Config.bar.itemPadding
         anchors.verticalCenter: parent.verticalCenter
 
         spacing: Appearance.spacing.small
@@ -84,9 +84,9 @@ Item {
                 height: size
                 radius: root.recording && root.hovered ? size * 0.22 : size / 2
 
-                color: root.recording || root.hovered ? Appearance.palette.m3error : "transparent"
+                color: root.recording || root.hovered ? Colours.palette.m3error : "transparent"
                 border.width: root.recording ? 0 : 2
-                border.color: root.hovered ? Appearance.palette.m3error : Appearance.palette.m3primary
+                border.color: root.hovered ? Colours.palette.m3error : Colours.palette.m3primary
 
                 Behavior on color {
                     CAnim {}
@@ -143,7 +143,7 @@ Item {
 
                 color: "transparent"
                 border.width: 1.5
-                border.color: Appearance.palette.m3error
+                border.color: Colours.palette.m3error
 
                 opacity: 0
                 visible: !root.hovered
@@ -187,7 +187,7 @@ Item {
             visible: Recorder.audio
             icon: "volume_up"
             size: Appearance.font.icon.small
-            color: Appearance.palette.m3onSurfaceVariant
+            color: Colours.palette.m3onSurfaceVariant
         }
 
         StyledText {

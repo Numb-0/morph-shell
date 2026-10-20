@@ -98,8 +98,8 @@ Variants {
             }
         }
 
-        readonly property int barHeight: Appearance.bar.height
-        readonly property int barMargin: Appearance.bar.margin
+        readonly property int barHeight: Config.bar.height
+        readonly property int barMargin: Config.bar.margin
 
         // Anything hoverable that sits inside the hit area has to be
         // OR'd in here. A child HoverHandler can take the hover for
@@ -137,14 +137,14 @@ Variants {
         Timer {
             id: openTimer
 
-            interval: Appearance.bar.openDelay
+            interval: Config.bar.openDelay
             onTriggered: win.revealed = true
         }
 
         Timer {
             id: closeTimer
 
-            interval: Appearance.bar.closeDelay
+            interval: Config.bar.closeDelay
             onTriggered: win.revealed = false
         }
 
@@ -252,7 +252,7 @@ Variants {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            height: revealHover.hovered || win.shown ? win.barMargin + win.barHeight : Appearance.bar.reveal
+            height: revealHover.hovered || win.shown ? win.barMargin + win.barHeight : Config.bar.reveal
 
             HoverHandler {
                 id: revealHover
@@ -289,7 +289,7 @@ Variants {
         BlobGroup {
             id: group
 
-            color: Appearance.palette.m3surfaceContainer
+            color: Colours.palette.m3surfaceContainer
             smoothing: Appearance.border.smoothing
         }
 
@@ -682,7 +682,7 @@ Variants {
             y: surface.y + (surface.height - height) / 2
 
             pinned: BarState.pinned
-            horizontalPadding: Appearance.bar.itemPadding
+            horizontalPadding: Config.bar.itemPadding
             opacity: win.reveal
 
             onToggled: BarState.togglePinned()

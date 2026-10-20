@@ -16,7 +16,7 @@ Item {
     // Past this the name is cut short, as the network's is.
     readonly property int maxLabelWidth: 120
 
-    implicitWidth: row.implicitWidth + Appearance.bar.itemPadding * 2
+    implicitWidth: row.implicitWidth + Config.bar.itemPadding * 2
     implicitHeight: row.implicitHeight + Appearance.padding.small * 2
 
     HoverHandler {
@@ -69,7 +69,7 @@ Item {
             size: Appearance.font.icon.normal
 
             // Dimmed while off, as the network's is without a link.
-            color: Bt.enabled ? Appearance.palette.m3onSurface : Appearance.palette.m3onSurfaceVariant
+            color: Bt.enabled ? Colours.palette.m3onSurface : Colours.palette.m3onSurfaceVariant
 
             // Solid while something is connected.
             fill: Bt.connected ? 1 : 0
