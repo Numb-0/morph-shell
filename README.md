@@ -527,28 +527,29 @@ turns the screens back on as it wakes.
 
 ## Theme window
 
-The theme window shows every chromix theme as a tile, with a large
-preview of the one you're looking at: its wallpaper with a small bar,
-card and button drawn over it in its colours. The window itself also
-takes on that theme's palette, so you can see a theme before you switch
-to it. Open it from the bar's palette glyph (a right click there flips
-light and dark without opening anything), with `:theme` in the
-launcher, or with a bind:
+The theme window is a row of drops, one per chromix theme, each holding
+that theme's primary colour; the one in use has a check. The drop you're
+looking at swells and reaches up into a bubble with a large preview of
+the theme: its wallpaper with a small bar, card and button drawn over it
+in its colours. The whole window takes on that theme's palette, so you
+can see a theme before you switch to it. Open it from the bar's palette
+glyph (a right click there flips light and dark without opening
+anything), with `:theme` in the launcher, or with a bind:
 
 ```
 bind = SUPER, C, exec, morph-shell ipc call themes toggle
 ```
 
-Pointing at a tile previews it, and a click selects it. Light and Dark
-in the header choose the mode, and the tiles follow. Nothing switches
-until Apply, or a double click on a tile. The arrow keys move the
-selection, Enter applies and Escape closes.
+Pointing at a drop previews it. Light and Dark below the row choose the
+mode, and the drops and the preview follow. A click on a drop applies
+it. The left and right arrows move along the row, Tab flips light and
+dark, Enter applies and Escape closes.
 
-On Apply every screen holds still while chromix relinks and reloads
-everything, so apps reloading one by one never show. Once chromix is
-done, the still is wiped away in a circle growing from the tile you
-applied, with the new theme underneath. If chromix takes longer than 12
-seconds, the still is wiped away anyway.
+On apply, the other drops gather into the one you chose and it swells
+until it floods every screen in the new theme's colours. chromix relinks
+and reloads everything under the flood, so apps reloading one by one
+never show, and once it's done the flood drains back into a drop that
+pops. If chromix takes longer than 12 seconds, the flood drains anyway.
 
 ## Session menu
 

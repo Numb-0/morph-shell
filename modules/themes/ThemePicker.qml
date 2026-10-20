@@ -10,53 +10,56 @@ import qs.config
 import qs.services.launcher
 import qs.services.session
 
-// The theme window: every chromix theme as a tile, a large preview of
-// the one being looked at, and a light/dark choice, on a card over a dim
-// the way the polkit dialog is.
+// The theme switcher, as liquid. Every chromix theme is a drop of its
+// primary in a row strung together like the workspaces, and the drop
+// being looked at swells and reaches up into a bubble holding a large
+// preview of it: its wallpaper with a small shell drawn in its colours.
+// The whole switcher fades into the palette of whichever drop is up.
 //
-// Nothing switches until Apply. Pointing at a tile, or stepping onto it
-// with the arrows, only previews it: the hero shows its wallpaper with a
-// small shell drawn in its colours, and the window itself fades into its
-// palette. The selection is a drop of the theme's primary that flows
-// from tile to tile rather than jumping.
-//
-// Apply floods the new theme out from the tile. Every screen is frozen
-// as it was, chromix relinks and reloads everything behind the still,
-// and once it is done the still is wiped away in a circle growing from
-// the tile, the re-themed desktop underneath. Apps reloading one by one
-// never show.
+// Pointing at a drop, or stepping onto it with the arrows, only
+// previews it. A click on it, or Enter, applies it: the other drops and
+// the bubble draw into it, and it swells until it floods every screen.
+// chromix relinks and reloads everything under the flood, so apps
+// reloading one by one never show, and once it is done the flood drains
+// back into the drop and it shrinks away.
 //
 // Opened from the bar's palette glyph, the launcher's `:theme` or a
-// bind. The arrows move, Enter applies, Escape backs out.
+// bind. Left and right move, Tab flips light and dark, Enter applies,
+// Escape backs out.
 Scope {
     id: root
 
-    // Loaded, and drawn. Closing fades it out before unloading it, so the
-    // two part for the length of the fade.
+    // Loaded, and drawn. Closing plays the drops out before unloading
+    // them, so the two part for the length of that.
     property bool active: false
     property bool shown: false
 
-    // The screen the card and the keyboard go to, chosen once on opening.
+    // The screen the switcher and the keyboard go to, chosen once on
+    // opening.
     property string keyScreen: ""
 
-    // What Apply would switch to: the selected tile and the chosen mode.
+    // The drop the keyboard is on, and the mode Apply would bring.
     property string picked: ""
     property string pickedMode: "dark"
 
-    // The tile under the pointer, which the preview follows over the
-    // selection while it is there.
+    // The drop under the pointer, which the preview follows over the
+    // keyboard's while it is there.
     property string hovered: ""
 
     readonly property string previewed: hovered !== "" ? hovered : picked
 
-    readonly property bool changed: picked !== Themes.theme || pickedMode !== Themes.mode
-
     // The wallpaper and colours of every theme in the chosen mode, read
-    // once here so the tiles, the preview and the palette share them.
+    // once here so the drops, the preview and the palette share them.
     readonly property var infos: themeInfos.instances
 
     function infoFor(name: string): var {
         return infos.find(i => i.name === name) ?? null;
+    }
+
+    readonly property var previewInfo: infoFor(previewed)
+
+    readonly property ThemePalette tones: ThemePalette {
+        roles: root.previewInfo?.colors ?? ({})
     }
 
     // chromix's names are file names: "mystic_castle" reads as "Mystic
@@ -66,39 +69,42 @@ Scope {
         return spaced.charAt(0).toUpperCase() + spaced.slice(1);
     }
 
-    readonly property var previewInfo: infoFor(previewed)
-
-    readonly property ThemePalette tones: ThemePalette {
-        roles: root.previewInfo?.colors ?? ({})
-    }
-
-    // How long the circle takes to cross the farthest screen, how long
-    // the apps are given to repaint after chromix is done, and how long
-    // a switch may take before the still is wiped away regardless.
-    readonly property int revealDuration: 1000
+    // How long the drops take to gather into the chosen one, the flood
+    // to cover the farthest screen and to drain back, how long the apps
+    // are given to repaint once chromix is done, and how long a switch
+    // may take before the flood drains regardless.
+    readonly property int gatherDuration: 420
+    readonly property int floodDuration: 750
+    readonly property int drainDuration: 750
     readonly property int settleDelay: 450
     readonly property int switchTimeout: 12000
 
-    // The flood, in its stages: the card going (flooding), every screen
-    // held still (frozen), chromix asked (started), and the circle
-    // growing (revealing).
-    property bool flooding: false
-    property bool frozen: false
-    property bool started: false
-    property bool revealing: false
+    // The chosen drop at its fullest, which the flood grows out of and
+    // drains back into.
+    readonly property real dropRadius: 36
 
-    // Where the circle grows from, in global coordinates, and how far it
-    // has to go to clear every screen.
+    // A switch on its way, in its stages: the drops gathering into the
+    // chosen one (committing), the flood over every screen (flooding),
+    // every screen covered and chromix asked (covered), and the flood
+    // going back (draining).
+    property bool committing: false
+    property bool flooding: false
+    property bool covered: false
+    property bool draining: false
+
+    // Where the flood grows from, in global coordinates, and how far it
+    // has to go to cover every screen.
     property point origin: Qt.point(0, 0)
     property real reach: 0
 
-    // 0 to 1 across the reveal.
-    property real reveal: 0
-
-    property int captures: 0
+    // 0 to 1, the flood's reach; 0 to 1, its colour from the theme's
+    // primary into its container; and the last drop's size as it goes.
+    property real flood: 0
+    property real tint: 0
+    property real pop: 1
 
     function open(): void {
-        if (shown || flooding || !Themes.available)
+        if (shown || committing || !Themes.available)
             return;
         unload.stop();
         keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
@@ -110,7 +116,7 @@ Scope {
     }
 
     function close(): void {
-        if (!shown || flooding)
+        if (!shown || committing)
             return;
         shown = false;
         unload.restart();
@@ -123,69 +129,46 @@ Scope {
             open();
     }
 
-    // Applies what is picked, flooding it out from `from`, a point in
-    // global coordinates. With nothing to change it only closes.
-    function apply(from: point): void {
-        if (!shown || flooding)
+    // Applies a theme in the chosen mode, flooding it out from `from`,
+    // the drop's centre in global coordinates. With nothing to change it
+    // only closes.
+    function apply(name: string, from: point): void {
+        if (!shown || committing)
             return;
-        if (!changed) {
+        if (name === Themes.theme && pickedMode === Themes.mode) {
             close();
             return;
         }
 
+        picked = name;
+        hovered = "";
         origin = from;
         let far = 0;
         for (const s of Quickshell.screens) {
             for (const [cx, cy] of [[s.x, s.y], [s.x + s.width, s.y], [s.x, s.y + s.height], [s.x + s.width, s.y + s.height]])
                 far = Math.max(far, Math.hypot(cx - from.x, cy - from.y));
         }
-        // A little past the corner, so the wavefront's glow clears it too.
-        reach = far + 48;
+        reach = far;
 
-        flooding = true;
+        committing = true;
         shown = false;
         unload.stop();
-        freeze.restart();
-    }
-
-    // Each screen's still, as it comes in. chromix is only asked once
-    // every screen is held, so none of them catches an app mid-reload.
-    function captured(): void {
-        captures++;
-        if (captures >= Quickshell.screens.length)
-            start();
-    }
-
-    function start(): void {
-        if (started)
-            return;
-        started = true;
-        captureTimeout.stop();
-        safety.restart();
-        Themes.set(picked, pickedMode !== Themes.mode ? pickedMode : "");
-    }
-
-    function beginReveal(): void {
-        if (revealing)
-            return;
-        settle.stop();
-        safety.stop();
-        revealing = true;
-        grow.restart();
+        gather.restart();
     }
 
     function finish(): void {
+        committing = false;
         flooding = false;
-        frozen = false;
-        started = false;
-        revealing = false;
-        reveal = 0;
-        captures = 0;
+        covered = false;
+        draining = false;
+        flood = 0;
+        tint = 0;
+        pop = 1;
         active = false;
     }
 
-    // One per theme, reloading as the mode is flipped so the tiles show
-    // each theme in the mode Apply would bring.
+    // One per theme, reloading as the mode is flipped so the drops and
+    // the preview show each theme in the mode Apply would bring.
     Variants {
         id: themeInfos
 
@@ -236,75 +219,137 @@ Scope {
         }
     }
 
-    // Long enough for the card and the dim to have faded, so the stills
-    // are of the desktop and not of the window on its way out.
+    // The drops drawing into the chosen one, before it floods.
     Timer {
-        id: freeze
+        id: gather
 
-        interval: Appearance.anim.durations.slowEffects + 50
+        interval: root.gatherDuration
         onTriggered: {
-            root.captures = 0;
-            root.frozen = true;
-            captureTimeout.restart();
+            root.flooding = true;
+            spread.restart();
         }
     }
 
-    // A screen whose still never arrives does not hold up the rest.
-    Timer {
-        id: captureTimeout
+    // Out of the drop and over every screen, its colour running from the
+    // theme's primary into its surface as it goes. Only once it covers
+    // everything is chromix asked.
+    ParallelAnimation {
+        id: spread
 
-        interval: 600
-        onTriggered: root.start()
+        NumberAnimation {
+            target: root
+            property: "flood"
+            from: 0
+            to: 1
+            duration: root.floodDuration
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: Appearance.anim.emphasized
+        }
+
+        NumberAnimation {
+            target: root
+            property: "tint"
+            from: 0
+            to: 1
+            duration: root.floodDuration * 0.6
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: Appearance.anim.standard
+        }
+
+        onFinished: {
+            root.covered = true;
+            safety.restart();
+            Themes.set(root.picked, root.pickedMode !== Themes.mode ? root.pickedMode : "");
+        }
     }
 
     // Gives the apps chromix reloaded a moment to repaint, and the shell
-    // its own palette fade, before they are shown.
+    // its own palette fade, before the flood goes.
     Timer {
         id: settle
 
         interval: root.settleDelay
-        onTriggered: root.beginReveal()
+        onTriggered: root.drain()
     }
 
     Timer {
         id: safety
 
         interval: root.switchTimeout
-        onTriggered: root.beginReveal()
+        onTriggered: root.drain()
+    }
+
+    function drain(): void {
+        if (draining)
+            return;
+        settle.stop();
+        safety.stop();
+        draining = true;
+        recede.restart();
     }
 
     Connections {
         target: Themes
 
         function onFinished(): void {
-            if (root.started && !root.revealing)
+            if (root.covered && !root.draining)
                 settle.restart();
         }
     }
 
-    // On M3's emphasized curve: the wave gathers out of the tile, sweeps
-    // across, and eases off as it clears the farthest corner. A curve
-    // that decelerates from the start spends nearly all of it past the
-    // screen's edge.
-    NumberAnimation {
-        id: grow
+    // Back into the drop it came from, the edges of every screen showing
+    // first, then turning primary again as it narrows. It speeds up as it
+    // goes, M3's emphasized accelerate, and runs straight on into the
+    // drop shrinking away, so there is no tail of it creeping in nor a
+    // pause before the pop: a curve that eases out lingers for half a
+    // second on a drop that barely moves.
+    SequentialAnimation {
+        id: recede
 
-        target: root
-        property: "reveal"
-        from: 0
-        to: 1
-        duration: root.revealDuration
-        easing.type: Easing.BezierSpline
-        easing.bezierCurve: Appearance.anim.emphasized
+        ParallelAnimation {
+            NumberAnimation {
+                target: root
+                property: "flood"
+                to: 0
+                duration: root.drainDuration
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: [0.3, 0, 0.8, 0.15, 1, 1]
+            }
+
+            SequentialAnimation {
+                PauseAnimation {
+                    duration: root.drainDuration * 0.55
+                }
+                NumberAnimation {
+                    target: root
+                    property: "tint"
+                    to: 0
+                    duration: root.drainDuration * 0.45
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Appearance.anim.standard
+                }
+            }
+        }
+
+        // Picks up the speed the drain arrived with and settles to
+        // nothing, M3's emphasized decelerate.
+        NumberAnimation {
+            target: root
+            property: "pop"
+            to: 0
+            duration: 220
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: [0.05, 0.7, 0.1, 1, 1, 1]
+        }
 
         onFinished: root.finish()
     }
 
-    // Long enough for the slowest fade on the way out to play.
+    // Long enough for the drops to play out on the way out.
     Timer {
         id: unload
 
-        interval: Appearance.anim.durations.slowEffects + 50
+        interval: Appearance.anim.durations.slowEffects + 100
         onTriggered: root.active = false
     }
 
@@ -351,8 +396,8 @@ Scope {
                 color: "transparent"
 
                 // Over everything, the bar and notifications included,
-                // and reserving nothing. Only the card's screen takes the
-                // keyboard, and none does while the flood plays.
+                // and reserving nothing. Only the switcher's screen takes
+                // the keyboard, and none does while a switch plays.
                 WlrLayershell.layer: WlrLayer.Overlay
                 WlrLayershell.namespace: "morph-shell-themes"
                 WlrLayershell.keyboardFocus: main && root.shown ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -363,7 +408,9 @@ Scope {
                 anchors.left: true
                 anchors.right: true
 
-                // Tinted by the theme being looked at, as the card is.
+                // Tinted by the theme being looked at. Held through the
+                // gather, so the desktop does not brighten between the
+                // switcher going and the flood arriving.
                 Rectangle {
                     id: scrim
 
@@ -371,11 +418,11 @@ Scope {
 
                     color: {
                         const c = root.tones.m3scrim;
-                        return Qt.rgba(c.r, c.g, c.b, 0.45);
+                        return Qt.rgba(c.r, c.g, c.b, 0.5);
                     }
 
                     opacity: 0
-                    Component.onCompleted: opacity = Qt.binding(() => root.shown ? 1 : 0)
+                    Component.onCompleted: opacity = Qt.binding(() => root.shown || (root.committing && !root.covered) ? 1 : 0)
 
                     Behavior on opacity {
                         Anim {
@@ -384,9 +431,8 @@ Scope {
                     }
                 }
 
-                // A click on the dim closes, as an M3 dialog's does. It
-                // also keeps the desktop out of reach while the flood
-                // plays, since nothing under a still is where it looks.
+                // A click on the dim closes. It also keeps the desktop
+                // out of reach while a switch plays.
                 MouseArea {
                     anchors.fill: parent
 
@@ -398,7 +444,7 @@ Scope {
 
                     active: win.main
 
-                    sourceComponent: ThemeCard {
+                    sourceComponent: Droplets {
                         picker: root
                         screen: win.modelData
                     }

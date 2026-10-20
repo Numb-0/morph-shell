@@ -1,115 +1,60 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Effects
 import Quickshell
-import Quickshell.Wayland
-import qs.config
 
-// One screen's share of a theme being applied: the screen held still as
-// it was, then wiped away in a circle that grows from the tile Apply was
-// pressed on, the re-themed desktop showing through it.
+// One screen's share of a theme being applied: the chosen drop, grown
+// until it covers the screen and then drained back into itself.
 //
-// The circle is one circle across every screen, in global coordinates,
-// so on a screen beside the card it arrives from that side a moment
-// later, as a wave crossing over.
+// The drop is one circle across every screen, in global coordinates, so
+// on a screen beside the switcher it arrives from that side a moment
+// later, as a wave crossing over, and leaves it first on the way back.
 Item {
     id: root
 
     required property ThemePicker picker
     required property ShellScreen screen
 
+    readonly property ThemePalette tones: picker.tones
+
     readonly property real centreX: picker.origin.x - screen.x
     readonly property real centreY: picker.origin.y - screen.y
-    readonly property real radius: picker.reveal * picker.reach
+    readonly property real radius: picker.dropRadius + picker.flood * (picker.reach - picker.dropRadius)
 
-    Loader {
-        anchors.fill: parent
+    function mix(a: color, b: color, t: real): color {
+        return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1);
+    }
 
-        active: root.picker.frozen
+    visible: picker.flooding
 
-        sourceComponent: Item {
-            // What has been wiped away so far.
-            Item {
-                id: hole
+    // The flood's edge: a band of the theme's primary leading the way
+    // out and trailing it back in.
+    Rectangle {
+        x: root.centreX - root.radius
+        y: root.centreY - root.radius
+        width: root.radius * 2
+        height: root.radius * 2
+        radius: root.radius
 
-                anchors.fill: parent
+        color: root.tones.m3primary
+        scale: root.picker.pop
+    }
 
-                visible: false
-                layer.enabled: true
+    // Behind the edge, the body of it, deepening from the primary into
+    // its container: still the theme's own colour, rather than a sheet
+    // of surface, while chromix works under it.
+    Rectangle {
+        readonly property real band: Math.min(120, root.radius * 0.3)
+        readonly property real r: Math.max(0, root.radius - band)
 
-                Rectangle {
-                    x: root.centreX - root.radius
-                    y: root.centreY - root.radius
-                    width: root.radius * 2
-                    height: root.radius * 2
-                    radius: root.radius
+        x: root.centreX - r
+        y: root.centreY - r
+        width: r * 2
+        height: r * 2
+        radius: r
 
-                    color: "white"
-                }
-            }
-
-            // Captured as it loads, once the card has gone, so the still
-            // is the desktop as it was before the switch. Drawn through
-            // its own layer with the hole cut out of it: a ScreencopyView
-            // hidden and handed to an effect as a source draws nothing.
-            ScreencopyView {
-                id: still
-
-                anchors.fill: parent
-
-                captureSource: root.screen
-                live: false
-                visible: hasContent
-
-                layer.enabled: true
-                layer.effect: MultiEffect {
-                    maskEnabled: true
-                    maskSource: hole
-                    maskInverted: true
-                }
-
-                onHasContentChanged: {
-                    if (hasContent)
-                        root.picker.captured();
-                }
-            }
-
-            // The wavefront: a soft band of the new primary with a crisp
-            // edge inside it, thinning out as the wave spreads. Drawn in
-            // the shell's own palette, which is the new one by the time
-            // the circle grows.
-            Repeater {
-                model: [
-                    {
-                        width: 28,
-                        alpha: 0.22
-                    },
-                    {
-                        width: 3,
-                        alpha: 0.9
-                    }
-                ]
-
-                Rectangle {
-                    required property var modelData
-
-                    readonly property real r: root.radius + modelData.width / 2
-
-                    x: root.centreX - r
-                    y: root.centreY - r
-                    width: r * 2
-                    height: r * 2
-                    radius: r
-
-                    visible: root.picker.revealing && root.radius > 0
-
-                    color: "transparent"
-                    border.width: modelData.width
-                    border.color: Colours.palette.m3primary
-                    opacity: modelData.alpha * (1 - root.picker.reveal)
-                }
-            }
-        }
+        visible: r > 0
+        color: root.mix(root.tones.m3primary, root.tones.m3primaryContainer, root.picker.tint)
+        scale: root.picker.pop
     }
 }
