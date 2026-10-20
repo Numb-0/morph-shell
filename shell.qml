@@ -13,6 +13,7 @@ import qs.modules.overview
 import qs.modules.polkit
 import qs.modules.screenshot
 import qs.modules.session
+import qs.modules.themes
 
 ShellRoot {
     Background {}
@@ -25,5 +26,6 @@ ShellRoot {
     Overview {}
     Polkit {}
     SessionMenu {}
+    ThemePicker {}
     Lock {}
 }

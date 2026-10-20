@@ -44,7 +44,6 @@ Variants {
         readonly property bool networkOpen: openPanel === "network"
         readonly property bool bluetoothOpen: openPanel === "bluetooth"
         readonly property bool notificationsOpen: openPanel === "notifications"
-        readonly property bool themeOpen: openPanel === "theme"
         readonly property bool trayOpen: openPanel === "tray"
 
         // Which tray item's menu is open, and the icon it hangs from.
@@ -106,7 +105,7 @@ Variants {
         // itself, leaving the outer one false, which would retract the
         // bar the moment you point at one of its own widgets. Add new bar
         // widgets to this list.
-        readonly property bool pointerInside: revealHover.hovered || clock.hovered || recording.hovered || clockPopup.hovered || sky.hovered || weatherPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || awake.hovered || theme.hovered || themePopup.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
+        readonly property bool pointerInside: revealHover.hovered || clock.hovered || recording.hovered || clockPopup.hovered || sky.hovered || weatherPopup.hovered || workspaces.hovered || media.hovered || mediaPopup.hovered || profile.hovered || awake.hovered || theme.hovered || volume.hovered || volumePopup.hovered || brightness.hovered || brightnessPopup.hovered || battery.hovered || batteryPopup.hovered || network.hovered || networkPopup.hovered || bluetooth.hovered || bluetoothPopup.hovered || pin.hovered || notifications.hovered || notificationsPopup.hovered || tray.hovered || trayPopup.hovered || session.hovered
 
         // Latched rather than bound straight to the pointer, so a cursor
         // crossing the screen edge on its way somewhere else does not
@@ -224,10 +223,6 @@ Variants {
 
             Region {
                 item: notificationsPopup.maskItem
-            }
-
-            Region {
-                item: themePopup.maskItem
             }
 
             Region {
@@ -374,18 +369,6 @@ Variants {
             // Never reachable without a battery, since the widget that
             // opens it is not drawn either.
             open: win.batteryOpen && Power.available
-        }
-
-        ThemePopup {
-            id: themePopup
-
-            group: group
-            anchor: theme
-            anchorBottom: surface.y + surface.height
-
-            // Never reachable without chromix, since the widget that
-            // opens it is not drawn either.
-            open: win.themeOpen && Themes.available
         }
 
         // Grows out of whichever tray icon asked, through a stand-in in
@@ -569,10 +552,14 @@ Variants {
             // Nothing to switch without a chromix manifest.
             visible: Themes.available
 
-            active: win.themeOpen
             opacity: win.reveal
 
-            onClicked: win.toggle("theme")
+            // The theme window covers the screen, so the bar gets out of
+            // its way as it does for the session menu.
+            onClicked: {
+                win.dismiss();
+                Commands.themesRequested();
+            }
         }
 
         // The status widgets sit at the far end of the bar, inside the

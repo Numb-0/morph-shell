@@ -77,7 +77,7 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | `find` | Privacy indicator: which processes have a camera open | Put on the wrapper's `PATH`. |
 | `gdbus` | The lock hearing logind's lock requests and the warning before sleep | Put on the wrapper's `PATH`. |
 | `systemd-inhibit` | Holding sleep back until the lock is up | Part of systemd; not put on the `PATH`. |
-| [chromix](https://github.com/Numb-0/chromix) | Theme panel, colours and wallpaper | Optional, install it yourself. The theme panel only shows when it is installed (see [Colours](#colours)). |
+| [chromix](https://github.com/Numb-0/chromix) | Theme window, colours and wallpaper | Optional, install it yourself. The theme window and the bar's palette glyph only show when it is installed (see [Colours](#colours)). |
 | StatusNotifierItem | System tray | Nothing to install: the shell is the tray host, and apps that support it show up there. Apps that only speak the old XEmbed tray don't. |
 | UPower | Battery widget | System service: the NixOS module turns it on. |
 | PipeWire | Volume widget and per-application mixer | System service: the NixOS module turns it on. |
@@ -219,8 +219,9 @@ chain, which the watch can't see, should call
 
 [chromix](https://github.com/Numb-0/chromix) writes this file: its
 `morph-shell` target renders the matugen template for each theme, links
-the result here and triggers the reload. It also drives the theme panel
-in the bar, which only shows when chromix is installed.
+the result here and triggers the reload. It also drives the theme
+window (see [Theme window](#theme-window)), which only shows when chromix
+is installed.
 
 ## Wallpaper
 
@@ -256,7 +257,7 @@ morph-shell ipc show   # list every target and function the running shell expose
 
 | Target | Function | Description |
 | --- | --- | --- |
-| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `weather`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth`, `notifications` or `theme`. |
+| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `weather`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth` or `notifications`. |
 | `bar` | `togglePinned` | Pin or unpin the bar (see [Bar and dock](#bar-and-dock)). |
 | `dock` | `togglePinned` | Pin or unpin the dock (see [Bar and dock](#bar-and-dock)). |
 | `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
@@ -268,6 +269,9 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `emoji` | `toggle` | Open the emoji picker on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
 | `emoji` | `open` | Open the emoji picker on the focused screen. Off Hyprland it opens on the first screen. |
 | `emoji` | `close` | Close the emoji picker. |
+| `themes` | `toggle` | Open the theme window on the focused screen, or close it if it's open (see [Theme window](#theme-window)). |
+| `themes` | `open` | Open the theme window. |
+| `themes` | `close` | Close the theme window. |
 | `lock` | `lock` | Lock the session (see [Lock screen](#lock-screen)). Does nothing if it's already locked. |
 | `lock` | `isLocked` | Print whether the session is locked. |
 | `idle` | `toggleAwake` | Keep the session from dimming, locking and turning the screens off when idle, or let it again (see [Idle](#idle)). |
@@ -336,6 +340,7 @@ own commands instead, and `:` alone lists them all:
 | `:colorpicker` | Picks a colour from the screen (see [Colour picker](#colour-picker)). |
 | `:lock` | Locks the session. |
 | `:session` | Opens the full-screen session menu (see [Session menu](#session-menu)). |
+| `:theme` | Opens the theme window (see [Theme window](#theme-window)). Only offered when chromix is installed. |
 | `:dnd` | Turns do not disturb on or off. |
 | `:clear` | Dismisses every notification. |
 
@@ -519,6 +524,31 @@ Before the machine sleeps, from the session menu, a lid or
 `systemctl suspend`, the shell locks and holds the sleep back until the
 lock is drawn, so the desktop never shows for a frame on waking. It
 turns the screens back on as it wakes.
+
+## Theme window
+
+The theme window shows every chromix theme as a tile, with a large
+preview of the one you're looking at: its wallpaper with a small bar,
+card and button drawn over it in its colours. The window itself also
+takes on that theme's palette, so you can see a theme before you switch
+to it. Open it from the bar's palette glyph (a right click there flips
+light and dark without opening anything), with `:theme` in the
+launcher, or with a bind:
+
+```
+bind = SUPER SHIFT, T, exec, morph-shell ipc call themes toggle
+```
+
+Pointing at a tile previews it, and a click selects it. Light and Dark
+in the header choose the mode, and the tiles follow. Nothing switches
+until Apply, or a double click on a tile. The arrow keys move the
+selection, Enter applies and Escape closes.
+
+On Apply every screen holds still while chromix relinks and reloads
+everything, so apps reloading one by one never show. Once chromix is
+done, the still is wiped away in a circle growing from the tile you
+applied, with the new theme underneath. If chromix takes longer than 12
+seconds, the still is wiped away anyway.
 
 ## Session menu
 

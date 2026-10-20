@@ -47,17 +47,28 @@ Singleton {
     // has written it back.
     property string requested: ""
 
-    // The rendered directory for a theme in the current mode.
-    function dirFor(name: string): string {
+    // Every switch asked for has gone through, or failed: the queue has
+    // run dry and chromix has reloaded what it reloads. `ok` is whether
+    // the last of them went through.
+    signal finished(bool ok)
+
+    // The rendered directory for a theme, in the current mode or the
+    // one given.
+    function dirFor(name: string, inMode: string): string {
         const t = themes.find(t => t.name === name);
-        return t ? (dark ? t.dark : t.light) : "";
+        if (!t)
+            return "";
+        return (inMode || mode) === "light" ? t.light : t.dark;
     }
 
-    function set(name: string): void {
-        if (name === theme && !busy)
+    // Switches to a theme, and to a mode with it if one is given, in one
+    // go rather than two relinks.
+    function set(name: string, inMode: string): void {
+        const toMode = inMode || mode;
+        if (name === theme && toMode === mode && !busy)
             return;
         requested = name;
-        run(["chromix", "set", name]);
+        run(inMode ? ["chromix", "set", name, inMode] : ["chromix", "set", name]);
     }
 
     function setMode(value: string): void {
@@ -99,6 +110,7 @@ Singleton {
                 root.run(next);
             } else {
                 root.requested = "";
+                root.finished(code === 0);
             }
         }
     }

@@ -3,15 +3,12 @@ import qs.components
 import qs.config
 import qs.services.session
 
-// Bar widget: a palette glyph opening the theme panel on click. A right
+// Bar widget: a palette glyph opening the theme window on click. A right
 // click flips between dark and light without opening anything.
 Item {
     id: root
 
     signal clicked
-
-    // Lit while its panel is open, as the session button is.
-    property bool active: false
 
     readonly property bool hovered: hover.hovered
 
@@ -47,8 +44,8 @@ Item {
 
         icon: "palette"
         size: Appearance.font.icon.normal
-        color: root.active || root.hovered ? Colours.palette.m3primary : Colours.palette.m3onSurface
-        fill: root.active || root.hovered ? 1 : 0
+        color: root.hovered ? Colours.palette.m3primary : Colours.palette.m3onSurface
+        fill: root.hovered ? 1 : 0
 
         Behavior on fill {
             Anim {

@@ -29,6 +29,7 @@ Singleton {
     signal colorPickerRequested
     signal overviewRequested
     signal sessionRequested
+    signal themesRequested
 
     // In the order they are listed under a bare colon: the panels first,
     // then the rest by how often they are likely to be wanted.
@@ -99,6 +100,13 @@ Singleton {
             icon: "power_settings_new",
             run: () => root.sessionRequested(),
             available: true
+        },
+        {
+            name: "theme",
+            description: qsTr("Pick a theme, and light or dark"),
+            icon: "palette",
+            run: () => root.themesRequested(),
+            available: Themes.available
         },
         {
             name: "dnd",
