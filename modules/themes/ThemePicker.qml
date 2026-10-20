@@ -11,7 +11,7 @@ import qs.services.launcher
 import qs.services.session
 
 // The theme switcher, as liquid. Every chromix theme is a drop of its
-// primary in a row strung together like the workspaces, and the drop
+// primary in a row, and the drop
 // being looked at swells and reaches up into a bubble holding a large
 // preview of it: its wallpaper with a small shell drawn in its colours.
 // The whole switcher fades into the palette of whichever drop is up.

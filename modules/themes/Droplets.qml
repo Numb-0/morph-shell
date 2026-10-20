@@ -11,9 +11,8 @@ import qs.services.session
 // surface holding a disc of the theme's primary; a bubble above with the
 // preview in it; a stem joining the bubble to the drop being looked at;
 // and a pill below for light and dark. All of it one blob group, so the
-// beads neck into each other like the workspaces' drops, the stem flares
-// into the bubble and the drop it hangs from, and the whole switcher
-// reads as one body of liquid.
+// stem flares into the bubble and the drop it hangs from, and the whole
+// switcher reads as one body of liquid; the drops themselves stand apart.
 //
 // The drops keep fixed slots, the one being looked at only swelling in
 // its own, so nothing moves out from under the pointer as it goes along
@@ -36,16 +35,21 @@ Item {
     readonly property int bubbleWidth: 620
     readonly property int bubbleHeight: 360
     readonly property int stemWidth: 22
+
+    // How far the stem reaches up into the bubble's rim, short of the
+    // preview inside it.
+    readonly property int stemReach: Appearance.padding.medium / 2
     readonly property int stemGap: 44
     readonly property int dropSize: 46
     readonly property int focusSize: 68
     readonly property int pillHeight: 52
     readonly property int pillGap: 30
 
-    // Each drop's slot, the size of a swollen drop, so a drop at rest
-    // sits clear of its neighbours by a little less than the group's
-    // smoothing and necks into them.
-    readonly property int slot: focusSize
+    // Each drop's slot: wide enough that even the swollen one stays clear
+    // of its neighbours by more than the group's smoothing. Any closer
+    // and it fuses into whichever drop is beside it, one lump at one end
+    // of the row that the rest of the row doesn't have.
+    readonly property int slot: (focusSize + dropSize) / 2 + Appearance.border.smoothing + 8
 
     readonly property real rowCy: bubbleHeight + stemGap + focusSize / 2
     readonly property real pillTop: rowCy + focusSize / 2 + pillGap
@@ -258,6 +262,24 @@ Item {
         smoothing: Appearance.border.smoothing
     }
 
+    // The stem, from the middle of the drop being looked at up into the
+    // bubble's rim. Anchored at the drop, so it reaches up out of it on
+    // the way in and is drawn back down into it on the way out.
+    //
+    // It stops in the rim rather than reaching into the bubble, and is
+    // drawn before it so the preview sits over the flare where the two
+    // meet: any further, or over it, and it covers the foot of the
+    // picture.
+    BlobRect {
+        group: root.stem > 0.01 && root.focusIndex >= 0 ? body : null
+
+        x: root.stemX - width / 2
+        y: root.rowCy - height
+        width: root.stemWidth
+        height: (root.stemGap + root.stemReach + root.focusSize / 2) * root.stem
+        radius: root.stemWidth / 2
+    }
+
     // The bubble. Grows out of the top of the stem, wherever along the
     // row that is, and settles in the middle.
     BlobRect {
@@ -298,19 +320,6 @@ Item {
                 return p.previewed === Themes.theme && p.pickedMode === Themes.mode ? qsTr("%1 · in use").arg(mode) : mode;
             }
         }
-    }
-
-    // The stem, from the middle of the drop being looked at up into the
-    // bubble's lower edge. Anchored at the drop, so it reaches up out of
-    // it on the way in and is drawn back down into it on the way out.
-    BlobRect {
-        group: root.stem > 0.01 && root.focusIndex >= 0 ? body : null
-
-        x: root.stemX - width / 2
-        y: root.rowCy - height
-        width: root.stemWidth
-        height: (root.stemGap + root.stemWidth + root.focusSize / 2) * root.stem
-        radius: root.stemWidth / 2
     }
 
     Repeater {

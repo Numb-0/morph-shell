@@ -23,45 +23,68 @@ ClippingRectangle {
     radius: Appearance.rounding.extraLarge
     color: tones.m3surfaceContainerHigh
 
+    // Two layers that take turns: the new wallpaper loads into whichever
+    // is behind, which is brought to the front and fades in over the one
+    // still showing the last. Moving the last picture into the back layer
+    // instead would load it again there, and leave nothing behind the new
+    // one until it had.
+    property Image front: first
+
     onWallpaperChanged: {
-        under.source = over.source;
-        over.opacity = 0;
-        over.source = wallpaper ? `file://${wallpaper}` : "";
+        const next = front === first ? second : first;
+        next.opacity = 0;
+        next.z = 1;
+        front.z = 0;
+        next.source = wallpaper ? `file://${wallpaper}` : "";
+        front = next;
+        if (next.status === Image.Ready)
+            next.fadeIn();
     }
 
-    Image {
-        id: under
+    component Layer: Image {
+        id: layer
+
+        function fadeIn(): void {
+            fade.restart();
+        }
 
         anchors.fill: parent
 
-        sourceSize.width: width * 2
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-    }
-
-    Image {
-        id: over
-
-        anchors.fill: parent
-
-        sourceSize.width: width * 2
+        // Twice the bubble's width, fixed rather than following it: the
+        // bubble grows on the way in, and a size bound to it would decode
+        // the picture again on every frame of that.
+        sourceSize.width: 1240
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
 
         opacity: 0
 
         onStatusChanged: {
-            if (status === Image.Ready)
-                fadeIn.restart();
+            if (status === Image.Ready && z === 1)
+                fade.restart();
         }
 
         Anim {
-            id: fadeIn
+            id: fade
 
-            target: over
+            target: layer
             property: "opacity"
             to: 1
             type: Anim.SlowEffects
+        }
+    }
+
+    // Their own item, so bringing one to the front only orders them, and
+    // never lifts a picture over the shell drawn on top.
+    Item {
+        anchors.fill: parent
+
+        Layer {
+            id: first
+        }
+
+        Layer {
+            id: second
         }
     }
 
