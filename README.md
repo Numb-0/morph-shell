@@ -536,7 +536,7 @@ light and dark without opening anything), with `:theme` in the
 launcher, or with a bind:
 
 ```
-bind = SUPER SHIFT, T, exec, morph-shell ipc call themes toggle
+bind = SUPER, C, exec, morph-shell ipc call themes toggle
 ```
 
 Pointing at a tile previews it, and a click selects it. Light and Dark
