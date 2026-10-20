@@ -5,7 +5,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.components
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // A window in the overview, drawn live from the compositor, with its
 // app's icon over it, and its title while it is picked, by the pointer

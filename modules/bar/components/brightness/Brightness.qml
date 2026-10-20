@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // Bar widget: the backlight glyph and its level. Click opens the panel,
 // and the wheel sets the level without opening anything.

@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // The backlight's panel: the glyph, a level slider, and the number.
 // Everything about how it grows out of the bar lives in BlobPopup.

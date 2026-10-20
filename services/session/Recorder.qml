@@ -4,6 +4,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import qs.services.launcher
+import qs.services.system
 
 // Screen recordings, through wf-recorder. The shell picks the region --
 // the screenshot picker, in its recording colours -- and wf-recorder

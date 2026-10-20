@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // Bar widget: the connected device's name and the radio's glyph. Click
 // opens the Bluetooth panel, middle click switches the radio on or off

@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import qs.config
 import qs.modules.dock.components
-import qs.services
+import qs.services.launcher
 
 // What the dock grows into to start something: a search over everything
 // installed. Lives inside the dock's own shape rather than in a window

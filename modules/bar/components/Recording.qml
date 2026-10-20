@@ -1,7 +1,8 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.launcher
+import qs.services.session
 
 // Bar widget: the screen recorder's button. Idle it is a ring, as on a
 // recorder, that fills red under the pointer: a click picks a region to

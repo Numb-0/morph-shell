@@ -6,7 +6,8 @@ import Quickshell.Io
 import Quickshell.Services.Pam
 import Quickshell.Wayland
 import qs.config
-import qs.services
+import qs.services.launcher
+import qs.services.session
 
 // The session lock, standing in for hyprlock. The compositor hands every
 // screen to the lock's surfaces and keeps the session locked until the

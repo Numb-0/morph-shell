@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
-import qs.services
+import qs.services.launcher
 
 // A colour picker in place of hyprpicker. Every screen freezes, a lens
 // follows the pointer, and a click copies the colour under it as hex

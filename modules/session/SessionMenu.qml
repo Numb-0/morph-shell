@@ -6,7 +6,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // The session menu, full screen: lock, log out, suspend, restart and
 // shut down as a row of large tonal buttons over the wallpaper, which

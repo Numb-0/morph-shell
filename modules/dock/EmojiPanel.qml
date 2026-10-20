@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // What the dock grows into to pick an emoji, or a symbol a keyboard
 // lacks: a grid of them, the recent ones first, with a search over

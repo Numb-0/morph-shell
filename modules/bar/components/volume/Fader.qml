@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Services.Pipewire
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // One application's fader.
 Item {

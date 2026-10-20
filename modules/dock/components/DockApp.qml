@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Widgets
 import qs.components
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // One pinned application: its icon, whether it is running, and what a
 // click on it does.

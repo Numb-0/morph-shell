@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // One of the shell's commands in the launcher's results: its name as
 // it is typed, colon and all, so the list also teaches the spelling.

@@ -7,7 +7,8 @@ import Morph.Blobs
 import qs.components
 import qs.config
 import qs.modules.dock.components
-import qs.services
+import qs.services.launcher
+import qs.states
 
 // The dock, and the panels it turns into: the launcher, the clipboard
 // history and the emoji picker it leads to through ":cliphist" and

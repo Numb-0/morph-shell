@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // Bar widget: a palette glyph opening the theme panel on click. A right
 // click flips between dark and light without opening anything.

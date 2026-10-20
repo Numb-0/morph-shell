@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // The clock's panel: the date and time, and a month calendar under them.
 // The weather has a panel of its own, from the glyph beside the clock.

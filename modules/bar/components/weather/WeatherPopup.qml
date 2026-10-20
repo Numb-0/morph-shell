@@ -4,7 +4,7 @@ import QtQuick.Shapes
 import Quickshell.Widgets
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // The weather's panel, from the glyph beside the clock: how it is now,
 // on a card that takes the weather's colour, and the days ahead under

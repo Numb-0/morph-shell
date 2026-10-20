@@ -5,7 +5,7 @@ import Quickshell.Wayland
 import Morph.Blobs
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // One screen of the lock: the wallpaper, the time in the top left and
 // the password field just under the middle, laid out as hyprlock had

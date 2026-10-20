@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // Bar widget: the weather's glyph, beside the clock. Click opens the
 // weather panel. Named for what it shows rather than Weather, which

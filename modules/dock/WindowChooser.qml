@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.components
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // What the dock grows into when a pinned app has more than one window
 // open: a live picture of each, to pick the one to go to rather than

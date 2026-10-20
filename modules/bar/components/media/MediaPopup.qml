@@ -4,7 +4,7 @@ import QtQuick.Shapes
 import Quickshell.Services.Mpris
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // The media panel: art, track, a wavy progress slider and transport.
 // With nothing playing it keeps the same shape, the placeholder art at

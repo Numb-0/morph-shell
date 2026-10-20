@@ -4,7 +4,7 @@ import QtQuick
 import Quickshell
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // One screen of the session menu: the wallpaper, dimmed as the lock dims
 // it, and on the menu's own screen the time in the top left, as the lock

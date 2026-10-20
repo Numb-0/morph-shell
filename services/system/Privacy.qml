@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
+import qs.services.launcher
 
 // Who is listening and watching: the applications taking the
 // microphone, the camera or the screen right now, by name.

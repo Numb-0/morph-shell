@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // The calculator's answer at the head of the launcher's results: the
 // answer large, and what was worked out under it. It reads both from

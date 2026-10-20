@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Services.Pipewire
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // One output or input in the panel's picker: the current default sits
 // on a tonal pill, as the joined network does, and any other is made

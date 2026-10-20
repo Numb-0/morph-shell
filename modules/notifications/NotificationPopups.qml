@@ -7,7 +7,7 @@ import Morph.Blobs
 import Morph.Components
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // Notifications as they arrive, told as liquid.
 //

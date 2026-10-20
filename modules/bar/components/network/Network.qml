@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // Bar widget: the joined network's name and the link's glyph. Click
 // opens the network panel, middle click switches Wi-Fi on or off

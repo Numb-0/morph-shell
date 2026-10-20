@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // Bar widget: a cup that keeps the session up. A click fills it, and
 // until it is clicked again the screen never dims, locks or goes off on

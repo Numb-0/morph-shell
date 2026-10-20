@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Networking
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // One network in range, and its password field when it asks for one.
 ColumnLayout {

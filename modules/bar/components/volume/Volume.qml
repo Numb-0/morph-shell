@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // Bar widget: the output glyph and its level. Click opens the panel,
 // middle click mutes, and the wheel sets the volume without opening

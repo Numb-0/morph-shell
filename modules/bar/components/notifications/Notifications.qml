@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // Bar widget: a bell, and how many notifications are waiting. Click
 // opens the notification centre, middle click toggles do not disturb.

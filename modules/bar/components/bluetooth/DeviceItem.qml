@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Bluetooth
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 Rectangle {
     id: item

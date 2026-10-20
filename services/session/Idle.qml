@@ -6,6 +6,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.config
+import qs.services.system
 
 // What happens as the session sits untouched, standing in for hypridle:
 // the backlight dims, then the session locks, then the screens go off.

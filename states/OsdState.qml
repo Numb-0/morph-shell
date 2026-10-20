@@ -5,6 +5,8 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import qs.config
+import qs.services.session
+import qs.services.system
 
 // What the OSD is showing, and when. One for the session, so every
 // screen's OSD tells the same thing at the same moment.

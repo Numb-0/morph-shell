@@ -2,7 +2,7 @@ import QtQuick
 import Morph.Blobs
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // A drop hanging from the bar while an application has the microphone,
 // the camera or the screen: a glyph for each, in its own colour. It is

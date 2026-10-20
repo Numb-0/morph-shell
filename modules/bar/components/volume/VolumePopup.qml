@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Services.Pipewire
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // The output's panel: a wavy level slider, the glyph as a mute button,
 // and whichever device is being fed -- and under it, folded away until

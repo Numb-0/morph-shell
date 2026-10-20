@@ -6,7 +6,7 @@ import Quickshell
 import qs.components
 import qs.config
 import qs.modules.notifications
-import qs.services
+import qs.services.session
 
 // The notification centre: do not disturb, everything that has arrived
 // and not been dismissed, and a way to clear it all.

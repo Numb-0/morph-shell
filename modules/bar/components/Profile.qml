@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // Bar widget: the active power profile as a glyph. A click steps to the
 // next profile and a right click to the one before, straight from the

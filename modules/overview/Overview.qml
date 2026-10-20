@@ -6,7 +6,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // Every workspace at once, as a grid over the focused screen with the
 // windows drawn live inside them. A click on a workspace goes there, a

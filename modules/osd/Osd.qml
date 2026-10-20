@@ -5,7 +5,9 @@ import Quickshell.Wayland
 import Morph.Blobs
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
+import qs.services.system
+import qs.states
 
 // A glance at whatever just changed -- the volume or the brightness as a
 // level, the microphone, Caps Lock, staying awake, the keyboard layout

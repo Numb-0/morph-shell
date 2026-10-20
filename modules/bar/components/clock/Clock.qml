@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // Just the bar widget. The panel it opens lives in ClockPopup, declared
 // before the bar surface so it slides out from behind it.

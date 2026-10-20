@@ -9,7 +9,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.components
 import qs.config
-import qs.services
+import qs.states
 
 // One screen's overview: the workspaces in use, as a grid of small
 // copies of the screen, with every window drawn where it sits in its

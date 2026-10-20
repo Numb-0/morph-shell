@@ -4,7 +4,7 @@ import Quickshell.Io
 import Quickshell.Widgets
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // The theme panel: every chromix theme as its wallpaper with a few of
 // its colours laid over it, and a dark/light switch. Everything about

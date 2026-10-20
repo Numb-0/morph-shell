@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // What a notification says, laid out the same way in a popup and in the
 // centre: who sent it and when, the summary, the body, a picture or a

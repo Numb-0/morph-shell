@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // Bar widget: the battery glyph and its charge, opening the battery
 // panel on click exactly as the clock does.

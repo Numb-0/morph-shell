@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Widgets
 import qs.components
 import qs.config
-import qs.services
+import qs.services.launcher
 
 // What the dock grows into to bring something back: the clipboard's
 // history, newest first, text and images alike. Picking an entry puts

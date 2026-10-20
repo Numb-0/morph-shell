@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Networking
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // The network panel: the Wi-Fi switch, the wired link if there is one,
 // and the networks in range to join or leave.

@@ -5,7 +5,8 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
-import qs.services
+import qs.services.launcher
+import qs.services.session
 
 // Region screenshots, standing in for slurp in a grim pipeline. The
 // shell only picks the region; grim takes the picture, straight into

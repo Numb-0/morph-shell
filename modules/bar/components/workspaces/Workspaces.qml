@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import qs.components
 import qs.config
-import qs.services
+import qs.states
 
 // Bar widget: Hyprland's workspaces, drawn in one of the styles under
 // workspaces/ (Appearance.bar.workspaces.style). What is true of the

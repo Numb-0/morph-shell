@@ -18,7 +18,10 @@ import qs.modules.bar.components.tray
 import qs.modules.bar.components.volume
 import qs.modules.bar.components.weather
 import qs.modules.bar.components.workspaces
-import qs.services
+import qs.services.launcher
+import qs.services.session
+import qs.services.system
+import qs.states
 
 Variants {
     model: Quickshell.screens

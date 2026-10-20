@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Pipewire
+import qs.services.launcher
 
 // The default output, as the bar wants it: one volume, one mute, and the
 // glyph that goes with them.

@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import qs.components
 import qs.config
-import qs.services
+import qs.services.system
 
 // The battery's panel: the charge, what it is doing, and how long that
 // leaves. Everything about how it grows out of the bar lives in

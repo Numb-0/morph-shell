@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Morph.Search
+import qs.services.session
 
 // What the launcher runs when a search starts with ":": the shell's own
 // actions, by name, rather than applications. Typing the colon alone

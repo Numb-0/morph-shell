@@ -1,7 +1,7 @@
 import QtQuick
 import qs.components
 import qs.config
-import qs.services
+import qs.services.session
 
 // Bar widget: play state and the current track. The glyph plays and
 // pauses; anywhere else opens the media panel, exactly as the clock does.
