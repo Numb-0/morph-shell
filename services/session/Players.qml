@@ -3,14 +3,32 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Mpris
+import qs.services.launcher
 
 Singleton {
     id: root
 
     readonly property var all: Mpris.players.values
 
-    // Whatever is actually playing, else the first player that exists.
+    // The player picked in the panel, kept by its bus name rather than
+    // the object: when that player goes away the name matches no one and
+    // the choice falls back to the automatic one. Empty while nothing is
+    // picked.
+    property string chosenName: ""
+
+    readonly property var chosen: chosenName ? (all.find(p => p.dbusName === chosenName) ?? null) : null
+
+    // Picking the player already picked unpins it again.
+    function choose(player): void {
+        chosenName = !player || player.dbusName === chosenName ? "" : player.dbusName;
+    }
+
+    // The picked player, else whatever is actually playing, else the
+    // first player that exists.
     readonly property var active: {
+        if (chosen)
+            return chosen;
+
         const playing = all.find(p => p.isPlaying);
         if (playing)
             return playing;
@@ -113,6 +131,18 @@ Singleton {
     function release(): void {
         heldPosition = -1;
         holdGuard.stop();
+    }
+
+    // The icon of the player's desktop entry, else empty and the panel
+    // draws a glyph instead.
+    function icon(player): string {
+        for (const id of [player?.desktopEntry, player?.identity]) {
+            const entry = id ? Apps.byId(Apps.normalise(id)) : null;
+            if (entry?.icon)
+                return Quickshell.iconPath(entry.icon, true);
+        }
+
+        return "";
     }
 
     function formatTime(seconds: real): string {

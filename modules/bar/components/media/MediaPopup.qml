@@ -30,6 +30,22 @@ BlobPopup {
 
             Layout.preferredWidth: 360
 
+            // The players to pick between, only when there is more than
+            // one. Picking one holds the panel and the bar on it; picking
+            // it again lets them follow whatever is playing once more.
+            Flow {
+                Layout.fillWidth: true
+
+                visible: Players.all.length > 1
+                spacing: Appearance.spacing.small
+
+                Repeater {
+                    model: Players.all
+
+                    PlayerChip {}
+                }
+            }
+
             // The art, and beside it the track over the transport, so
             // the controls take no row of their own.
             RowLayout {
