@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import Morph.Search
+import qs.config
 
 // The desktop's applications, as the dock and the launcher want them:
 // a list to search, a way to start one, and a way to tell which are
@@ -37,6 +38,54 @@ Singleton {
     // vendor-prefixed id -- so a pin does not silently vanish.
     function byId(id: string): DesktopEntry {
         return DesktopEntries.byId(id) ?? DesktopEntries.heuristicLookup(id) ?? null;
+    }
+
+    // The dock's apps, in order, skipping any id nothing answers to.
+    //
+    // Reads `all` first so a binding on it depends on it: byId is a
+    // plain call that notifies nothing, and at startup the entries are
+    // not indexed yet, so without this every pin resolves to null once
+    // and stays that way.
+    readonly property var pinned: {
+        all;
+        return Config.dock.pinned.map(id => byId(id)).filter(entry => entry !== null).slice(0, Config.dock.maxPinned);
+    }
+
+    // No room for another: an app can still be moved, but none added.
+    readonly property bool pinsFull: pinned.length >= Config.dock.maxPinned
+
+    function isPinned(entry: DesktopEntry): bool {
+        return entry !== null && pinned.includes(entry);
+    }
+
+    // Puts an app in the dock at a place among the other pins shown,
+    // or moves it there if it is in already, and saves the order to the
+    // user's config. A new pin goes in by the app's exact id, and one
+    // moved keeps the id it was written as. Ids that answer to nothing
+    // keep their places, so a pin for an app that is only uninstalled
+    // for now comes back with it.
+    function pin(entry: DesktopEntry, index: int): void {
+        if (!entry || (pinsFull && !isPinned(entry)))
+            return;
+
+        const ids = Config.dock.pinned.filter(id => byId(id) !== entry);
+        const own = Config.dock.pinned.find(id => byId(id) === entry) ?? entry.id;
+        const shown = ids.filter(id => byId(id) !== null);
+
+        // Before the pin shown at that place, or after the last one.
+        const at = index >= 0 && index < shown.length ? ids.indexOf(shown[index]) : ids.length;
+        ids.splice(at, 0, own);
+
+        Config.set("dock", "pinned", ids);
+    }
+
+    // Takes out every id that answers to the app, near misses too, so
+    // a pin written as "code" goes with code-url-handler's.
+    function unpin(entry: DesktopEntry): void {
+        if (!entry)
+            return;
+
+        Config.set("dock", "pinned", Config.dock.pinned.filter(id => byId(id) !== entry));
     }
 
     // Every window belonging to an app, so the dock can mark it running

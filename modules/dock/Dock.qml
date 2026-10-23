@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Widgets
 import Morph.Blobs
 import qs.components
 import qs.config
@@ -20,6 +21,12 @@ import qs.states
 // it, with the icons staying exactly where they were. Nothing appears
 // or disappears -- the dock changes form, and going from one panel
 // straight to the other only swaps what is inside.
+//
+// The pins are arranged in the row itself. An icon dragged along it
+// takes its place where it is let go, and one dragged up out of the
+// dock is unpinned. An app pinned from the launcher opens a gap in the
+// row for it, which the pointer or the arrows move, and a click or
+// Enter drops it there.
 Scope {
     id: root
 
@@ -171,13 +178,113 @@ Scope {
             // open the dock is held out anyway.
             readonly property bool pointerInside: revealHover.hovered || launcherButton.hovered || pin.hovered || hoveredApps > 0
 
+            // The app being given a place in the row, whether it was
+            // picked up out of the row or pinned from the launcher, and
+            // which gap it would land in -- -1 while a dragged one is
+            // up out of the dock, where letting go unpins it.
+            property var placing: null
+            property bool dragging: false
+            property int placeIndex: -1
+
+            // Where the pointer is carrying a dragged one, in the row.
+            property point dragPoint
+
+            // Placing from the launcher, which has the row take the
+            // keys and the clicks until it is done.
+            readonly property bool choosingPlace: placing !== null && !dragging
+
+            // What the row draws: the pins, less one being dragged, and
+            // the gap among them.
+            readonly property var rowApps: {
+                const apps = Apps.pinned.filter(entry => entry !== placing);
+                if (placing === null || placeIndex < 0)
+                    return apps;
+                return [...apps.slice(0, placeIndex), gap, ...apps.slice(placeIndex)];
+            }
+
+            // Which gap a point along the row is over, out of so many.
+            // Every slot is as wide as any other and the row is as long
+            // with the gap as it was before, so this never moves under
+            // the pointer as the gap does.
+            function slotAt(x: real, count: int): int {
+                return Math.max(0, Math.min(count, slotUnder(x)));
+            }
+
+            // Unclamped: below 0 is left of the apps, and as many as
+            // there are or more is right of them.
+            function slotUnder(x: real): int {
+                const step = launcherButton.width + row.spacing;
+                const start = launcherButton.width + row.spacing + divider.width + row.spacing;
+                return Math.floor((x - start + row.spacing / 2) / step);
+            }
+
+            function beginPlacing(entry: var): void {
+                placing = entry;
+                dragging = false;
+                placeIndex = Apps.pinned.length;
+                placer.forceActiveFocus();
+            }
+
+            function finishPlacing(drop: bool): void {
+                if (placing === null)
+                    return;
+
+                if (drop && placeIndex >= 0)
+                    Apps.pin(placing, placeIndex);
+                else if (drop && dragging)
+                    Apps.unpin(placing);
+
+                const fromLauncher = !dragging;
+                placing = null;
+                dragging = false;
+                placeIndex = -1;
+
+                if (fromLauncher && launcherOpen)
+                    launcher.grabFocus();
+            }
+
+            // Pressed on a pin and moved: it comes up off the row and
+            // follows the pointer, and the others close up around a gap
+            // where it would land.
+            function beginDrag(at: point): void {
+                const index = slotUnder(at.x);
+                const entry = Apps.pinned[index];
+                if (index < 0 || !entry)
+                    return;
+
+                placing = entry;
+                dragging = true;
+                placeIndex = index;
+                dragPoint = at;
+            }
+
+            // Up past the top of the row by as much again, it is out.
+            function dragTo(at: point): void {
+                dragPoint = at;
+                placeIndex = at.y < -row.height ? -1 : slotAt(at.x, Apps.pinned.length - 1);
+            }
+
+            // So a gap is never left open in the row of a launcher that
+            // was put away halfway through.
+            onLauncherOpenChanged: if (!launcherOpen && choosingPlace)
+                finishPlacing(false)
+
+            // The gap's identity in the row, which the row's model needs
+            // to tell from the apps: one object for good, so moving the
+            // gap moves it rather than making it anew.
+            QtObject {
+                id: gap
+            }
+
             // Latched rather than bound straight to the pointer, as the
             // bar is, so a cursor crossing the screen edge on its way
             // somewhere else does not flash the dock open and shut.
             property bool revealed: false
 
             // Pinned, the dock stays up whatever the pointer does.
-            readonly property bool shown: revealed || panelOpen || DockState.pinned
+            // Held up too while a pin is being placed, or the pointer
+            // carrying one off the top would put the dock away under it.
+            readonly property bool shown: revealed || panelOpen || DockState.pinned || placing !== null
 
             property real reveal: shown ? 1 : 0
 
@@ -264,7 +371,9 @@ Scope {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                height: win.pointerInside || win.shown ? win.dockMargin + surface.height : Config.dock.reveal
+                // The whole window while a pin is dragged, so the pointer
+                // carrying it out above the dock is still followed.
+                height: win.dragging ? win.height : win.pointerInside || win.shown ? win.dockMargin + surface.height : Config.dock.reveal
 
                 HoverHandler {
                     id: revealHover
@@ -335,6 +444,11 @@ Scope {
             // cannot spill out of it while it is still growing. Both
             // panels sit in it, one on top of the other, and each fades
             // in and out with its own `active`.
+            //
+            // The open one is raised over the rest. Hover goes to the
+            // topmost of them that handles it and no further, and the
+            // closed ones still do -- faded and disabled, they would
+            // keep the pointer from the rows of one underneath.
             Item {
                 x: surface.x
                 y: surface.y
@@ -353,6 +467,8 @@ Scope {
                 }
 
                 Launcher {
+                    id: launcher
+
                     // At their open size from the start, rather than
                     // filling the shape as it grows: the shape reveals
                     // them, and nothing inside lays itself out afresh on
@@ -366,12 +482,16 @@ Scope {
 
                     enabled: win.launcherOpen
                     active: win.launcherOpen
+                    z: win.launcherOpen ? 1 : 0
 
                     onDismissed: root.close("launcher")
 
                     // ":cliphist" and the like: the dock turns from one
                     // panel into the other where it stands.
                     onPanelRequested: panel => root.open(panel, win.modelData.name)
+
+                    placing: win.choosingPlace ? win.placing : null
+                    onPlaceRequested: entry => win.beginPlacing(entry)
                 }
 
                 ClipboardPanel {
@@ -387,6 +507,7 @@ Scope {
                     enabled: win.clipboardOpen
 
                     active: win.clipboardOpen
+                    z: win.clipboardOpen ? 1 : 0
 
                     onDismissed: root.close("clipboard")
                 }
@@ -400,6 +521,7 @@ Scope {
 
                     enabled: win.emojiOpen
                     active: win.emojiOpen
+                    z: win.emojiOpen ? 1 : 0
 
                     onDismissed: root.close("emoji")
                 }
@@ -414,6 +536,7 @@ Scope {
 
                     enabled: win.windowsOpen
                     active: win.windowsOpen
+                    z: win.windowsOpen ? 1 : 0
                     entry: root.chooserEntry
 
                     onDismissed: root.close("windows")
@@ -431,17 +554,76 @@ Scope {
                 spacing: Appearance.spacing.small
                 opacity: win.reveal
 
+                // The others part around the gap as it moves, and close
+                // up behind it, rather than jumping across.
+                add: Transition {
+                    Anim {
+                        property: "scale"
+                        from: 0
+                        to: 1
+                        type: Anim.FastSpatial
+                    }
+                }
+
+                move: Transition {
+                    Anim {
+                        property: "x"
+                        type: Anim.Emphasized
+                    }
+                    // Brings back one whose own coming in was cut short.
+                    Anim {
+                        property: "scale"
+                        to: 1
+                        type: Anim.FastSpatial
+                    }
+                }
+
+                // Picks a pin up. Taps on the icons are theirs, as a drag
+                // takes the pointer from them only once it has moved.
+                DragHandler {
+                    target: null
+                    enabled: !win.choosingPlace
+
+                    onActiveChanged: {
+                        if (active)
+                            win.beginDrag(centroid.pressPosition);
+                        else if (win.dragging)
+                            win.finishPlacing(true);
+                    }
+
+                    onCentroidChanged: if (active && win.dragging)
+                        win.dragTo(centroid.position)
+                }
+
+                // Placing from the launcher, the gap follows the pointer
+                // along the row, and a click drops the app in it.
+                HoverHandler {
+                    enabled: win.choosingPlace
+
+                    onPointChanged: if (hovered)
+                        win.placeIndex = win.slotAt(point.position.x, Apps.pinned.length)
+                }
+
+                TapHandler {
+                    enabled: win.choosingPlace
+
+                    onTapped: win.finishPlacing(true)
+                }
+
                 DockButton {
                     id: launcherButton
 
                     icon: "apps"
                     active: win.launcherOpen
+                    enabled: !win.choosingPlace
 
                     onTapped: root.toggle("launcher", win.modelData.name)
                 }
 
                 // Divides the button from the applications it opens.
                 Rectangle {
+                    id: divider
+
                     anchors.verticalCenter: parent.verticalCenter
 
                     implicitWidth: 1
@@ -452,33 +634,81 @@ Scope {
                 }
 
                 Repeater {
-                    // An id nothing answers to is dropped rather than
-                    // drawn as a gap, so a pin for something that is not
-                    // installed costs nothing.
-                    //
-                    // Reads Apps.all first so the binding depends on it:
-                    // byId is a plain call that notifies nothing, and at
-                    // startup the entries are not indexed yet, so without
-                    // this every pin resolves to null once and the row
-                    // stays empty for good.
-                    model: {
-                        Apps.all;
-                        return Config.dock.pinned.map(id => Apps.byId(id)).filter(entry => entry !== null);
+                    model: ScriptModel {
+                        values: win.rowApps
                     }
 
-                    DockApp {
+                    // An app, or the gap one is being placed in.
+                    Item {
+                        id: slot
+
                         required property var modelData
 
-                        entry: modelData
-                        chosen: win.windowsOpen && root.chooserEntry === modelData
+                        readonly property bool isGap: modelData === gap
 
-                        onChooseRequested: root.choose(modelData, win.modelData.name)
+                        implicitWidth: Config.dock.iconSize + Appearance.padding.small * 2
+                        implicitHeight: Config.dock.iconSize + Appearance.padding.small * 2
 
-                        // Going straight to an app with one window puts
-                        // away the chooser that was showing another's.
-                        onActivated: root.close("windows")
+                        // Counted in and out by hand, so an icon taken
+                        // out of the row from under the pointer -- picked
+                        // up, or unpinned -- does not leave the dock
+                        // counting it as pointed at for good.
+                        readonly property bool appHovered: !isGap && (app.item?.hovered ?? false)
+                        property bool counted: false
 
-                        onHoveredChanged: win.hoveredApps += hovered ? 1 : -1
+                        function count(hovered: bool): void {
+                            if (hovered !== counted) {
+                                win.hoveredApps += hovered ? 1 : -1;
+                                counted = hovered;
+                            }
+                        }
+
+                        onAppHoveredChanged: count(appHovered)
+                        Component.onDestruction: count(false)
+
+                        Loader {
+                            id: app
+
+                            anchors.fill: parent
+
+                            active: !slot.isGap
+                            enabled: !win.choosingPlace
+
+                            sourceComponent: DockApp {
+                                entry: slot.modelData
+                                chosen: win.windowsOpen && root.chooserEntry === slot.modelData
+
+                                onChooseRequested: root.choose(slot.modelData, win.modelData.name)
+
+                                // Going straight to an app with one window
+                                // puts away the chooser that was showing
+                                // another's.
+                                onActivated: root.close("windows")
+                            }
+                        }
+
+                        // The gap: a hollow where the app would land, with
+                        // the app in it when it came from the launcher.
+                        // One dragged is under the pointer instead.
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.margins: Appearance.padding.extraSmall
+
+                            visible: slot.isGap
+                            radius: Appearance.rounding.large
+                            color: "transparent"
+                            border.width: 2
+                            border.color: Colours.palette.m3primary
+                            opacity: 0.6
+
+                            IconImage {
+                                anchors.centerIn: parent
+
+                                visible: !win.dragging
+                                implicitSize: Config.dock.iconSize * 0.8
+                                source: Quickshell.iconPath(win.placing?.icon ?? "", "application-x-executable")
+                            }
+                        }
                     }
                 }
 
@@ -502,8 +732,52 @@ Scope {
 
                     pinned: DockState.pinned
                     size: Appearance.font.icon.large
+                    enabled: !win.choosingPlace
 
                     onToggled: DockState.togglePinned()
+                }
+            }
+
+            // Placing from the launcher, the keys move the gap and drop
+            // the app or give up, then hand the keyboard back to the
+            // search.
+            Item {
+                id: placer
+
+                Keys.onLeftPressed: win.placeIndex = Math.max(0, win.placeIndex - 1)
+                Keys.onRightPressed: win.placeIndex = Math.min(Apps.pinned.length, win.placeIndex + 1)
+                Keys.onReturnPressed: win.finishPlacing(true)
+                Keys.onEnterPressed: win.finishPlacing(true)
+                Keys.onSpacePressed: win.finishPlacing(true)
+                Keys.onEscapePressed: win.finishPlacing(false)
+            }
+
+            // The pin being dragged, under the pointer. Faded and shrunk
+            // while it is out above the dock, where letting go of it
+            // takes it out.
+            IconImage {
+                readonly property bool out: win.placeIndex < 0
+
+                x: row.x + win.dragPoint.x - width / 2
+                y: row.y + win.dragPoint.y - height / 2
+
+                visible: win.dragging
+                implicitSize: Config.dock.iconSize
+                source: Quickshell.iconPath(win.placing?.icon ?? "", "application-x-executable")
+
+                scale: out ? 0.8 : 1.18
+                opacity: out ? 0.5 : 1
+
+                Behavior on scale {
+                    Anim {
+                        type: Anim.FastSpatial
+                    }
+                }
+
+                Behavior on opacity {
+                    Anim {
+                        type: Anim.FastEffects
+                    }
                 }
             }
         }

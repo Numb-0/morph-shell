@@ -53,10 +53,6 @@ SearchPanel {
 
         HoverHandler {
             cursorShape: Qt.PointingHandCursor
-
-            // Pointing at a cell selects it, as on the other panels.
-            onHoveredChanged: if (hovered)
-                root.currentIndex = cell.index
         }
 
         TapHandler {

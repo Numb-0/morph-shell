@@ -10,17 +10,14 @@ import qs.services.launcher
 Item {
     id: root
 
-    // As an application row's: the pointer selects, a tap copies.
-    signal pointed
+    // As an application row's: the pointer selects through the panel,
+    // a tap copies.
     signal activated
 
     implicitHeight: Config.dock.resultHeight
 
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
-
-        onHoveredChanged: if (hovered)
-            root.pointed()
     }
 
     TapHandler {

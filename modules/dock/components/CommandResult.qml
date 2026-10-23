@@ -15,8 +15,8 @@ Item {
     // should never be handed an application.
     required property var modelData
 
-    // As an application row's: the pointer selects, a tap runs.
-    signal pointed
+    // As an application row's: the pointer selects through the panel,
+    // a tap runs.
     signal activated
 
     width: ListView.view.width
@@ -24,9 +24,6 @@ Item {
 
     HoverHandler {
         cursorShape: Qt.PointingHandCursor
-
-        onHoveredChanged: if (hovered)
-            root.pointed()
     }
 
     TapHandler {

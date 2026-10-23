@@ -1,6 +1,9 @@
 import QtQuick
 
 QtObject {
+    // The "dock" object of the user's config.
+    property var user: ({})
+
     readonly property int height: 58
 
     // Inset from the screen edges while floating, as the bar is.
@@ -21,7 +24,16 @@ QtObject {
     // first and near misses are looked up heuristically, so "code"
     // finds code-url-handler. An id nothing answers to is skipped
     // rather than drawn as a hole.
-    readonly property var pinned: ["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]
+    //
+    // Set in the user's config, under "dock", and written there when an
+    // app is pinned or unpinned from the launcher; these are the
+    // defaults, until the first time that happens.
+    readonly property var pinned: user.pinned ?? ["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]
+
+    // As many as the dock holds. Past it the launcher will not pin
+    // another until one is taken out, and a longer list written by hand
+    // shows only its first so many.
+    readonly property int maxPinned: 6
 
     // What the dock grows into. The width is the panel's; the height
     // is everything above the pinned row, which stays put.

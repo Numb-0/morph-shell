@@ -3,32 +3,50 @@ import Quickshell
 import Quickshell.Widgets
 import qs.components
 import qs.config
+import qs.services.launcher
 
-// One application in the launcher's results: its icon, its name, and
-// what it says it is.
+// One application in the launcher's results: its icon, its name, what
+// it says it is, and a pin to put it in the dock or take it out.
 Item {
     id: root
 
     required property int index
     required property DesktopEntry modelData
 
-    // The pointer came onto the row, which selects it, so the pointer
-    // and the arrows never disagree about what Enter would run.
-    signal pointed
+    // The row the arrows are on, which shows its pin as the pointer
+    // does.
+    property bool selected: false
+
+    // Waiting for its place in the dock, which keeps the pin up.
+    property bool placing: false
+
+    readonly property bool pinned: Apps.isPinned(modelData)
+
+    // On the row or on its pin, whose own hover takes the pointer from
+    // the row's.
+    readonly property bool hovered: hover.hovered || pin.hovered
+
+    // The pointer selects through the panel, which watches the whole
+    // list; a tap runs.
     signal activated
+    signal pinToggled
 
     width: ListView.view.width
     implicitHeight: Config.dock.resultHeight
 
     HoverHandler {
-        cursorShape: Qt.PointingHandCursor
+        id: hover
 
-        onHoveredChanged: if (hovered)
-            root.pointed()
+        cursorShape: Qt.PointingHandCursor
     }
 
+    // A tap on the pin reaches this one too, so it checks where the
+    // tap landed: one on the pin is the pin's alone.
     TapHandler {
-        onTapped: root.activated()
+        onTapped: eventPoint => {
+            if (!pin.contains(pin.mapFromItem(root, eventPoint.position)))
+                root.activated();
+        }
     }
 
     Row {
@@ -47,7 +65,7 @@ Item {
         Column {
             anchors.verticalCenter: parent.verticalCenter
 
-            width: parent.width - Appearance.font.icon.large - parent.spacing
+            width: parent.width - Appearance.font.icon.large - parent.spacing - pin.width - Appearance.spacing.small
 
             StyledText {
                 width: parent.width
@@ -69,5 +87,32 @@ Item {
                 elide: Text.ElideRight
             }
         }
+    }
+
+    // Shown on the row the pointer or the arrows are on, and always on
+    // an app already pinned, so what is in the dock reads off the list.
+    Pin {
+        id: pin
+
+        anchors.right: parent.right
+        anchors.rightMargin: Appearance.padding.small
+        anchors.verticalCenter: parent.verticalCenter
+
+        pinned: root.pinned || root.placing
+        size: Appearance.font.icon.normal
+
+        // With the dock full, an app not in it has its pin greyed out
+        // and dead, until another is taken out to make room.
+        enabled: pinned || !Apps.pinsFull
+
+        opacity: !(pinned || root.hovered || root.selected) ? 0 : enabled ? 1 : 0.38
+
+        Behavior on opacity {
+            Anim {
+                type: Anim.FastEffects
+            }
+        }
+
+        onToggled: root.pinToggled()
     }
 }

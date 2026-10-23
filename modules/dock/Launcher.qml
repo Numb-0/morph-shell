@@ -15,11 +15,30 @@ import qs.services.launcher
 // A search that reads as maths or a unit conversion gets its answer as
 // the top result, over whatever applications it also finds, and one
 // starting with "=" is for the calculator alone.
+//
+// An application's pin, or Ctrl+P on it, puts it in the dock -- the
+// dock then asks where -- or takes it out if it is in already.
 SearchPanel {
     id: root
 
     // Asks the dock to turn into another of its panels.
     signal panelRequested(string panel)
+
+    // Asks the dock to find a place among its pins for an app.
+    signal placeRequested(var entry)
+
+    // The app the dock is finding a place for, if any.
+    property var placing: null
+
+    function togglePin(entry: var): void {
+        if (!entry || commandMode || entry === Calc.row)
+            return;
+
+        if (Apps.isPinned(entry))
+            Apps.unpin(entry);
+        else if (!Apps.pinsFull)
+            root.placeRequested(entry);
+    }
 
     readonly property bool commandMode: Commands.matches(query)
     readonly property bool calcMode: !commandMode && Calc.forced(query)
@@ -79,6 +98,8 @@ SearchPanel {
             run(result);
     }
 
+    onPinRequested: result => togglePin(result)
+
     // So a launcher opening again never shows the last answer for the
     // frame before its emptied search reaches the calculator.
     onActiveChanged: if (!active)
@@ -124,9 +145,11 @@ SearchPanel {
                     index: result.index
                     modelData: result.modelData
                     width: result.width
+                    selected: result.ListView.isCurrentItem
+                    placing: root.placing === result.modelData
 
-                    onPointed: root.currentIndex = result.index
                     onActivated: root.run(result.modelData)
+                    onPinToggled: root.togglePin(result.modelData)
                 }
             }
 
@@ -136,7 +159,6 @@ SearchPanel {
                 CalcResult {
                     width: result.width
 
-                    onPointed: root.currentIndex = result.index
                     onActivated: root.copyAnswer()
                 }
             }
@@ -147,7 +169,6 @@ SearchPanel {
         id: commandResult
 
         CommandResult {
-            onPointed: root.currentIndex = index
             onActivated: root.runCommand(modelData)
         }
     }

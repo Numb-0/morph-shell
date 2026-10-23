@@ -64,6 +64,9 @@ Item {
     // Shift+Delete, so plain Delete still edits the search.
     signal removeRequested(var result)
 
+    // Ctrl+P, for the panels whose results can be pinned.
+    signal pinRequested(var result)
+
     function reset(): void {
         search.text = "";
         currentIndex = 0;
@@ -391,6 +394,12 @@ Item {
                 Keys.onEscapePressed: root.dismissed()
                 Keys.onReturnPressed: root.accepted(root.current)
                 Keys.onEnterPressed: root.accepted(root.current)
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_P && event.modifiers & Qt.ControlModifier) {
+                        root.pinRequested(root.current);
+                        event.accepted = true;
+                    }
+                }
                 Keys.onDeletePressed: event => {
                     if (event.modifiers & Qt.ShiftModifier)
                         root.removeRequested(root.current);
@@ -449,6 +458,38 @@ Item {
                 id: listShift
 
                 y: Appearance.spacing.large * 2
+            }
+
+            // Pointing at a row or a cell selects it, so the pointer and
+            // the arrows never disagree about what Enter would do -- but
+            // only when the pointer moves: a row the list scrolls or
+            // reshuffles under a pointer at rest is no reason to take
+            // the selection from the arrows. Hover reaches a handler
+            // again whenever what is under it changes, so the pointer's
+            // place on screen is compared instead.
+            //
+            // One handler over the whole view rather than one per row,
+            // as a button inside a row -- a pin, a remove -- takes the
+            // hover from the row's own, and the row would go unselected
+            // under it.
+            HoverHandler {
+                property point last: Qt.point(-1, -1)
+
+                onPointChanged: {
+                    const at = point.scenePosition;
+                    if (!hovered || (at.x === last.x && at.y === last.y))
+                        return;
+                    last = at;
+
+                    const view = root.view;
+                    const inView = view.mapFromItem(null, at);
+                    const index = view.indexAt(inView.x + view.contentX, inView.y + view.contentY);
+                    if (index >= 0)
+                        root.currentIndex = index;
+                }
+
+                onHoveredChanged: if (!hovered)
+                    last = Qt.point(-1, -1)
             }
 
             ListView {

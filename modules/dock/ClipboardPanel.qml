@@ -131,11 +131,6 @@ SearchPanel {
             id: itemHover
 
             cursorShape: Qt.PointingHandCursor
-
-            // Pointing at a row selects it, so the pointer and the
-            // arrows never disagree about what Enter would copy.
-            onHoveredChanged: if (hovered)
-                root.currentIndex = item.index
         }
 
         // Not on the remove button, which sits inside the row: a tap

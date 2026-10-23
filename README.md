@@ -327,6 +327,17 @@ Enter) to go there, middle-click one (or Delete) to close it, and click
 the icon again or press Escape to put it away. Opening the launcher
 grows the dock into a fuzzy search over every desktop entry.
 
+Drag a dock icon along the row to move it, or up out of the dock to
+unpin it. In the launcher, the pin at the right of a result (or Ctrl+P
+on the selected one) pins the app: a gap opens in the dock for it, which
+follows the pointer or the arrow keys, and a click or Enter drops it
+there (Escape gives up). An app already pinned shows its pin filled,
+and the pin takes it out. The dock holds up to six (`dock.maxPinned`
+in `DockConfig.qml`); once it is full the other apps' pins are greyed
+out until one is taken out. The order is saved to `dock.pinned` in
+`config.json` (see [Configuration](#configuration)); over IPC,
+`dock pin <id> <index>` and `dock unpin <id>` do the same.
+
 A search in the launcher that starts with `:` runs one of the shell's
 own commands instead, and `:` alone lists them all:
 
@@ -420,10 +431,13 @@ panels all set it off.
 
 ## Configuration
 
-Settings that are yours rather than the shell's, so far only the
-weather's, go in `~/.config/morph-shell/config.json` (under
+Settings that are yours rather than the shell's, so far the weather's
+and the dock's pins, go in `~/.config/morph-shell/config.json` (under
 `$XDG_CONFIG_HOME` if that is set). The shell follows the file as you
-edit it, without a restart, and leaves anything missing at its default:
+edit it, without a restart, and leaves anything missing at its default.
+Pinning, unpinning or moving an app in the dock writes `dock.pinned`
+back to the file, keeping the rest of it, unless the file does not
+parse, in which case it is left alone:
 
 ```json
 {
@@ -431,6 +445,9 @@ edit it, without a restart, and leaves anything missing at its default:
     "location": "Florence, IT",
     "fahrenheit": false,
     "refresh": 15
+  },
+  "dock": {
+    "pinned": ["firefox", "kitty", "code"]
   }
 }
 ```
@@ -440,6 +457,7 @@ edit it, without a restart, and leaves anything missing at its default:
 | `weather.location` | `""` | Where the weather is for: a place by its English name, `"Florence"` or `"Florence, IT"`, or `"latitude,longitude"`. Empty guesses from the machine's address (see [Weather](#weather)). |
 | `weather.fahrenheit` | `false` | Fahrenheit and mph rather than Celsius and km/h. |
 | `weather.refresh` | `15` | Minutes between fetches. |
+| `dock.pinned` | `["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]` | Apps in the dock, by desktop entry id (the `.desktop` file's name without the suffix). Near misses are looked up heuristically, and ids nothing answers to are skipped. Pinning from the shell writes it for you. |
 
 The rest of the knobs still live in `config/`, a file per module
 (`BarConfig.qml`, `DockConfig.qml`, `IdleConfig.qml`, …), so changing
@@ -450,7 +468,6 @@ ones you're most likely to want:
 | --- | --- | --- |
 | `bar.workspaces.style` | `"shapes"` | Workspaces style: `drop`, `fluid`, `constellation` or `shapes`. |
 | `bar.workspaces.shown` | `5` | Slots always drawn; the row grows past it to reach the highest workspace in use. |
-| `dock.pinned` | `["firefox", "kitty", "code", "spotify", "org.gnome.Nautilus", "discord-canary"]` | Apps in the dock, by desktop entry id (the `.desktop` file's name without the suffix). Near misses are looked up heuristically, and ids nothing answers to are skipped. |
 | `dock.maxResults` | `7` | Rows the launcher shows. |
 | `idle.dim` | `270` | Seconds idle before the backlight dims; `0` never dims. |
 | `idle.dimTo` | `0.3` | What the dim takes the backlight to, as a share of where it was. |
