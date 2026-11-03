@@ -6,6 +6,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import qs.components
 import qs.config
+import qs.services.compositor
 
 // One screen's share of the region picker. Hovering outlines what a
 // click would take -- the window under the pointer, or the whole
@@ -44,7 +45,7 @@ MouseArea {
     // Tiled windows never overlap, so their order among themselves does
     // not matter.
     readonly property var windows: {
-        if (wsId === undefined)
+        if (wsId === undefined || !Compositor.hasWindowLayout)
             return [];
 
         return Hyprland.toplevels.values.map(t => t.lastIpcObject).filter(ipc => ipc?.at && ipc?.size && ipc.mapped && !ipc.hidden && (ipc.workspace?.id === wsId || ipc.pinned)).sort((a, b) => (b.pinned - a.pinned) || ((b.fullscreen !== 0) - (a.fullscreen !== 0)) || (b.floating - a.floating)).map(ipc => clip(ipc.at[0] - screen.x, ipc.at[1] - screen.y, ipc.size[0], ipc.size[1]));
@@ -166,10 +167,10 @@ MouseArea {
     // which never fill in on some Hyprland versions and left every click
     // taking the whole screen.
     property var wsId
-    property real monitorScale: 1
+    property real monitorScale: screen?.devicePixelRatio ?? 1
 
     Process {
-        running: true
+        running: Compositor.isHyprland
         command: ["hyprctl", "monitors", "-j"]
         stdout: StdioCollector {
             onStreamFinished: {
@@ -187,7 +188,7 @@ MouseArea {
     // The pointer's position before it has moved, so the outline is
     // there from the first frame rather than waiting on a wiggle.
     Process {
-        running: true
+        running: Compositor.isHyprland
         command: ["hyprctl", "cursorpos", "-j"]
         stdout: StdioCollector {
             onStreamFinished: {

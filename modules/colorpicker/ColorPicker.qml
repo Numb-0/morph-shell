@@ -2,9 +2,9 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+import qs.services.compositor
 import qs.services.launcher
 
 // A colour picker in place of hyprpicker. Every screen freezes, a lens
@@ -25,7 +25,7 @@ Scope {
     function open(): void {
         if (active)
             return;
-        keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
+        keyScreen = Compositor.focusedScreen;
         active = true;
     }
 

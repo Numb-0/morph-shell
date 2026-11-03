@@ -2,11 +2,11 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Services.Polkit
 import Quickshell.Wayland
 import qs.components
 import qs.config
+import qs.services.compositor
 
 // The polkit agent, standing in for hyprpolkitagent. Quickshell does the
 // talking to polkitd; this only puts the request in front of you: every
@@ -44,7 +44,7 @@ Scope {
     PolkitAgent {
         id: agent
 
-        onAuthenticationRequestStarted: root.keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? ""
+        onAuthenticationRequestStarted: root.keyScreen = Compositor.focusedScreen
 
         onFlowChanged: if (flow) {
             root.flow = flow;

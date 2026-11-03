@@ -2,8 +2,8 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
+import qs.services.compositor
 import qs.services.launcher
 import qs.services.system
 
@@ -149,11 +149,11 @@ Singleton {
 
         // The focused screen, whole, for a keybind: nothing to pick.
         function screen(): void {
-            root.startOutput(Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "", false);
+            root.startOutput(Compositor.focusedScreen, false);
         }
 
         function screenWithAudio(): void {
-            root.startOutput(Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "", true);
+            root.startOutput(Compositor.focusedScreen, true);
         }
 
         function regionWithAudio(): void {

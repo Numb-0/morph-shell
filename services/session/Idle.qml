@@ -2,10 +2,10 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.config
+import qs.services.compositor
 import qs.services.system
 
 // What happens as the session sits untouched, standing in for hypridle:
@@ -31,8 +31,6 @@ Singleton {
     function toggleAwake(): void {
         awake = !awake;
     }
-
-    readonly property bool onHyprland: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== ""
 
     // Set around the backlight moves made here, so the OSD can tell the
     // dim from someone turning the brightness down.
@@ -71,11 +69,11 @@ Singleton {
     }
 
     function setScreens(on: bool): void {
-        if (!onHyprland || screenOff === !on)
+        if (!Compositor.canPowerScreens || screenOff === !on)
             return;
 
         screenOff = !on;
-        Hyprland.dispatch(`hl.dsp.dpms({ action = "${on ? "on" : "off"}" })`);
+        Compositor.setScreens(on);
     }
 
     // For waking from sleep, where the screens can come back off
@@ -111,7 +109,7 @@ Singleton {
     }
 
     IdleMonitor {
-        enabled: !root.awake && root.onHyprland && Config.idle.screenOff > 0
+        enabled: !root.awake && Compositor.canPowerScreens && Config.idle.screenOff > 0
         timeout: Config.idle.screenOff
 
         onIsIdleChanged: root.setScreens(!isIdle)

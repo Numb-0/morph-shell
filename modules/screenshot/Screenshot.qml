@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+import qs.services.compositor
 import qs.services.launcher
 import qs.services.session
 
@@ -46,8 +47,9 @@ Scope {
             return;
         recording = false;
         pending = "";
-        keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
-        Hyprland.refreshToplevels();
+        keyScreen = Compositor.focusedScreen;
+        if (Compositor.hasWindowLayout)
+            Hyprland.refreshToplevels();
         active = true;
     }
 

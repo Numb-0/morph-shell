@@ -1,11 +1,10 @@
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import qs.components
 import qs.config
 import qs.states
 
-// Bar widget: Hyprland's workspaces, drawn in one of the styles under
+// Bar widget: the workspaces, drawn in one of the styles under
 // workspaces/ (Config.bar.workspaces.style). What is true of the
 // workspaces -- which exist, how many windows each holds -- is shared by
 // every bar and lives in WorkspacesState; this side adds only which one
@@ -20,14 +19,15 @@ Item {
 
     // The workspace this screen shows, and where a click or a scroll
     // opens one.
-    readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)
+    readonly property string output: screen?.name ?? ""
 
-    readonly property int activeId: monitor?.activeWorkspace?.id ?? 1
+    readonly property int activeId: WorkspacesState.activeOn(output)
 
-    readonly property var windows: WorkspacesState.windows
-    readonly property var urgent: WorkspacesState.urgent
+    readonly property var windows: WorkspacesState.windowsOn(output)
+    readonly property var urgent: WorkspacesState.urgentOn(output)
+    readonly property var occupied: WorkspacesState.occupiedOn(output)
 
-    readonly property int count: Math.max(Config.bar.workspaces.shown, activeId, WorkspacesState.occupied[WorkspacesState.occupied.length - 1] ?? 1)
+    readonly property int count: Math.max(Config.bar.workspaces.shown, activeId, occupied[occupied.length - 1] ?? 1)
 
     // Each style picks how much room a workspace takes.
     readonly property real slot: style.item?.slotWidth ?? 20
@@ -37,7 +37,7 @@ Item {
     readonly property bool running: opacity > 0 && visible
 
     function windowsOn(id: int): int {
-        return WorkspacesState.windowsOn(id);
+        return windows[id] ?? 0;
     }
 
     function centerOf(id: int): real {
@@ -63,13 +63,13 @@ Item {
         onTapped: point => {
             const id = Math.floor((point.position.x - root.padding) / root.slot) + 1;
             if (id >= 1 && id <= root.count)
-                WorkspacesState.goTo(root.monitor, id);
+                WorkspacesState.goTo(root.output, id);
         }
     }
 
     // WheelHandler {
     //     acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-    //     onWheel: event => WorkspacesState.step(root.monitor, event.angleDelta.y > 0 ? -1 : 1)
+    //     onWheel: event => WorkspacesState.step(root.output, event.angleDelta.y > 0 ? -1 : 1)
     // }
 
     Loader {

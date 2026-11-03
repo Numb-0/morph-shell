@@ -6,6 +6,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.config
+import qs.services.compositor
 import qs.services.launcher
 
 // Every workspace at once, as a grid over the focused screen with the
@@ -25,12 +26,19 @@ Scope {
     // as the pickers do.
     property string keyScreen: ""
 
+    // It lays windows out from Hyprland's IPC. niri has an overview of its
+    // own, which stands in for it there.
     function open(): void {
+        if (!Compositor.hasWindowLayout) {
+            if (Compositor.isNiri)
+                Niri.action("open-overview");
+            return;
+        }
         if (shown)
             return;
         leaving = false;
         unload.stop();
-        keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
+        keyScreen = Compositor.focusedScreen;
         Hyprland.refreshToplevels();
         active = true;
         shown = true;
@@ -58,7 +66,9 @@ Scope {
     }
 
     function toggle(): void {
-        if (shown)
+        if (!Compositor.hasWindowLayout && Compositor.isNiri)
+            Niri.action("toggle-overview");
+        else if (shown)
             close(null);
         else
             open();

@@ -48,7 +48,7 @@ MouseArea {
     // The workspaces in use, the one on screen among them even when it
     // is empty, then the first free one.
     readonly property var used: {
-        const out = [...WorkspacesState.occupied];
+        const out = WorkspacesState.occupiedOn(screen.name);
         if (activeId > 0 && !out.includes(activeId))
             out.push(activeId);
         return out.sort((a, b) => a - b);
@@ -187,8 +187,8 @@ MouseArea {
     }
 
     function goTo(id: int): void {
-        const monitor = root.monitor;
-        dismissed(() => WorkspacesState.goTo(monitor, id));
+        const output = root.screen.name;
+        dismissed(() => WorkspacesState.goTo(output, id));
     }
 
     function focusWindow(address: string): void {

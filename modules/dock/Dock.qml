@@ -8,6 +8,7 @@ import Morph.Blobs
 import qs.components
 import qs.config
 import qs.modules.dock.components
+import qs.services.compositor
 import qs.services.launcher
 import qs.states
 
@@ -76,11 +77,13 @@ Scope {
             open(name, screen);
     }
 
-    // Where a key opens it: the focused monitor on Hyprland, and the
-    // first screen anywhere else, where there is no focus to ask about.
-    readonly property bool onHyprland: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null
+    // Whether a Hyprland focus grab hands the keyboard over and takes a
+    // click outside, as the panels below lean on.
+    readonly property bool onHyprland: Compositor.hasFocusGrab
 
-    readonly property string focusedScreen: Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? ""
+    // Where a key opens it: the focused screen, or the first one where
+    // there is no focus to ask about.
+    readonly property string focusedScreen: Compositor.focusedScreen
 
     // So a key can open it. The compositor side is one line, e.g. in
     // hyprland.conf:

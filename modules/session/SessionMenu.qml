@@ -2,10 +2,10 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.config
+import qs.services.compositor
 import qs.services.launcher
 
 // The session menu, full screen: lock, log out, suspend, restart and
@@ -53,17 +53,8 @@ Scope {
     signal armedAction(int index)
     signal committed(int index)
 
-    // Off Hyprland the logout falls back on logind. A shell run as a user
-    // service has no session id of its own to end, so the last resort is
-    // every session the user has.
-    readonly property var logoutCommand: {
-        if (Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE"))
-            return ["hyprctl", "dispatch", "exit"];
-        const session = Quickshell.env("XDG_SESSION_ID");
-        if (session)
-            return ["loginctl", "terminate-session", session];
-        return ["loginctl", "terminate-user", Quickshell.env("USER")];
-    }
+    // The compositor's own exit where it has one, logind elsewhere.
+    readonly property var logoutCommand: Compositor.logoutCommand
 
     readonly property list<var> actions: [
         {
@@ -111,7 +102,7 @@ Scope {
             return;
         unload.stop();
         commit.stop();
-        keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
+        keyScreen = Compositor.focusedScreen;
         selected = 0;
         armed = "";
         committing = false;

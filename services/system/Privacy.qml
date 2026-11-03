@@ -13,7 +13,7 @@ import qs.services.launcher
 // stream fed from a real input counts as the microphone; one fed from
 // an output's monitor -- a recorder, the mixer's own peak meters -- is
 // not. A screen share is a video stream fed from something other than
-// a camera, which on Hyprland is the portal's cast.
+// a camera, which is the portal's cast.
 //
 // The camera is mostly opened directly, so it also comes from asking
 // which processes hold a /dev/video* open. Pipewire holding one stands

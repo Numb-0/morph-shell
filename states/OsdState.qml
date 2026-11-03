@@ -2,9 +2,9 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import qs.config
+import qs.services.compositor
 import qs.services.session
 import qs.services.system
 
@@ -26,7 +26,7 @@ Singleton {
     // stands out for. Layout and profile have no off, and stay on.
     property bool active: false
 
-    // The keyboard layout's name, as Hyprland spells it.
+    // The keyboard layout's name, as the compositor spells it.
     property string layout: ""
 
     property bool capsLock: false
@@ -140,20 +140,14 @@ Singleton {
         }
     }
 
-    // Hyprland names the layout in the event itself, after the keyboard's
-    // name and a comma -- the layout's own name can have commas in it, so
-    // only the first is split on. Every keyboard reports its own switch,
-    // and a keyboard plugged in reports its layout, so only a layout that
-    // differs from the last one counts.
+    // The compositor reports the layout on its way up and again for every
+    // keyboard plugged in, so only a layout that differs from the last
+    // one counts, and not the first.
     Connections {
-        target: Hyprland
+        target: Compositor
 
-        function onRawEvent(event: var): void {
-            if (event.name !== "activelayout")
-                return;
-
-            const data = event.data ?? "";
-            const name = data.slice(data.indexOf(",") + 1);
+        function onLayoutChanged(): void {
+            const name = Compositor.layout;
             if (name === "" || name === root.layout)
                 return;
 

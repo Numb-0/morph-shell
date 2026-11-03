@@ -7,6 +7,7 @@ import Quickshell.Wayland
 import Morph.Components
 import qs.components
 import qs.config
+import qs.services.compositor
 
 // One screen's share of the colour picker. The screen is frozen as it
 // was on opening, and a lens beside the pointer magnifies the pixels
@@ -92,7 +93,7 @@ MouseArea {
     // The pointer's position before it has moved, so the lens is there
     // from the first frame rather than waiting on a wiggle.
     Process {
-        running: true
+        running: Compositor.isHyprland
         command: ["hyprctl", "cursorpos", "-j"]
         stdout: StdioCollector {
             onStreamFinished: {

@@ -18,6 +18,7 @@ import qs.modules.bar.components.tray
 import qs.modules.bar.components.volume
 import qs.modules.bar.components.weather
 import qs.modules.bar.components.workspaces
+import qs.services.compositor
 import qs.services.launcher
 import qs.services.session
 import qs.services.system
@@ -78,7 +79,7 @@ Variants {
         // grab: it ends on a click anywhere outside the bar, on any
         // monitor, and puts nothing over the windows underneath. Anywhere
         // else, the dismiss area below.
-        readonly property bool onHyprland: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null
+        readonly property bool onHyprland: Compositor.hasFocusGrab
 
         HyprlandFocusGrab {
             windows: [win]
@@ -92,7 +93,7 @@ Variants {
             target: BarState
 
             function onPanelToggled(panel: string): void {
-                if (Hyprland.focusedMonitor?.name === win.modelData.name)
+                if (Compositor.focusedScreen === win.modelData.name)
                     win.toggle(panel);
             }
         }

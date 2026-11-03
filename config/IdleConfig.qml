@@ -13,6 +13,6 @@ QtObject {
     // Lock as the machine goes to sleep, whatever the timers say.
     readonly property bool lockBeforeSleep: true
 
-    // Hyprland only.
+    // Hyprland and niri only.
     readonly property int screenOff: 420
 }

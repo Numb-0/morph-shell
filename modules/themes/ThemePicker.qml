@@ -2,11 +2,11 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.components
 import qs.config
+import qs.services.compositor
 import qs.services.launcher
 import qs.services.session
 
@@ -107,7 +107,7 @@ Scope {
         if (shown || committing || !Themes.available)
             return;
         unload.stop();
-        keyScreen = Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name ?? "";
+        keyScreen = Compositor.focusedScreen;
         picked = Themes.theme;
         pickedMode = Themes.mode;
         hovered = "";

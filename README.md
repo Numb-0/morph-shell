@@ -8,26 +8,33 @@ The blob-morphing popups were inspired by
 
 ## Compositor support
 
-morph-shell is made for Hyprland: for full functionality, run it there.
+morph-shell is made for Hyprland and niri: for full functionality, run
+it on one of them.
 
 Most of the shell runs on any Wayland compositor that supports the
-layer-shell protocol (so not GNOME). A few features talk to Hyprland
-directly, through Quickshell's Hyprland integration, and only work there:
+layer-shell protocol (so not GNOME). A few features talk to the
+compositor directly: to Hyprland through Quickshell's Hyprland
+integration, and to niri through its IPC socket (`$NIRI_SOCKET`). Both
+sit behind one service, `services/compositor/Compositor.qml`, so the
+rest of the shell asks the same questions either way.
 
-| Feature | On Hyprland | Elsewhere |
-| --- | --- | --- |
-| Workspaces widget | Shows each monitor's workspaces, and switches them on click and scroll. | Shows only empty slots, with the active one parked on the first, and clicks and scrolls do nothing. |
-| `bar toggle <panel>` over IPC | Opens the panel on the focused monitor. | Opens nothing: there is no focused monitor to pick. Panels still open from the bar itself. |
-| Closing bar panels on an outside click | A click anywhere outside them, on any monitor, closes them, through a Hyprland focus grab. | Only a click elsewhere on the same screen closes them. |
-| Closing the launcher, the clipboard or the emoji picker on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. |
-| `launcher`/`clipboard`/`emoji` `toggle`/`open` over IPC | Opens the panel on the focused monitor. | Opens it on the first screen. |
-| Screenshot region picker | Snaps to the window under the pointer, and outlines it from the first frame. | Only drags or the whole screen, and the outline waits for the pointer to move. |
-| Workspace overview | Shows each workspace with its windows live, and switches, focuses, closes and moves them. | Opens on an empty grid, and nothing in it does anything. |
-| Colour picker | The lens is under the pointer from the first frame. | The lens waits for the pointer to move. |
-| Idle | Dims, locks and turns the screens off. | Dims and locks, but leaves the screens on. |
+| Feature | On Hyprland | On niri | Elsewhere |
+| --- | --- | --- | --- |
+| Workspaces widget | Shows the workspaces, and switches them on click and scroll. | Shows each output's own workspaces, numbered from 1, and switches them on click and scroll. | Shows only empty slots, with the active one parked on the first, and clicks and scrolls do nothing. |
+| `bar toggle <panel>` over IPC | Opens the panel on the focused monitor. | Opens the panel on the focused output. | Opens it on the first screen. |
+| `launcher`/`clipboard`/`emoji`/`session` `toggle`/`open` over IPC | Opens on the focused monitor. | Opens on the focused output. | Opens on the first screen. |
+| Closing bar panels on an outside click | A click anywhere outside them, on any monitor, closes them, through a Hyprland focus grab. | Only a click elsewhere on the same screen closes them. | Same as niri. |
+| Closing the launcher, the clipboard or the emoji picker on an outside click | A click anywhere outside the dock, on any monitor, closes it. | Clicks outside don't close it; use Escape or the IPC `close`. | Same as niri. |
+| Screenshot region picker | Snaps to the window under the pointer, and outlines it from the first frame. | Only drags or the whole screen, and the outline waits for the pointer to move. | Same as niri. |
+| Workspace overview | Shows each workspace with its windows live, and switches, focuses, closes and moves them. | Opens niri's own overview instead. | Does nothing. |
+| Colour picker | The lens is under the pointer from the first frame. | The lens waits for the pointer to move. | Same as niri. |
+| Keyboard layout OSD | Shows on a layout switch. | Shows on a layout switch. | Never shows. |
+| Idle | Dims, locks and turns the screens off. | Dims, locks and turns the screens off. | Dims and locks, but leaves the screens on. |
+| Log out | `hyprctl dispatch exit` | `niri msg action quit` | logind |
 
-Switching workspaces uses Hyprland's Lua dispatchers, so it needs a
-Hyprland with the Lua config (tested on 0.56).
+Switching workspaces on Hyprland uses its Lua dispatchers, so it needs a
+Hyprland with the Lua config (tested on 0.56). On niri, actions go
+through `niri msg`, which a niri session has on its `PATH`.
 
 ## Installing with Nix
 
@@ -73,7 +80,8 @@ Make sure `inputs` gets passed to your modules, e.g. with
 | `qalc` (libqalculate) | The launcher's calculator | Put on the wrapper's `PATH`. Without it the launcher stays a search, and `=` finds nothing. |
 | An emoji font | The emoji picker | Not bundled: most desktops have one already (on NixOS, `fonts.enableDefaultPackages` brings `noto-fonts-color-emoji`). Without one, emoji draw as boxes. |
 | `hyprctl` | Screenshot and colour pickers' pointer position, and the workspace and scale of each screen | Comes with Hyprland; not put on the `PATH`. Only used on Hyprland. |
-| `loginctl`, `systemctl` | Session menu: Lock, Suspend, Restart and Shut down, and Log out off Hyprland | Part of systemd; not put on the `PATH`. |
+| `niri` | Switching workspaces, turning the screens off, the overview and logging out on niri | Comes with niri; not put on the `PATH`. Only used on niri. |
+| `loginctl`, `systemctl` | Session menu: Lock, Suspend, Restart and Shut down, and Log out off Hyprland and niri | Part of systemd; not put on the `PATH`. |
 | `find` | Privacy indicator: which processes have a camera open | Put on the wrapper's `PATH`. |
 | `gdbus` | The lock hearing logind's lock requests and the warning before sleep | Put on the wrapper's `PATH`. |
 | `systemd-inhibit` | Holding sleep back until the lock is up | Part of systemd; not put on the `PATH`. |
@@ -257,17 +265,17 @@ morph-shell ipc show   # list every target and function the running shell expose
 
 | Target | Function | Description |
 | --- | --- | --- |
-| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (Hyprland only): `clock`, `weather`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth` or `notifications`. |
+| `bar` | `toggle <panel>` | Open or close a bar panel on the focused screen (the first one off Hyprland and niri): `clock`, `weather`, `media`, `volume`, `brightness`, `battery`, `network`, `bluetooth` or `notifications`. |
 | `bar` | `togglePinned` | Pin or unpin the bar (see [Bar and dock](#bar-and-dock)). |
 | `dock` | `togglePinned` | Pin or unpin the dock (see [Bar and dock](#bar-and-dock)). |
-| `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
-| `launcher` | `open` | Open the app launcher on the focused screen. Off Hyprland it opens on the first screen. |
+| `launcher` | `toggle` | Open the app launcher on the focused screen, or close it if it's open. Off Hyprland and niri it opens on the first screen. |
+| `launcher` | `open` | Open the app launcher on the focused screen. Off Hyprland and niri it opens on the first screen. |
 | `launcher` | `close` | Close the app launcher. |
-| `clipboard` | `toggle` | Open the clipboard history on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
-| `clipboard` | `open` | Open the clipboard history on the focused screen. Off Hyprland it opens on the first screen. |
+| `clipboard` | `toggle` | Open the clipboard history on the focused screen, or close it if it's open. Off Hyprland and niri it opens on the first screen. |
+| `clipboard` | `open` | Open the clipboard history on the focused screen. Off Hyprland and niri it opens on the first screen. |
 | `clipboard` | `close` | Close the clipboard history. |
-| `emoji` | `toggle` | Open the emoji picker on the focused screen, or close it if it's open. Off Hyprland it opens on the first screen. |
-| `emoji` | `open` | Open the emoji picker on the focused screen. Off Hyprland it opens on the first screen. |
+| `emoji` | `toggle` | Open the emoji picker on the focused screen, or close it if it's open. Off Hyprland and niri it opens on the first screen. |
+| `emoji` | `open` | Open the emoji picker on the focused screen. Off Hyprland and niri it opens on the first screen. |
 | `emoji` | `close` | Close the emoji picker. |
 | `themes` | `toggle` | Open the theme window on the focused screen, or close it if it's open (see [Theme window](#theme-window)). |
 | `themes` | `open` | Open the theme window. |
@@ -294,7 +302,7 @@ morph-shell ipc show   # list every target and function the running shell expose
 | `colorpicker` | `cancel` | Close the colour picker without taking anything. |
 | `osd` | `hide` | Put the OSD away now rather than when it times out (see [OSD](#osd)). |
 | `session` | `toggle` | Open or close the full-screen session menu (see [Session menu](#session-menu)). |
-| `session` | `open` | Open the session menu on the focused screen. Off Hyprland it opens on the first screen. |
+| `session` | `open` | Open the session menu on the focused screen. Off Hyprland and niri it opens on the first screen. |
 | `session` | `close` | Close the session menu. |
 
 For example, to open the launcher with Super+Space and the clipboard
@@ -304,6 +312,16 @@ history with Super+V in Hyprland:
 bind = SUPER, Space, exec, morph-shell ipc call launcher toggle
 bind = SUPER, V, exec, morph-shell ipc call clipboard toggle
 bind = SUPER, Period, exec, morph-shell ipc call emoji toggle
+```
+
+The same in niri's `config.kdl`:
+
+```kdl
+binds {
+    Mod+Space { spawn "morph-shell" "ipc" "call" "launcher" "toggle"; }
+    Mod+V { spawn "morph-shell" "ipc" "call" "clipboard" "toggle"; }
+    Mod+Period { spawn "morph-shell" "ipc" "call" "emoji" "toggle"; }
+}
 ```
 
 When running from a checkout (`morph-run`), point `qs` at the working
@@ -406,7 +424,7 @@ while a bar panel is open.
 | --- | --- |
 | Microphone | A capture stream is fed from a real input in PipeWire. Recording an output's sound (the screen recorder with sound, the mixer's meters) doesn't count. |
 | Camera | A process has a `/dev/video*` device open, checked every two seconds, or a PipeWire stream is fed from a camera. |
-| Screen share | A PipeWire video stream is fed from something other than a camera: on Hyprland, a portal screen cast to a browser, Discord or OBS. The shell's own screen recorder has its dot beside the clock instead. |
+| Screen share | A PipeWire video stream is fed from something other than a camera: a portal screen cast to a browser, Discord or OBS. The shell's own screen recorder has its dot beside the clock instead. |
 
 ## OSD
 
@@ -419,7 +437,7 @@ Whatever just changed shows for a moment over the dock, on every screen:
 | Microphone | The default input is muted or unmuted. |
 | Caps Lock | Caps Lock goes on or off, read from the keyboards' LEDs. |
 | Stay awake | Staying awake is turned on or off (see [Idle](#idle)). |
-| Keyboard layout | The layout switches (Hyprland only). |
+| Keyboard layout | The layout switches (Hyprland and niri only). |
 | Power profile | The power profile changes. |
 
 It is one blob: it rises out of the bottom edge as a drop and spreads
@@ -473,7 +491,7 @@ ones you're most likely to want:
 | `idle.dimTo` | `0.3` | What the dim takes the backlight to, as a share of where it was. |
 | `idle.lock` | `300` | Seconds idle before the session locks; `0` never locks when idle. |
 | `idle.lockBeforeSleep` | `true` | Lock as the machine goes to sleep. |
-| `idle.screenOff` | `420` | Seconds idle before the screens turn off (Hyprland only); `0` leaves them on. |
+| `idle.screenOff` | `420` | Seconds idle before the screens turn off (Hyprland and niri only); `0` leaves them on. |
 | `osd.timeout` | `1500` | Milliseconds the OSD stays up after what it shows last changed. |
 | `notifs.maxPopups` | `4` | Popups shown at once; older ones wait in the centre. |
 | `font.family` | `"JetBrains Mono"` | Text font. |
@@ -523,7 +541,7 @@ alone, the session
 1. dims the backlight to 30% after 4½ minutes, a warning that the lock
    is coming,
 2. locks after 5 minutes,
-3. turns the screens off after 7 minutes (Hyprland only).
+3. turns the screens off after 7 minutes (Hyprland and niri only).
 
 Any input undoes the dim and turns the screens back on. The times are
 in [Configuration](#configuration), and each step can be turned off.
@@ -587,7 +605,7 @@ before it closes the menu.
 
 The command runs once the menu has faded out. Lock goes through
 `loginctl lock-session`. Log out uses `hyprctl dispatch exit` on
-Hyprland. Elsewhere it ends the session with
+Hyprland and `niri msg action quit --skip-confirmation` on niri. Elsewhere it ends the session with
 `loginctl terminate-session`, or, when the shell has no session id (as
 a systemd user service), ends all of your sessions with
 `loginctl terminate-user`.
@@ -607,8 +625,9 @@ it, or its Edit button, opens the file in `satty`. The notification
 stays in the centre after the popup goes, and Edit still works from
 there.
 
-The picker snaps to windows through Hyprland's IPC. Elsewhere it still
-works, but only by dragging or taking the whole screen.
+The picker snaps to windows through Hyprland's IPC. Elsewhere, niri
+included, it still works, but only by dragging or taking the whole
+screen.
 
 ```
 bind = , Print, exec, morph-shell ipc call screenshot region
@@ -663,8 +682,8 @@ itself, so no blur rule is needed in Hyprland, and one would only pop in
 underneath.
 
 The grid's shape and how much of the screen it takes are set in
-`config/OverviewConfig.qml`. It needs Hyprland: elsewhere it
-opens empty.
+`config/OverviewConfig.qml`. It needs Hyprland: on niri the same
+IPC calls open niri's own overview, and elsewhere they do nothing.
 
 ```
 bind = SUPER, Tab, exec, morph-shell ipc call overview toggle
