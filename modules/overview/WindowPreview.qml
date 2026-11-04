@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.components
@@ -14,7 +13,8 @@ import qs.services.launcher
 ClippingRectangle {
     id: root
 
-    required property HyprlandToplevel toplevel
+    // Hyprland's toplevel, for its IPC object and its Wayland handle.
+    required property var toplevel
 
     readonly property bool dragging: area.drag.active
 

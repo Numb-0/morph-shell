@@ -3,12 +3,11 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Effects
 import Quickshell
-import Quickshell.Hyprland
-import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.components
 import qs.config
+import qs.services.compositor
 import qs.states
 
 // One screen's overview: the workspaces in use, as a grid of small
@@ -30,7 +29,7 @@ MouseArea {
     // which workspace this screen shows. Nothing of the overview is
     // drawn before then, so the capture is of the screen alone and the
     // selection starts on the workspace on screen, not on the first.
-    readonly property bool ready: frame.hasContent && monitors.length > 0
+    readonly property bool ready: frame.hasContent && Hypr.monitors.length > 0
     readonly property bool up: shown && ready
 
     // Asked to close, and then to do something once it has: switching
@@ -39,11 +38,9 @@ MouseArea {
     // window to its workspace.
     signal dismissed(var after)
 
-    readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)
-
     // The workspace this screen shows. From hyprctl first, since the
     // monitor's own activeWorkspace does not always fill in.
-    readonly property int activeId: monitorInfo(screen.name)?.activeWorkspace?.id ?? monitor?.activeWorkspace?.id ?? 1
+    readonly property int activeId: Hypr.shownWorkspaceOn(screen.name, false) ?? 1
 
     // The workspaces in use, the one on screen among them even when it
     // is empty, then the first free one.
@@ -147,24 +144,10 @@ MouseArea {
     readonly property real cellWidth: Math.min((width * Config.overview.maxWidth - inset * 2 - gap * (fitColumns - 1)) / fitColumns, (height * Config.overview.maxHeight - inset * 2 - gap * (fitRows - 1)) / fitRows * aspect)
     readonly property real cellHeight: cellWidth / aspect
 
-    // Hyprland's monitors, for where each window's monitor sits and how
-    // big it is.
-    property var monitors: []
-
-    function monitorInfo(name: string): var {
-        return monitors.find(m => m.name === name) ?? null;
-    }
-
-    // A monitor's logical bounds: hyprctl gives the position in logical
-    // pixels already, but the size in real ones and before rotation.
+    // Where a window's monitor sits and how big it is, this screen
+    // standing in for one not known.
     function bounds(id: int): rect {
-        const m = monitors.find(m => m.id === id);
-        if (!m)
-            return Qt.rect(screen.x, screen.y, screen.width, screen.height);
-        const turned = m.transform % 2 === 1;
-        const w = (turned ? m.height : m.width) / m.scale;
-        const h = (turned ? m.width : m.height) / m.scale;
-        return Qt.rect(m.x, m.y, w, h);
+        return Hypr.monitorBounds(id) ?? Qt.rect(screen.x, screen.y, screen.width, screen.height);
     }
 
     function cellX(id: int): real {
@@ -192,61 +175,44 @@ MouseArea {
     }
 
     function focusWindow(address: string): void {
-        dismissed(() => Hyprland.dispatch(`hl.dsp.focus({ window = "address:${address}" })`));
+        dismissed(() => Hypr.focusWindow(address));
     }
 
     function moveWindow(address: string, id: int): void {
-        Hyprland.dispatch(`hl.dsp.window.move({ workspace = "${id}", follow = false, window = "address:${address}" })`);
+        Hypr.moveWindow(address, id);
     }
 
     // The windows in the workspaces shown, as Hyprland's toplevels so
     // each keeps its preview while it moves about. Tiled ones first so
     // floating and fullscreen ones are drawn over them.
-    readonly property var windows: Hyprland.toplevels.values.filter(t => {
+    readonly property var windows: Hypr.toplevels.filter(t => {
         const ipc = t.lastIpcObject;
         return ipc?.at && ipc?.size && ipc.mapped && !ipc.hidden && ids.includes(ipc.workspace?.id);
     }).sort((a, b) => (a.lastIpcObject.fullscreen !== 0) - (b.lastIpcObject.fullscreen !== 0) || a.lastIpcObject.floating - b.lastIpcObject.floating)
 
-    Component.onCompleted: selected = activeId
-
     // Kept up to date while open, so a window moved or closed from here
-    // or elsewhere shows where it went. Events come in bursts; one
-    // refresh after the last does for the lot.
+    // or elsewhere shows where it went.
+    Component.onCompleted: {
+        Hypr.watch();
+        selected = activeId;
+        seeded = Hypr.monitors.length > 0;
+    }
+    Component.onDestruction: Hypr.unwatch()
+
+    // Hyprland's monitors may only come in after this has, at the
+    // shell's start: the selection starts on the workspace on screen
+    // once they do.
     Connections {
-        target: Hyprland
+        target: Hypr
 
-        function onRawEvent(event: HyprlandEvent): void {
-            if (!event.name.startsWith("activewindow"))
-                refresh.restart();
+        function onMonitorsChanged(): void {
+            if (!root.seeded)
+                root.selected = root.activeId;
+            root.seeded = true;
         }
     }
 
-    Timer {
-        id: refresh
-
-        interval: 40
-        onTriggered: {
-            Hyprland.refreshToplevels();
-            monitorsQuery.running = true;
-        }
-    }
-
-    Process {
-        id: monitorsQuery
-
-        running: true
-        command: ["hyprctl", "monitors", "-j"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const first = root.monitors.length === 0;
-                    root.monitors = JSON.parse(text);
-                    if (first)
-                        root.selected = root.activeId;
-                } catch (e) {}
-            }
-        }
-    }
+    property bool seeded: false
 
     anchors.fill: parent
     hoverEnabled: true
@@ -516,7 +482,7 @@ MouseArea {
                 WindowPreview {
                     id: preview
 
-                    required property HyprlandToplevel modelData
+                    required property var modelData
 
                     toplevel: modelData
 

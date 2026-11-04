@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.services.compositor
@@ -49,7 +48,7 @@ Scope {
         pending = "";
         keyScreen = Compositor.focusedScreen;
         if (Compositor.hasWindowLayout)
-            Hyprland.refreshToplevels();
+            Hypr.refresh();
         active = true;
     }
 

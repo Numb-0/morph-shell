@@ -2,8 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
-import Quickshell.Io
 import qs.components
 import qs.config
 import qs.services.compositor
@@ -48,7 +46,7 @@ MouseArea {
         if (wsId === undefined || !Compositor.hasWindowLayout)
             return [];
 
-        return Hyprland.toplevels.values.map(t => t.lastIpcObject).filter(ipc => ipc?.at && ipc?.size && ipc.mapped && !ipc.hidden && (ipc.workspace?.id === wsId || ipc.pinned)).sort((a, b) => (b.pinned - a.pinned) || ((b.fullscreen !== 0) - (a.fullscreen !== 0)) || (b.floating - a.floating)).map(ipc => clip(ipc.at[0] - screen.x, ipc.at[1] - screen.y, ipc.size[0], ipc.size[1]));
+        return Hypr.toplevels.map(t => t.lastIpcObject).filter(ipc => ipc?.at && ipc?.size && ipc.mapped && !ipc.hidden && (ipc.workspace?.id === wsId || ipc.pinned)).sort((a, b) => (b.pinned - a.pinned) || ((b.fullscreen !== 0) - (a.fullscreen !== 0)) || (b.floating - a.floating)).map(ipc => clip(ipc.at[0] - screen.x, ipc.at[1] - screen.y, ipc.size[0], ipc.size[1]));
     }
 
     // Cut to the screen: a window hanging off the edge is only captured
@@ -162,43 +160,28 @@ MouseArea {
     Keys.onEscapePressed: cancelled()
 
     // The workspace this screen is showing, the special one when it is
-    // open over the rest, and the screen's scale. Read from hyprctl
-    // rather than from the monitor's activeWorkspace and lastIpcObject,
-    // which never fill in on some Hyprland versions and left every click
-    // taking the whole screen.
-    property var wsId
-    property real monitorScale: screen?.devicePixelRatio ?? 1
-
-    Process {
-        running: Compositor.isHyprland
-        command: ["hyprctl", "monitors", "-j"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const mon = JSON.parse(text).find(m => m.name === root.screen.name);
-                    if (!mon)
-                        return;
-                    root.wsId = mon.specialWorkspace?.name ? mon.specialWorkspace.id : mon.activeWorkspace?.id;
-                    root.monitorScale = mon.scale ?? 1;
-                } catch (e) {}
-            }
-        }
-    }
+    // open over the rest, and the screen's scale. From hyprctl, as the
+    // windows' places are: the monitor's own activeWorkspace never fills
+    // in on some Hyprland versions and left every click taking the whole
+    // screen.
+    readonly property var wsId: Hypr.shownWorkspaceOn(screen.name, true)
+    readonly property real monitorScale: Hypr.monitorNamed(screen.name)?.scale ?? screen?.devicePixelRatio ?? 1
 
     // The pointer's position before it has moved, so the outline is
     // there from the first frame rather than waiting on a wiggle.
-    Process {
-        running: Compositor.isHyprland
-        command: ["hyprctl", "cursorpos", "-j"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const pos = JSON.parse(text);
-                    if (root.pointerX < 0) {
-                        root.pointerX = pos.x - root.screen.x;
-                        root.pointerY = pos.y - root.screen.y;
-                    }
-                } catch (e) {}
+    Component.onCompleted: {
+        Hypr.watch();
+        Hypr.queryCursor();
+    }
+    Component.onDestruction: Hypr.unwatch()
+
+    Connections {
+        target: Hypr
+
+        function onCursorRead(x: real, y: real): void {
+            if (root.pointerX < 0) {
+                root.pointerX = x - root.screen.x;
+                root.pointerY = y - root.screen.y;
             }
         }
     }

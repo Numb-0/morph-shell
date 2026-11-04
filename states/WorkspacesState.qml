@@ -2,7 +2,6 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import qs.services.compositor
 
 // The workspaces, once for the session, as numbered slots on a screen:
@@ -16,32 +15,10 @@ import qs.services.compositor
 Singleton {
     id: root
 
-    // Window count by workspace id, for Hyprland's named ones only:
-    // special workspaces have negative ids and live outside the row.
-    readonly property var hyprWindows: {
-        const out = {};
-        if (!Compositor.isHyprland)
-            return out;
-        for (const ws of Hyprland.workspaces.values)
-            if (ws.id > 0)
-                out[ws.id] = ws.toplevels.values.length;
-        return out;
-    }
-
-    readonly property var hyprUrgent: {
-        const out = {};
-        if (!Compositor.isHyprland)
-            return out;
-        for (const ws of Hyprland.workspaces.values)
-            if (ws.id > 0 && ws.urgent)
-                out[ws.id] = true;
-        return out;
-    }
-
     // Window count by slot on the given screen.
     function windowsOn(output: string): var {
         if (!Compositor.isNiri)
-            return hyprWindows;
+            return Hypr.workspaceWindows;
         const counts = {};
         for (const w of Niri.windows)
             counts[w.workspace_id] = (counts[w.workspace_id] ?? 0) + 1;
@@ -53,7 +30,7 @@ Singleton {
 
     function urgentOn(output: string): var {
         if (!Compositor.isNiri)
-            return hyprUrgent;
+            return Hypr.urgentWorkspaces;
         const out = {};
         for (const ws of Niri.workspacesOn(output))
             if (ws.is_urgent || Niri.windows.some(w => w.workspace_id === ws.id && w.is_urgent))
@@ -76,21 +53,18 @@ Singleton {
         if (Compositor.isNiri)
             return Niri.workspacesOn(output).find(ws => ws.is_active)?.idx ?? 1;
         if (Compositor.isHyprland)
-            return Hyprland.monitors.values.find(m => m.name === output)?.activeWorkspace?.id ?? 1;
+            return Hypr.activeWorkspaceOn(output) ?? 1;
         return 1;
     }
 
-    // Opens a slot on the given screen. Hyprland puts a new workspace on
-    // the focused monitor, so focus moves there first; one that already
-    // lives on another monitor is still followed there, as the keybinds
-    // do. One expression, since that is all a dispatch takes.
+    // Opens a slot on the given screen.
     function goTo(output: string, id: int): void {
         if (output === "")
             return;
         if (Compositor.isNiri)
             Niri.focusWorkspace(output, id);
         else if (Compositor.isHyprland)
-            Hyprland.dispatch(`(function() hl.dispatch(hl.dsp.focus({ monitor = "${output}" })) return hl.dsp.focus({ workspace = "${id}" }) end)()`);
+            Hypr.focusWorkspace(output, id);
     }
 
     // Steps through the slots in use from the one the given screen

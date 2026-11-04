@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
 import Morph.Components
 import qs.components
@@ -92,18 +91,15 @@ MouseArea {
 
     // The pointer's position before it has moved, so the lens is there
     // from the first frame rather than waiting on a wiggle.
-    Process {
-        running: Compositor.isHyprland
-        command: ["hyprctl", "cursorpos", "-j"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const pos = JSON.parse(text);
-                    if (root.pointerX < 0) {
-                        root.pointerX = pos.x - root.screen.x;
-                        root.pointerY = pos.y - root.screen.y;
-                    }
-                } catch (e) {}
+    Component.onCompleted: Hypr.queryCursor()
+
+    Connections {
+        target: Hypr
+
+        function onCursorRead(x: real, y: real): void {
+            if (root.pointerX < 0) {
+                root.pointerX = x - root.screen.x;
+                root.pointerY = y - root.screen.y;
             }
         }
     }

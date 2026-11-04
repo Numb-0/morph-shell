@@ -14,9 +14,12 @@ it on one of them.
 Most of the shell runs on any Wayland compositor that supports the
 layer-shell protocol (so not GNOME). A few features talk to the
 compositor directly: to Hyprland through Quickshell's Hyprland
-integration, and to niri through its IPC socket (`$NIRI_SOCKET`). Both
+integration and hyprctl, kept in `services/compositor/Hypr.qml`, and to
+niri through its IPC socket (`$NIRI_SOCKET`), kept in
+`services/compositor/Niri.qml`. The questions every compositor answers
 sit behind one service, `services/compositor/Compositor.qml`, so the
-rest of the shell asks the same questions either way.
+rest of the shell asks them the same way either way; only the focus
+grabs that close panels on Hyprland stay with the panels themselves.
 
 | Feature | On Hyprland | On niri | Elsewhere |
 | --- | --- | --- | --- |

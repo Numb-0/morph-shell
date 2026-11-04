@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import qs.config
@@ -39,7 +38,7 @@ Scope {
         leaving = false;
         unload.stop();
         keyScreen = Compositor.focusedScreen;
-        Hyprland.refreshToplevels();
+        Hypr.refresh();
         active = true;
         shown = true;
     }
