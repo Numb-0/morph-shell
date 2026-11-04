@@ -328,7 +328,13 @@ Scope {
             // out as if the dock were not there -- unless it is pinned,
             // when it keeps its own strip of the screen and windows tile
             // above it rather than under it.
-            implicitHeight: dockMargin + dockHeight + Config.dock.launcherHeight + 60
+            //
+            // The full height of the screen, as the bar is, so the
+            // dismiss area below can cover it all. Sized once rather than
+            // to the open panel, since a layer surface resize waits on
+            // the compositor and would stall the morph. The mask keeps
+            // the empty part clicking through.
+            implicitHeight: modelData.height
             exclusiveZone: DockState.pinned ? dockMargin + dockHeight : 0
 
             anchors {
@@ -362,6 +368,38 @@ Scope {
             // including, while a panel is open, the panel.
             mask: Region {
                 item: hitArea
+
+                Region {
+                    item: dismissArea
+                }
+            }
+
+            // Off Hyprland, closes the open panel on a click anywhere else
+            // on this screen, as the bar's does. While a panel is open it
+            // spans the whole surface and is part of the mask, so the rest
+            // of the screen stops clicking through; it sits below
+            // everything else, so the dock and the panel still get their
+            // own clicks first. The click that closes is swallowed rather
+            // than passed on to the window underneath.
+            MouseArea {
+                id: dismissArea
+
+                readonly property bool armed: !root.onHyprland && win.panelOpen
+
+                width: armed ? win.width : 0
+                height: armed ? win.height : 0
+
+                acceptedButtons: Qt.AllButtons
+                onPressed: mouse => {
+                    // The hit area is the dock's own: its tap handler
+                    // closes on a click there outside the shape.
+                    if (mouse.y >= win.height - hitArea.height) {
+                        mouse.accepted = false;
+                        return;
+                    }
+
+                    root.close("");
+                }
             }
 
             // Only ever grows under a pointer already inside and shrinks
